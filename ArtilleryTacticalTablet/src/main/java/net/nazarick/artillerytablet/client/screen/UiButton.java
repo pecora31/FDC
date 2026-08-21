@@ -287,21 +287,24 @@ public class UiButton {
                     }
                 }
             }
-            case POWER -> { // ring with a bar through the top
-                int r = Math.max(6, Math.round(w * (8.5f / 44)));
-                int barH = Math.max(5, Math.round(w * (7.5f / 44)));
-                p.fill(cx - 1, cy - r - 1, cx + 2, cy - r - 1 + barH, color);
+            case POWER -> { // ring with a slender bar through the top, perfectly centered
+                int r = Math.max(5, Math.round(w * (7.5f / 44)));
+                int barH = Math.max(4, Math.round(w * (6.5f / 44)));
+                int barHalfW = (w >= 36) ? 1 : 0;
 
-                int ringThick = Math.max(1, Math.round(w * (1.6f / 44)));
+                // Slender centered vertical bar (thinner by ~2px)
+                p.fill(cx - barHalfW, cy - r, cx + barHalfW + 1, cy - r + barH, color);
+
+                int ringThick = Math.max(1, Math.round(w * (1.5f / 44)));
                 float rIn2 = (float) (r - ringThick) * (r - ringThick);
                 float rOut2 = (float) r * r;
-                int gapHalfW = Math.round(w * (4f / 44));
+                int gapHalfW = Math.max(1, Math.round(w * (2.5f / 44)));
 
                 for (int dy = -r; dy <= r; dy++) {
                     for (int dx = -r; dx <= r; dx++) {
                         float d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -0.2f * r && Math.abs(dx) <= gapHalfW) {
+                            if (dy < -0.3f * r && Math.abs(dx) <= gapHalfW) {
                                 continue;
                             }
                             p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
