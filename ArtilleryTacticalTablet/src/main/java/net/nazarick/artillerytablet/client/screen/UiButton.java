@@ -21,47 +21,47 @@ public class UiButton {
     /** Almost transparent, so the map stays faintly visible behind a key. */
     private static final int BACKGROUND = 0xB0141A21;
 
-    // Injection-moulded matte PBT key (light ash grey polymer) — authentic MFD palette.
-    private static final int COL_BTN_DROP_SHADOW = 0xAA020203;
-    private static final int COL_BTN_BORDER_DARK = 0xFF0E1014;
-    private static final int COL_BTN_WALL_EXTRUSION = 0xFF282B32;
-    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF727886;
-    private static final int COL_BTN_SHOULDER_HOVER = 0xFF8A90A0;
+    // Injection-moulded matte PBT key (ash grey polymer) — authentic MFD palette matching Image 1.
+    private static final int COL_BTN_DROP_SHADOW = 0x88040508;
+    private static final int COL_BTN_BORDER_DARK = 0xFF101216;
+    private static final int COL_BTN_WALL_EXTRUSION = 0xFF2A2D36;
+    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF565C6A;
+    private static final int COL_BTN_SHOULDER_HOVER = 0xFF6E7688;
     private static final int COL_BTN_SHOULDER_PRESSED = 0xFF22252C;
-    private static final int COL_BTN_RIM_TOP = 0xFF585D6A;
-    private static final int COL_BTN_RIM_TOP_PRESSED = 0xFF2A2D35;
-    private static final int COL_BTN_DISH_BASE = 0xFF4A4E5A;
-    private static final int COL_BTN_DISH_HOVER = 0xFF585E6C;
-    private static final int COL_BTN_DISH_PRESSED = 0xFF2E313A;
-    private static final int COL_BTN_DISH_SHADOW = 0xFF363942;
-    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF1C1E24;
-    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF666C7C;
-    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF3C404C;
+    private static final int COL_BTN_RIM_TOP = 0xFF4A4E5C;
+    private static final int COL_BTN_RIM_TOP_PRESSED = 0xFF22252C;
+    private static final int COL_BTN_DISH_BASE = 0xFF3A3E48;
+    private static final int COL_BTN_DISH_HOVER = 0xFF484D5A;
+    private static final int COL_BTN_DISH_PRESSED = 0xFF24262E;
+    private static final int COL_BTN_DISH_SHADOW = 0xFF22242B;
+    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF16181E;
+    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF525868;
+    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF343844;
     private static final int COL_BTN_TEXT = 0xFFFFFFFF;
     private static final int COL_BTN_TEXT_PRESSED = 0xFFB0B4BC;
 
     // Bright tactical crimson key — CFF and POWER.
-    private static final int COL_RED_BORDER_DARK = 0xFF1A0303;
-    private static final int COL_RED_WALL_EXTRUSION = 0xFF480A0A;
-    private static final int COL_RED_SHOULDER_LIGHT = 0xFFC82A2A;
-    private static final int COL_RED_SHOULDER_HOVER = 0xFFE83A3A;
-    private static final int COL_RED_SHOULDER_PRESSED = 0xFF400606;
-    private static final int COL_RED_RIM_TOP = 0xFF9E1C1C;
-    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF3C0606;
-    private static final int COL_RED_DISH_BASE = 0xFF881818;
-    private static final int COL_RED_DISH_HOVER = 0xFFA82222;
-    private static final int COL_RED_DISH_PRESSED = 0xFF4E0A0A;
-    private static final int COL_RED_DISH_SHADOW = 0xFF540C0C;
-    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF200303;
-    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFB82828;
-    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF581010;
+    private static final int COL_RED_BORDER_DARK = 0xFF180303;
+    private static final int COL_RED_WALL_EXTRUSION = 0xFF440808;
+    private static final int COL_RED_SHOULDER_LIGHT = 0xFFC82424;
+    private static final int COL_RED_SHOULDER_HOVER = 0xFFE63030;
+    private static final int COL_RED_SHOULDER_PRESSED = 0xFF360404;
+    private static final int COL_RED_RIM_TOP = 0xFF9E1818;
+    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF360404;
+    private static final int COL_RED_DISH_BASE = 0xFF7A1212;
+    private static final int COL_RED_DISH_HOVER = 0xFF961818;
+    private static final int COL_RED_DISH_PRESSED = 0xFF400606;
+    private static final int COL_RED_DISH_SHADOW = 0xFF480606;
+    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF1C0202;
+    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFA41E1E;
+    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF500808;
     private static final int COL_RED_TEXT = 0xFFFFFFFF;
     private static final int COL_RED_TEXT_PRESSED = 0xFFC0C0C0;
 
     // Smoked-lens LED, on the bezel beside a key.
-    private static final int LED_LIT_GOOD = 0xFF00FF66;
-    private static final int LED_LIT_DANGER = 0xFFFF3333;
-    private static final int LED_LIT_POWER = 0xFFFFB300;
+    private static final int LED_LIT_GOOD = 0xFF00E65A;
+    private static final int LED_LIT_DANGER = 0xFFFF2A2A;
+    private static final int LED_LIT_POWER = 0xFFFFB000;
 
     public final int x;
     public final int y;
@@ -211,46 +211,40 @@ public class UiButton {
         if (led == null) {
             return;
         }
-        int litColour = danger ? LED_LIT_DANGER : power ? LED_LIT_POWER : LED_LIT_GOOD;
-        boolean isLit = hardOn;
+        int x1 = led[0], y1 = led[1], w = led[2], h = led[3];
+        int x2 = x1 + w, y2 = y1 + h;
 
-        int x1 = led[0], y1 = led[1], x2 = x1 + led[2], y2 = y1 + led[3];
-        int w = led[2], h = led[3];
-        if (w <= 0 || h <= 0) {
-            return;
-        }
+        boolean isLit = hardOn;
+        int litColour = danger ? LED_LIT_DANGER : power ? LED_LIT_POWER : LED_LIT_GOOD;
 
         if (isLit) {
-            // 1. Precise Socket Hole (Khuôn hốc gọn gàng)
-            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF040507);
-
-            // 2. Phosphor Bloom Halo (Quầng sáng phốt pho tỏa 1px)
-            int glow = 0x44000000 | (litColour & 0x00FFFFFF);
+            // 1. Phosphor Bloom Halo (Quầng sáng phốt pho 1px tỏa rộng ra ngoài)
+            int glow = 0x55000000 | (litColour & 0x00FFFFFF);
             p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, glow);
 
-            // 3. Vivid Semiconductor Diode Core (Thân bóng LED phát quang)
+            // 2. Vivid Semiconductor Diode Body
             p.fill(x1, y1, x2, y2, litColour);
 
-            // 4. Specular White Core (Lõi sáng trắng bán dẫn)
-            if (w >= 3 && h >= 4) {
+            // 3. Specular White Core Dot/Line
+            if (h >= 4) {
                 p.fill(x1 + w / 2, y1 + 1, x1 + w / 2 + 1, y2 - 1, 0xFFFFFFFF);
-            } else if (w >= 4 && h >= 3) {
+            } else if (w >= 4) {
                 p.fill(x1 + 1, y1 + h / 2, x2 - 1, y1 + h / 2 + 1, 0xFFFFFFFF);
-            } else if (w >= 2 && h >= 2) {
+            } else {
                 p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Compact Translucent Smoked Glass Lens (Gọn gàng đúng kích thước, kính trong hơn)
-            p.fill(x1, y1, x2, y2, 0xFF0E1015); // Socket slot border
+            // 1. Thin Dark Recess Socket Border (Viền đen mỏng xung quanh hốc chìm)
+            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF0A0B0E);
 
-            if (w >= 2 && h >= 2) {
-                // Clearer smoked optical glass body
-                p.fill(x1, y1, x2, y2, 0xFF222834);
-                // Top glass reflection highlight
-                p.fill(x1, y1, x2, y1 + 1, 0xFF58667C);
-                // Bottom inner glass shadow
-                p.fill(x1, y2 - 1, x2, y2, 0xFF0E1116);
-            }
+            // 2. Smoked optical glass diode body
+            p.fill(x1, y1, x2, y2, 0xFF222834);
+
+            // 3. Top glass reflection sheen (1px)
+            p.fill(x1, y1, x2, y1 + 1, 0xFF4A5468);
+
+            // 4. Bottom inner shadow (1px)
+            p.fill(x1, y2 - 1, x2, y2, 0xFF101318);
         }
     }
 
@@ -269,96 +263,65 @@ public class UiButton {
                 p.fill(cx - 1, cy - s, cx + 1, cy + s + 1, color);
                 fillCircle(p, cx, cy, Math.max(1, Math.round(w * (2.5f / 44))), color);
             }
-            case BRIGHT -> { // sun and rays
-                int r = Math.max(3, Math.round(w * (4.5f / 44)));
-                fillCircle(p, cx, cy, r, color);
-                int rayLen = Math.max(3, Math.round(w * (4f / 44)));
-                p.fill(cx - r - rayLen, cy - 1, cx + r + rayLen + 1, cy + 1, color);
-                p.fill(cx - 1, cy - r - rayLen, cx + 1, cy + r + rayLen + 1, color);
+            case BRIGHT -> { // 8-pointed star / sun
+                int s = Math.max(4, Math.round(w * (6.5f / 44)));
+                p.fill(cx - s, cy, cx + s + 1, cy + 1, color);
+                p.fill(cx, cy - s, cx + 1, cy + s + 1, color);
+                int d = Math.max(2, Math.round(s * 0.7f));
+                p.fill(cx - d, cy - d, cx - d + 1, cy - d + 1, color);
+                p.fill(cx + d, cy - d, cx + d + 1, cy - d + 1, color);
+                p.fill(cx - d, cy + d, cx - d + 1, cy + d + 1, color);
+                p.fill(cx + d, cy + d, cx + d + 1, cy + d + 1, color);
+                fillCircle(p, cx, cy, Math.max(1, Math.round(w * (2f / 44))), color);
             }
-            case NIGHT -> { // diamond outline
+            case NIGHT -> { // diamond
                 int s = Math.max(4, Math.round(w * (6f / 44)));
                 for (int dy = -s; dy <= s; dy++) {
-                    for (int dx = -s; dx <= s; dx++) {
-                        int m = Math.abs(dx) + Math.abs(dy);
-                        if (m <= s && m >= s - 2) {
-                            p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
-                        }
-                    }
+                    int span = s - Math.abs(dy);
+                    p.fill(cx - span, cy + dy, cx + span + 1, cy + dy + 1, color);
                 }
             }
-            case POWER -> { // ring with a slender bar through the top, perfectly centered
-                int r = Math.max(5, Math.round(w * (7.5f / 44)));
-                int barH = Math.max(4, Math.round(w * (6.5f / 44)));
-                int barHalfW = (w >= 36) ? 1 : 0;
+            case POWER -> { // IEC 60417-5009 standby symbol (slender power bar & ring)
+                int radius = Math.max(4, Math.round(w * (6.5f / 44)));
+                int ringThick = Math.max(1, Math.round(w * (1.8f / 44)));
+                int gapHalfAngleDeg = 28;
 
-                // Slender centered vertical bar (thinner by ~2px)
-                p.fill(cx - barHalfW, cy - r, cx + barHalfW + 1, cy - r + barH, color);
+                drawAARingArc(p, cx, cy, radius, ringThick, gapHalfAngleDeg, color);
 
-                int ringThick = Math.max(1, Math.round(w * (1.5f / 44)));
-                float rIn2 = (float) (r - ringThick) * (r - ringThick);
-                float rOut2 = (float) r * r;
-                int gapHalfW = Math.max(1, Math.round(w * (2.5f / 44)));
-
-                for (int dy = -r; dy <= r; dy++) {
-                    for (int dx = -r; dx <= r; dx++) {
-                        float d2 = dx * dx + dy * dy;
-                        if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -0.3f * r && Math.abs(dx) <= gapHalfW) {
-                                continue;
-                            }
-                            p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
-                        }
-                    }
-                }
+                int barHalfW = (w <= 24) ? 0 : Math.max(0, Math.round(w * (1.0f / 44)) / 2);
+                int barTop = cy - radius - Math.max(1, Math.round(w * (1.5f / 44)));
+                int barBottom = cy + Math.max(1, Math.round(w * (1.2f / 44)));
+                p.fill(cx - barHalfW, barTop, cx + barHalfW + 1, barBottom, color);
             }
-            default -> { }
+            default -> {}
         }
     }
 
-    /**
-     * A filled rounded rectangle whose curve is antialiased, unlike {@link Paint#rounded}'s hard
-     * pixel test.
-     *
-     * <p>Straight edges stay three big rectangle fills — cheap, and there is nothing to smooth
-     * about a straight line. Only the four corner boxes pay for the per-pixel signed-distance
-     * coverage test, so this costs about the same number of draw calls as the plain version it
-     * replaces; what changes is the handful of corner pixels getting a soft edge instead of a
-     * staircase. Doing this at draw time rather than baking it once was the whole point of not
-     * porting the prototype's atlas approach — a key still has to look right while it moves.
-     */
-    private static void fillRoundedAA(Paint p, int x, int y, int w, int h, float radius, int argb) {
-        int ir = Math.max(1, Math.round(radius));
-        ir = Math.min(ir, Math.min(w, h) / 2);
-        if (ir <= 0) {
-            p.rect(x, y, w, h, argb);
-            return;
-        }
-        p.rect(x + ir, y, w - ir * 2, h, argb);
-        p.rect(x, y + ir, ir, h - ir * 2, argb);
-        p.rect(x + w - ir, y + ir, ir, h - ir * 2, argb);
-        aaCorner(p, x, y, ir, radius, false, false, argb);
-        aaCorner(p, x + w - ir, y, ir, radius, true, false, argb);
-        aaCorner(p, x, y + h - ir, ir, radius, false, true, argb);
-        aaCorner(p, x + w - ir, y + h - ir, ir, radius, true, true, argb);
-    }
-
-    private static void aaCorner(Paint p, int bx, int by, int box, float radius, boolean right, boolean bottom, int argb) {
-        float cx = right ? bx : bx + radius;
-        float cy = bottom ? by : by + radius;
+    private static void drawAARingArc(Paint p, int cx, int cy, int radius, int thickness, int gapAngleDeg, int argb) {
+        int box = radius + 2;
+        int bx = cx - box, by = cy - box;
+        int rOut = radius;
+        int rIn = radius - thickness;
         int maxAlpha = (argb >>> 24) & 0xFF;
         int rgb = argb & 0x00FFFFFF;
-        for (int dy = 0; dy < box; dy++) {
-            for (int dx = 0; dx < box; dx++) {
-                int px = bx + dx, py = by + dy;
-                float ddx = (px + 0.5f) - cx;
-                float ddy = (py + 0.5f) - cy;
-                float dist = (float) Math.sqrt(ddx * ddx + ddy * ddy) - radius;
-                if (dist <= 0.5f) {
-                    float cov = Math.max(0f, Math.min(1f, 0.5f - dist));
-                    int a = Math.round(cov * maxAlpha);
-                    if (a > 0) {
-                        p.fill(px, py, px + 1, py + 1, (a << 24) | rgb);
+
+        for (int dy = -box; dy <= box; dy++) {
+            for (int dx = -box; dx <= box; dx++) {
+                int px = cx + dx, py = cy + dy;
+                float dist = (float) Math.sqrt(dx * dx + dy * dy);
+                if (dist >= rIn - 0.5f && dist <= rOut + 0.5f) {
+                    double angleDeg = Math.toDegrees(Math.atan2(dx, -dy));
+                    if (Math.abs(angleDeg) > gapAngleDeg) {
+                        float cov = 1.0f;
+                        if (dist > rOut - 0.5f) {
+                            cov = Math.max(0f, Math.min(1f, rOut + 0.5f - dist));
+                        } else if (dist < rIn + 0.5f) {
+                            cov = Math.max(0f, Math.min(1f, dist - (rIn - 0.5f)));
+                        }
+                        int a = Math.round(cov * maxAlpha);
+                        if (a > 0) {
+                            p.fill(px, py, px + 1, py + 1, (a << 24) | rgb);
+                        }
                     }
                 }
             }
@@ -392,17 +355,6 @@ public class UiButton {
                 ModSounds.TACTICAL_KEY_PRESS.get(), hard ? 0.62f : 1.15f, hard ? 2.20f : 0.30f));
     }
 
-    /**
-     * Draws this as a key on the case rather than a control on the glass.
-     *
-     * <p>A moulded cap: a shadow under it, a lit edge along its top and a dark one along its foot.
-     * Those three are the whole of what makes a shape read as standing proud of what it sits on, and
-     * they matter here because the thing they sit on is drawn to look like a case. A flat square
-     * beside a moulded shell reads as a hole in it.
-     *
-     * <p>Takes the same argument as {@link #mfd(boolean)} and means the same thing by it, so a key
-     * can move between the glass and the case without its state changing meaning on the way.
-     */
     public UiButton hard(boolean on) {
         this.hard = true;
         this.hardOn = on;
@@ -415,83 +367,26 @@ public class UiButton {
     private Component sub;
     private int[] led;
 
-    /**
-     * Gives this key a lamp on the bezel, at a place the case decided.
-     *
-     * <p>State used to be carried by the cap — a green border when the thing behind the key was on.
-     * That was the device arguing with itself: a moulded key is a physical fact and should not
-     * change colour to report something, yet something has to report it. A lamp is what real panels
-     * use and it settles both halves, because a lamp is a separate part. The cap can now stay
-     * exactly what it is under every state, and the only thing that changes is a light beside it.
-     */
     public UiButton lamp(int[] rect) {
         this.led = rect;
         return this;
     }
 
-    /**
-     * A second line under the label, for a key whose name and whose direction are two things.
-     *
-     * <p>"BRT+" written along one line reads as a four-character word, and the sign — the only part
-     * that differs between the pair — ends up as its last letter, where it is smallest and furthest
-     * from the eye's centre. Stacked, the name says what is being changed and the sign says which
-     * way, and the two keys differ in the middle of themselves rather than at one edge.
-     */
     public UiButton sub(Component text) {
         this.sub = text;
         return this;
     }
 
-    /**
-     * The key that ends the session: red, and labelled.
-     *
-     * <p>It wore a drawn ring for a while, on the reasoning that the symbol needs no translating.
-     * True, and beside it sat six keys carrying three-letter codes — so the one key that was not a
-     * word became the odd one out rather than the obvious one. Consistency across a column of
-     * controls beats recognisability of one of them, and red already says "this is the way out".
-     */
     public UiButton power() {
         this.power = true;
         return this;
     }
 
+    public boolean isPressed(double px, double py) {
+        return active && contains(px, py);
+    }
+
     public void render(GuiGraphics g, double px, double py, boolean mouseDown) {
-        if (invisible) {
-            return;
-        }
-        boolean lit = active && contains(px, py);
-        boolean isPressed = lit && mouseDown;
-
-        if (hard && TabletScreen.chassisTextureLocation != null) {
-            boolean red = danger || power;
-            // 1. Blit super-sampled 44px button sprite directly via GPU (silky smooth bilinear filtering!)
-            TabletChassisPaint.blitButton(g, x, y, w, h, red, lit, isPressed, TabletScreen.chassisTextureLocation);
-
-            // 2. Blit LED sprite (compact, translucent, crisp)
-            if (led != null) {
-                int colType = danger ? 1 : power ? 2 : 0;
-                boolean isVert = led[3] > led[2];
-                TabletChassisPaint.blitLed(g, led[0], led[1], led[2], led[3], hardOn, colType, isVert, TabletScreen.chassisTextureLocation);
-            }
-
-            // 3. Render sharp label text or centered glyph on top
-            int textCol = red
-                    ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
-                    : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
-            Paint p = new GuiPaint(g);
-            int kx = isPressed ? x + Math.max(1, Math.round(w * (2f / 44))) : x;
-            int ky = isPressed ? y + Math.max(1, Math.round(w * (2f / 44))) : y;
-            if (mark != null) {
-                drawMark(p, kx + w / 2, ky + h / 2, w, textCol);
-            } else if (sub == null) {
-                p.label(TabletTheme.text(label).getString(), kx, ky, w, h, textCol);
-            } else {
-                p.label(TabletTheme.text(label).getString(), kx, ky, w, h / 2, textCol);
-                p.label(TabletTheme.text(sub).getString(), kx, ky + h / 2, w, h / 2, textCol);
-            }
-            return;
-        }
-
         render(new GuiPaint(g), px, py, mouseDown);
     }
 
@@ -499,13 +394,6 @@ public class UiButton {
         render(p, px, py, false);
     }
 
-    /**
-     * The same key, drawn through the seam.
-     *
-     * <p>Split out so the case and its keys can be drawn outside the game — see {@link Paint}. The
-     * game's own path goes through here too rather than beside it, which is the whole point: a
-     * preview that runs different code from the game is a picture of an intention.
-     */
     public void render(Paint p, double px, double py, boolean mouseDown) {
         if (invisible) {
             return;
@@ -513,20 +401,13 @@ public class UiButton {
         boolean lit = active && contains(px, py);
 
         if (hard) {
-            // A moulded cap: rounded shell, wall extrusion, a dished face with its own bevel, and a
-            // real 2px sink into its socket while held — a hand pressing a physical key feels it
-            // travel, and a cap that only ever sat flush would be lying about being a key at all.
             boolean red = danger || power;
             boolean isPressed = lit && mouseDown;
 
             int kx = x, ky = y;
-            float r = w * (5.5f / 44f);
-            int roundRadius = Math.max(2, Math.round(r));
-            int shadowSize = Math.max(1, Math.round(w * (1.5f / 44)));
-
             if (!isPressed) {
-                p.rect(kx + roundRadius, ky + h, w + shadowSize - roundRadius * 2, shadowSize, COL_BTN_DROP_SHADOW);
-                p.rect(kx + w, ky + roundRadius, shadowSize, h - roundRadius * 2, COL_BTN_DROP_SHADOW);
+                p.fill(kx + 1, ky + h, kx + w, ky + h + 1, COL_BTN_DROP_SHADOW);
+                p.fill(kx + w, ky + 1, kx + w + 1, ky + h, COL_BTN_DROP_SHADOW);
             } else {
                 int pressOffset = Math.max(1, Math.round(w * (2f / 44)));
                 kx += pressOffset;
@@ -538,22 +419,20 @@ public class UiButton {
             int shoulderCol = red
                     ? (isPressed ? COL_RED_SHOULDER_PRESSED : lit ? COL_RED_SHOULDER_HOVER : COL_RED_SHOULDER_LIGHT)
                     : (isPressed ? COL_BTN_SHOULDER_PRESSED : lit ? COL_BTN_SHOULDER_HOVER : COL_BTN_SHOULDER_LIGHT);
-            int rimTopCol = red
-                    ? (isPressed ? COL_RED_RIM_TOP_PRESSED : COL_RED_RIM_TOP)
-                    : (isPressed ? COL_BTN_RIM_TOP_PRESSED : COL_BTN_RIM_TOP);
 
-            // 1. Dark Border Base
-            p.rounded(kx, ky, w, h, roundRadius, borderCol);
-
-            // 2. Smooth Shaded Cap Body (From shoulder highlight at top to wall shadow at bottom, smoothly following the curve!)
-            if (!isPressed) {
-                p.roundedShaded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), shoulderCol, wallCol);
-            } else {
-                p.rounded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), 0xFF08090B);
+            // 1. Dark Border with clean rounded corner steps (Bo góc mềm mại, chuẩn pixel Minecraft)
+            int br = Math.max(1, Math.round(w * (4f / 44f)));
+            for (int dy = 0; dy < h; dy++) {
+                int inset = (dy < br) ? (br - dy) : (dy >= h - br) ? (dy - (h - br) + 1) : 0;
+                p.fill(kx + inset, ky + dy, kx + w - inset, ky + dy + 1, borderCol);
             }
 
-            // 3. Cap Shoulder Crown
-            p.rounded(kx + 2, ky + 2, w - 4, h - 4, Math.max(1, roundRadius - 2), rimTopCol);
+            // 2. Cap Shoulder Body (Matte PBT nhám mịn, không bóng bẩy)
+            for (int dy = 1; dy < h - 1; dy++) {
+                int inset = (dy < br) ? Math.max(1, br - dy) : (dy >= h - br) ? Math.max(1, dy - (h - br) + 1) : 1;
+                int col = (dy <= 2) ? shoulderCol : wallCol;
+                p.fill(kx + inset, ky + dy, kx + w - inset, ky + dy + 1, col);
+            }
 
             int dishBaseCol = red
                     ? (isPressed ? COL_RED_DISH_PRESSED : lit ? COL_RED_DISH_HOVER : COL_RED_DISH_BASE)
@@ -568,17 +447,18 @@ public class UiButton {
                     ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
                     : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
 
-            // 4. Smooth Inset 3D Concave Dish Bowl (Lòng chảo bo tròn mịn màng)
-            int innerMargin = Math.max(2, Math.round(w * (3.5f / 44)));
+            // 3. Concave Dish Bowl (Lòng chảo 3D lõm bo gọn)
+            int innerMargin = Math.max(2, Math.round(w * (3.5f / 44f)));
             int ix = kx + innerMargin, iy = ky + innerMargin;
             int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
-            int dishRadius = Math.max(1, roundRadius - 2);
 
-            // Dish outer concave bevel ring (smooth shaded!)
-            p.roundedShaded(ix, iy, iw, ih, dishRadius, dishShadow, dishLight);
+            p.fill(ix, iy, ix + iw, iy + 1, dishShadow);
+            p.fill(ix, iy + 1, ix + 1, iy + ih - 1, dishShadow);
+            p.fill(ix + iw - 1, iy + 1, ix + iw, iy + ih - 1, dishLight);
+            p.fill(ix, iy + ih - 1, ix + iw, iy + ih, dishLight);
 
-            // Dish floor
-            p.rounded(ix + 1, iy + 1, iw - 2, ih - 2, Math.max(1, dishRadius - 1), dishBaseCol);
+            // Dish Floor
+            p.fill(ix + 1, iy + 1, ix + iw - 1, iy + ih - 1, dishBaseCol);
 
             drawLamp(p);
 

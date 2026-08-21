@@ -192,7 +192,7 @@ final class TabletFrame {
         return ledFor(edge, index, false);
     }
 
-    /** The lamp for a key: a vertical stroke on top/bottom rows, horizontal stroke on flanks. */
+    /** The lamp for a key: a vertical stroke consistently around all edges. */
     int[] ledFor(int edge, int index, boolean wide) {
         switch (edge) {
             case EDGE_TOP: {
@@ -205,11 +205,11 @@ final class TabletFrame {
             }
             case EDGE_LEFT: {
                 int cy = COL_FIRST_Y + index * COL_STEP;
-                return rect(LED_COL_LEFT_X, cy - LED_SHORT / 2, LED_LONG, LED_SHORT);
+                return rect(LED_COL_LEFT_X, cy - LED_LONG / 2, LED_SHORT, LED_LONG);
             }
             default: {
                 int cy = COL_FIRST_Y + index * COL_STEP;
-                return rect(LED_COL_RIGHT_X, cy - LED_SHORT / 2, LED_LONG, LED_SHORT);
+                return rect(LED_COL_RIGHT_X, cy - LED_LONG / 2, LED_SHORT, LED_LONG);
             }
         }
     }
