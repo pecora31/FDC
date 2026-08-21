@@ -221,7 +221,7 @@ public class TabletScreen extends Screen {
      * {@code NativeImage} allocation plus a GPU upload each time.
      */
     private static DynamicTexture chassisTexture;
-    private static ResourceLocation chassisTextureLocation;
+    static ResourceLocation chassisTextureLocation;
 
     /**
      * Whether the boot display was up on the last frame.
@@ -1159,6 +1159,7 @@ public class TabletScreen extends Screen {
         }
 
         maskWellCorners(g, area[0], area[1], area[2], area[3]);
+        TabletDisplay.renderGlassOverlay(g, area[0], area[1], area[2], area[3]);
 
         TabletDisplay.clear(g);
         renderControls(g, px, py);

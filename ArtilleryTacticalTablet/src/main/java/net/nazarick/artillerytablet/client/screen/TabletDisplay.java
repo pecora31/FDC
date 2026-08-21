@@ -163,4 +163,28 @@ final class TabletDisplay {
         g.flush();
         g.setColor(1f, 1f, 1f, 1f);
     }
+
+    /**
+     * Subtle Tactical MFD Optical AR Glass Glare & Micro Scanlines.
+     * Rendered on top of the screen well to give authentic military instrument depth.
+     */
+    static void renderGlassOverlay(GuiGraphics g, int x, int y, int w, int h) {
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        // 1. Soft 45-degree diagonal AR glass reflection sheen (ultra faint ~2% alpha)
+        int glareBand = Math.min(w / 2, h / 2);
+        for (int row = 0; row < h; row++) {
+            int gx1 = x + row;
+            int gx2 = Math.min(x + w, gx1 + glareBand);
+            if (gx1 < x + w) {
+                g.fill(gx1, y + row, gx2, y + row + 1, 0x05FFFFFF);
+            }
+        }
+
+        // 2. Micro Scanline Overlay (ultra-faint 1px interlaced scanlines)
+        for (int sy = y; sy < y + h; sy += 2) {
+            g.fill(x, sy, x + w, sy + 1, 0x04000000);
+        }
+    }
 }

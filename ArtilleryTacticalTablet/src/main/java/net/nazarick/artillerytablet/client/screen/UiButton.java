@@ -456,6 +456,42 @@ public class UiButton {
     }
 
     public void render(GuiGraphics g, double px, double py, boolean mouseDown) {
+        if (invisible) {
+            return;
+        }
+        boolean lit = active && contains(px, py);
+        boolean isPressed = lit && mouseDown;
+
+        if (hard && TabletScreen.chassisTextureLocation != null) {
+            boolean red = danger || power;
+            // 1. Blit super-sampled 44px button sprite directly via GPU (silky smooth bilinear filtering!)
+            TabletChassisPaint.blitButton(g, x, y, w, h, red, lit, isPressed, TabletScreen.chassisTextureLocation);
+
+            // 2. Blit LED sprite (compact, translucent, crisp)
+            if (led != null) {
+                int colType = danger ? 1 : power ? 2 : 0;
+                boolean isVert = led[3] > led[2];
+                TabletChassisPaint.blitLed(g, led[0], led[1], led[2], led[3], hardOn, colType, isVert, TabletScreen.chassisTextureLocation);
+            }
+
+            // 3. Render sharp label text or centered glyph on top
+            int textCol = red
+                    ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
+                    : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
+            Paint p = new GuiPaint(g);
+            int kx = isPressed ? x + Math.max(1, Math.round(w * (2f / 44))) : x;
+            int ky = isPressed ? y + Math.max(1, Math.round(w * (2f / 44))) : y;
+            if (mark != null) {
+                drawMark(p, kx + w / 2, ky + h / 2, w, textCol);
+            } else if (sub == null) {
+                p.label(TabletTheme.text(label).getString(), kx, ky, w, h, textCol);
+            } else {
+                p.label(TabletTheme.text(label).getString(), kx, ky, w, h / 2, textCol);
+                p.label(TabletTheme.text(sub).getString(), kx, ky + h / 2, w, h / 2, textCol);
+            }
+            return;
+        }
+
         render(new GuiPaint(g), px, py, mouseDown);
     }
 

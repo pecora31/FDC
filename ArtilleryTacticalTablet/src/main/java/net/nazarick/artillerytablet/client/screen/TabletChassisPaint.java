@@ -115,6 +115,9 @@ final class TabletChassisPaint {
         // 9. Lit capsule divider ribs
         bakeAllDividerRibs(img);
 
+        // 10. Dynamic high-resolution Keycap & LED Sprite Atlas
+        bakeDynamicKeySprites(img);
+
         return img;
     }
 
@@ -804,6 +807,242 @@ final class TabletChassisPaint {
         img.setPixelRGBA(x, y, abgr);
     }
 
+    // High-resolution Keycap & LED Sprite Atlas Coordinates in the 980x630 texture
+    public static final int SPRITE_KEY_W = 44;
+    public static final int SPRITE_KEY_H = 44;
+
+    public static final int SPRITE_KEY_PBT_IDLE_X = 120, SPRITE_KEY_PBT_IDLE_Y = 100;
+    public static final int SPRITE_KEY_PBT_HOVER_X = 170, SPRITE_KEY_PBT_HOVER_Y = 100;
+    public static final int SPRITE_KEY_PBT_PRESSED_X = 220, SPRITE_KEY_PBT_PRESSED_Y = 100;
+
+    public static final int SPRITE_KEY_RED_IDLE_X = 270, SPRITE_KEY_RED_IDLE_Y = 100;
+    public static final int SPRITE_KEY_RED_HOVER_X = 320, SPRITE_KEY_RED_HOVER_Y = 100;
+    public static final int SPRITE_KEY_RED_PRESSED_X = 370, SPRITE_KEY_RED_PRESSED_Y = 100;
+
+    public static final int SPRITE_LED_UNLIT_V_X = 120, SPRITE_LED_UNLIT_V_Y = 160;
+    public static final int SPRITE_LED_UNLIT_H_X = 130, SPRITE_LED_UNLIT_H_Y = 160;
+    public static final int SPRITE_LED_GREEN_V_X = 145, SPRITE_LED_GREEN_V_Y = 160;
+    public static final int SPRITE_LED_GREEN_H_X = 155, SPRITE_LED_GREEN_H_Y = 160;
+    public static final int SPRITE_LED_RED_V_X = 170, SPRITE_LED_RED_V_Y = 160;
+    public static final int SPRITE_LED_RED_H_X = 180, SPRITE_LED_RED_H_Y = 160;
+    public static final int SPRITE_LED_AMBER_V_X = 195, SPRITE_LED_AMBER_V_Y = 160;
+    public static final int SPRITE_LED_AMBER_H_X = 205, SPRITE_LED_AMBER_H_Y = 160;
+
+    private static void bakeDynamicKeySprites(NativeImage img) {
+        int r = 6;
+        // PBT Idle
+        bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
+                0xAA020203, 0xFF0E1014, 0xFF282B32, 0xFF727886, 0xFF585D6A, 0xFF4A4E5A, 0xFF363942, 0xFF666C7C, false);
+        // PBT Hover
+        bakeKeySprite(img, SPRITE_KEY_PBT_HOVER_X, SPRITE_KEY_PBT_HOVER_Y, 44, 44, r,
+                0xAA020203, 0xFF0E1014, 0xFF282B32, 0xFF8A90A0, 0xFF585D6A, 0xFF585E6C, 0xFF363942, 0xFF666C7C, false);
+        // PBT Pressed
+        bakeKeySprite(img, SPRITE_KEY_PBT_PRESSED_X, SPRITE_KEY_PBT_PRESSED_Y, 44, 44, r,
+                0xAA020203, 0xFF0E1014, 0xFF22252C, 0xFF22252C, 0xFF2A2D35, 0xFF2E313A, 0xFF1C1E24, 0xFF3C404C, true);
+
+        // Red Idle
+        bakeKeySprite(img, SPRITE_KEY_RED_IDLE_X, SPRITE_KEY_RED_IDLE_Y, 44, 44, r,
+                0xAA020203, 0xFF1A0303, 0xFF480A0A, 0xFFC82A2A, 0xFF9E1C1C, 0xFF881818, 0xFF540C0C, 0xFFB82828, false);
+        // Red Hover
+        bakeKeySprite(img, SPRITE_KEY_RED_HOVER_X, SPRITE_KEY_RED_HOVER_Y, 44, 44, r,
+                0xAA020203, 0xFF1A0303, 0xFF480A0A, 0xFFE83A3A, 0xFF9E1C1C, 0xFFA82222, 0xFF540C0C, 0xFFB82828, false);
+        // Red Pressed
+        bakeKeySprite(img, SPRITE_KEY_RED_PRESSED_X, SPRITE_KEY_RED_PRESSED_Y, 44, 44, r,
+                0xAA020203, 0xFF1A0303, 0xFF400606, 0xFF400606, 0xFF3C0606, 0xFF4E0A0A, 0xFF200303, 0xFF581010, true);
+
+        // LEDs (Unlit, Green, Red, Amber)
+        bakeLedSprite(img, SPRITE_LED_UNLIT_V_X, SPRITE_LED_UNLIT_V_Y, 4, 8, false, 0);
+        bakeLedSprite(img, SPRITE_LED_UNLIT_H_X, SPRITE_LED_UNLIT_H_Y, 8, 4, false, 0);
+
+        bakeLedSprite(img, SPRITE_LED_GREEN_V_X, SPRITE_LED_GREEN_V_Y, 4, 8, true, 0xFF00FF66);
+        bakeLedSprite(img, SPRITE_LED_GREEN_H_X, SPRITE_LED_GREEN_H_Y, 8, 4, true, 0xFF00FF66);
+
+        bakeLedSprite(img, SPRITE_LED_RED_V_X, SPRITE_LED_RED_V_Y, 4, 8, true, 0xFFFF3333);
+        bakeLedSprite(img, SPRITE_LED_RED_H_X, SPRITE_LED_RED_H_Y, 8, 4, true, 0xFFFF3333);
+
+        bakeLedSprite(img, SPRITE_LED_AMBER_V_X, SPRITE_LED_AMBER_V_Y, 4, 8, true, 0xFFFFB300);
+        bakeLedSprite(img, SPRITE_LED_AMBER_H_X, SPRITE_LED_AMBER_H_Y, 8, 4, true, 0xFFFFB300);
+    }
+
+    private static void bakeKeySprite(NativeImage img, int kx, int ky, int w, int h, int roundRadius,
+                                      int dropShadow, int borderDark, int wallExtrusion,
+                                      int shoulderLight, int rimTop, int dishBase,
+                                      int dishShadow, int dishHighlight, boolean pressed) {
+        // Outer drop shadow (bottom-right 1px)
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (isInsideRounded(x, y, w, h, roundRadius)) {
+                    setPixel(img, kx + x + 1, ky + y + 1, dropShadow);
+                }
+            }
+        }
+        // Outer border
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (isInsideRounded(x, y, w, h, roundRadius)) {
+                    setPixel(img, kx + x, ky + y, borderDark);
+                }
+            }
+        }
+        // Body with gradient shoulder
+        for (int y = 1; y < h - 1; y++) {
+            float t = (float) (y - 1) / Math.max(1, h - 3);
+            int col = Paint.blend(shoulderLight, wallExtrusion, t);
+            for (int x = 1; x < w - 1; x++) {
+                if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, roundRadius - 1)) {
+                    setPixel(img, kx + x, ky + y, col);
+                }
+            }
+        }
+        // Top rim catch line
+        for (int x = roundRadius; x < w - roundRadius; x++) {
+            setPixel(img, kx + x, ky + 1, rimTop);
+        }
+        // Concave dish bowl
+        int inset = Math.max(3, Math.round(w * (5.5f / 44f)));
+        int dishW = w - inset * 2;
+        int dishH = h - inset * 2;
+        int dishX = kx + inset;
+        int dishY = ky + (pressed ? inset + 1 : inset - 1);
+        int dishRadius = Math.max(2, roundRadius - 2);
+
+        for (int y = 0; y < dishH; y++) {
+            float t = (float) y / Math.max(1, dishH - 1);
+            int col = Paint.blend(dishShadow, dishBase, t);
+            for (int x = 0; x < dishW; x++) {
+                if (isInsideRounded(x, y, dishW, dishH, dishRadius)) {
+                    setPixel(img, dishX + x, dishY + y, col);
+                }
+            }
+        }
+        // Dish inner shadow / highlight rim
+        for (int x = dishRadius; x < dishW - dishRadius; x++) {
+            setPixel(img, dishX + x, dishY, dishShadow);
+            setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
+        }
+    }
+
+    private static boolean isInsideRounded(int px, int py, int w, int h, int r) {
+        if (px < 0 || px >= w || py < 0 || py >= h) return false;
+        if (r <= 0) return true;
+        if (px < r && py < r) {
+            int dx = r - px - 1, dy = r - py - 1;
+            return dx * dx + dy * dy <= r * r;
+        }
+        if (px >= w - r && py < r) {
+            int dx = px - (w - r), dy = r - py - 1;
+            return dx * dx + dy * dy <= r * r;
+        }
+        if (px < r && py >= h - r) {
+            int dx = r - px - 1, dy = py - (h - r);
+            return dx * dx + dy * dy <= r * r;
+        }
+        if (px >= w - r && py >= h - r) {
+            int dx = px - (w - r), dy = py - (h - r);
+            return dx * dx + dy * dy <= r * r;
+        }
+        return true;
+    }
+
+    private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
+        if (lit) {
+            // Socket hole
+            for (int y = -1; y <= h; y++) {
+                for (int x = -1; x <= w; x++) {
+                    setPixel(img, lx + x, ly + y, 0xFF040507);
+                }
+            }
+            // Phosphor bloom
+            int glow = 0x44000000 | (litCol & 0x00FFFFFF);
+            for (int y = -1; y <= h; y++) {
+                for (int x = -1; x <= w; x++) {
+                    setPixel(img, lx + x, ly + y, glow);
+                }
+            }
+            // Diode body
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    setPixel(img, lx + x, ly + y, litCol);
+                }
+            }
+            // White core
+            if (w >= 3 && h >= 4) {
+                for (int y = 1; y < h - 1; y++) {
+                    setPixel(img, lx + w / 2, ly + y, 0xFFFFFFFF);
+                }
+            } else if (w >= 4 && h >= 3) {
+                for (int x = 1; x < w - 1; x++) {
+                    setPixel(img, lx + x, ly + h / 2, 0xFFFFFFFF);
+                }
+            }
+        } else {
+            // Unlit compact translucent optical smoked glass
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    setPixel(img, lx + x, ly + y, 0xFF222834);
+                }
+            }
+            // Top reflection sheen
+            for (int x = 0; x < w; x++) {
+                setPixel(img, lx + x, ly, 0xFF58667C);
+            }
+            // Bottom shadow
+            for (int x = 0; x < w; x++) {
+                setPixel(img, lx + x, ly + h - 1, 0xFF0E1116);
+            }
+        }
+    }
+
+    public static void blitButton(GuiGraphics g, int destX, int destY, int destW, int destH,
+                                  boolean isRed, boolean isHovered, boolean isPressed,
+                                  ResourceLocation texture) {
+        int u, v;
+        if (isRed) {
+            if (isPressed) {
+                u = SPRITE_KEY_RED_PRESSED_X; v = SPRITE_KEY_RED_PRESSED_Y;
+            } else if (isHovered) {
+                u = SPRITE_KEY_RED_HOVER_X; v = SPRITE_KEY_RED_HOVER_Y;
+            } else {
+                u = SPRITE_KEY_RED_IDLE_X; v = SPRITE_KEY_RED_IDLE_Y;
+            }
+        } else {
+            if (isPressed) {
+                u = SPRITE_KEY_PBT_PRESSED_X; v = SPRITE_KEY_PBT_PRESSED_Y;
+            } else if (isHovered) {
+                u = SPRITE_KEY_PBT_HOVER_X; v = SPRITE_KEY_PBT_HOVER_Y;
+            } else {
+                u = SPRITE_KEY_PBT_IDLE_X; v = SPRITE_KEY_PBT_IDLE_Y;
+            }
+        }
+        g.blit(texture, destX, destY, destW, destH, u, v, SPRITE_KEY_W, SPRITE_KEY_H, TabletFrame.DESIGN_W, TabletFrame.DESIGN_H);
+    }
+
+    public static void blitLed(GuiGraphics g, int destX, int destY, int destW, int destH,
+                               boolean isLit, int colorType, boolean isVertical,
+                               ResourceLocation texture) {
+        int u, v, srcW, srcH;
+        if (!isLit) {
+            if (isVertical) {
+                u = SPRITE_LED_UNLIT_V_X; v = SPRITE_LED_UNLIT_V_Y; srcW = 4; srcH = 8;
+            } else {
+                u = SPRITE_LED_UNLIT_H_X; v = SPRITE_LED_UNLIT_H_Y; srcW = 8; srcH = 4;
+            }
+        } else {
+            // colorType: 0 = GREEN, 1 = RED (danger), 2 = AMBER (power)
+            if (colorType == 1) {
+                if (isVertical) { u = SPRITE_LED_RED_V_X; v = SPRITE_LED_RED_V_Y; srcW = 4; srcH = 8; }
+                else { u = SPRITE_LED_RED_H_X; v = SPRITE_LED_RED_H_Y; srcW = 8; srcH = 4; }
+            } else if (colorType == 2) {
+                if (isVertical) { u = SPRITE_LED_AMBER_V_X; v = SPRITE_LED_AMBER_V_Y; srcW = 4; srcH = 8; }
+                else { u = SPRITE_LED_AMBER_H_X; v = SPRITE_LED_AMBER_H_Y; srcW = 8; srcH = 4; }
+            } else {
+                if (isVertical) { u = SPRITE_LED_GREEN_V_X; v = SPRITE_LED_GREEN_V_Y; srcW = 4; srcH = 8; }
+                else { u = SPRITE_LED_GREEN_H_X; v = SPRITE_LED_GREEN_H_Y; srcW = 8; srcH = 4; }
+            }
+        }
+        g.blit(texture, destX, destY, destW, destH, u, v, srcW, srcH, TabletFrame.DESIGN_W, TabletFrame.DESIGN_H);
+    }
+
     private static void fillCircle(NativeImage img, int cx, int cy, int radius, int argb) {
         for (int y = -radius; y <= radius; y++) {
             for (int x = -radius; x <= radius; x++) {
@@ -814,3 +1053,4 @@ final class TabletChassisPaint {
         }
     }
 }
+
