@@ -240,16 +240,16 @@ public class UiButton {
                 p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Matte Smoked Crystal Diode with Explicit Beveled Socket Rim
-            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF080A0E); // Deep socket recess border
-            p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF363B46); // Top socket rim highlight
-            p.fill(x1 - 1, y1 - 1, x1, y2 + 1, 0xFF282C36); // Left socket rim highlight
+            // Unlit Compact Translucent Smoked Glass Lens (Gọn gàng đúng kích thước, kính trong hơn)
+            p.fill(x1, y1, x2, y2, 0xFF0E1015); // Socket slot border
 
-            // Inner smoked crystal diode (sits inside the frame)
-            p.fill(x1, y1, x2, y2, 0xFF14171D);
             if (w >= 2 && h >= 2) {
-                p.fill(x1, y1, x2, y1 + 1, 0xFF444C5C); // Delicate crystal top sheen
-                p.fill(x1, y2 - 1, x2, y2, 0xFF0A0C10); // Inner bottom shadow
+                // Clearer smoked optical glass body
+                p.fill(x1, y1, x2, y2, 0xFF222834);
+                // Top glass reflection highlight
+                p.fill(x1, y1, x2, y1 + 1, 0xFF58667C);
+                // Bottom inner glass shadow
+                p.fill(x1, y2 - 1, x2, y2, 0xFF0E1116);
             }
         }
     }
