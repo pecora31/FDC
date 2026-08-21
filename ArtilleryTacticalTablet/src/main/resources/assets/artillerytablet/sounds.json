@@ -1,0 +1,14 @@
+{
+  "tactical_key_press": {
+    "subtitle": "subtitle.artillerytablet.tactical_key_press",
+    "sounds": [
+      "artillerytablet:ui/key_press"
+    ]
+  },
+  "tactical_key_release": {
+    "subtitle": "subtitle.artillerytablet.tactical_key_release",
+    "sounds": [
+      "artillerytablet:ui/key_release"
+    ]
+  }
+}

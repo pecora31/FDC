@@ -1,0 +1,290 @@
+buildscript {
+    repositories {
+        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+}
+
+// Not used for our own mixins (this addon doesn't define any yet) — but ForgeGradle only wires up
+// the Mixin refmap-remapping JVM args (mixin.env.remapRefMap / refMapRemappingFile) for the whole
+// runtime when this plugin is applied. Without it, SBW's OWN mixins (e.g. MinecraftMixin) fail to
+// resolve their SRG-named targets in the dev environment — see plan doc Phase 0 log entry
+// 2026-08-13 for the exact crash this fixes ("Critical injection failure... handleKeybinds").
+
+group = mod_group_id
+version = mod_version
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            // Makes the map layer report what a frame costs it, every couple of seconds while the
+            // tablet is open. Dev client only — a shipped mod has no business logging on a timer.
+            // See TerrainImage's trace block for why the numbers are per frame rather than per
+            // second, and for why this exists at all.
+            property 'artillerytablet.mapTrace', 'true'
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
+    maven {
+        url = "https://maven.theillusivec4.top/"
+    }
+
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroup("com.eliotlash.mclib")
+        }
+    }
+
+    maven {
+        name = 'Kotlin for Forge'
+        url 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // SuperbWarfare's own runtime dependencies — required for it to load at all in the dev
+    // environment, even though this addon doesn't call into them directly (yet).
+    runtimeOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:5.4.2+1.20.1:api")
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.4.6')
+
+    // Not fg.deobf()'d — it's a language provider (not remapped like a regular mod), same as how
+    // SBW's own build.gradle.kts depends on it. Newer SBW builds (0.8.9+) require this at runtime;
+    // older ones (e.g. 0.8.0) didn't — see plan doc Phase 1 log entry 2026-08-13.
+    implementation 'thedarkcolour:kotlinforforge:4.11.0'
+
+    // SuperbWarfare itself — pinned build, see gradle.properties (sbw_curse_file) for rationale.
+    implementation fg.deobf("${sbw_curse_file}")
+
+    // No map mod is a dependency here. JourneyMap and Xaero were both tried as terrain sources and
+    // both dropped: the tablet surveys the world itself, server side, which is the only way to show
+    // ground the player has not personally walked over. SuperbWarfare is now the addon's only mod
+    // dependency. See the 2026-08-14 entries in artillery-tactical-tablet-plan.md before adding
+    // another map mod back — that road has been walked four times.
+
+    // JourneyMap, for comparison only — a yardstick in the dev client, not an integration.
+    // runtimeOnly is the point: it loads beside us so the two maps can be looked at side by side,
+    // and the compiler refuses any code that reaches for it, so this cannot quietly become a
+    // dependency the way the last two did. Remove the line and the addon is unchanged.
+    //
+    // Xaero's World Map was here too and has been removed on request. Its coordinate is still in
+    // gradle.properties: one line brings it back.
+    runtimeOnly fg.deobf("${journeymap_curse_file}")
+
+    // BlueMap was tried here for comparison (2026-08-18) and pulled back out the same day: file
+    // 7057487 (5.12-mc1.20-6-forge) is compiled for Java 21 class files, and this project's whole
+    // toolchain is pinned to Java 17, which is what Forge 1.20.1 itself requires. The client would
+    // not even reach the main menu — UnsupportedClassVersionError, class file version 65 against a
+    // runtime that reads up to 61. Not a config mistake on this side; the coordinate is correct and
+    // resolves cleanly, the jar simply cannot run here. An older BlueMap release still targeting
+    // Java 17 might work, untried. The coordinate is kept in gradle.properties (bluemap_curse_file)
+    // so the next attempt does not have to re-verify it against CurseForge's file list.
+
+    // Performance mods for the dev client — see gradle.properties for what each is for, why
+    // ImmediatelyFast is deliberately absent, and the caveat about measuring our own code with these
+    // on. runtimeOnly again, so none of them can become something the addon compiles against.
+    runtimeOnly fg.deobf("${embeddium_curse_file}")
+    runtimeOnly fg.deobf("${ferritecore_curse_file}")
+    runtimeOnly fg.deobf("${modernfix_curse_file}")
+    runtimeOnly fg.deobf("${canary_curse_file}")
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+                             forge_version       : forge_version, forge_version_range: forge_version_range,
+                             loader_version_range: loader_version_range,
+                             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+                             mod_authors         : mod_authors, mod_description: mod_description,]
+
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes(["Specification-Title"     : mod_id,
+                    "Specification-Vendor"    : mod_authors,
+                    "Specification-Version"   : "1",
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : project.jar.archiveVersion,
+                    "Implementation-Vendor"   : mod_authors,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
+    }
+
+    finalizedBy 'reobfJar'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// ---- map checks -------------------------------------------------------------------------------
+//
+// A source set of small programs that call the map's real drawing code outside Minecraft, plus a
+// task to run them: `./gradlew mapCheck`.
+//
+// They are here rather than in `test` because they are not unit tests — they drive production
+// classes by reflection, and one of them writes a picture to be looked at rather than asserting
+// anything. Keeping them apart also keeps them out of `build`, so the ordinary build stays fast and
+// nobody has to think about them until they want them.
+//
+// The reason they exist at all: `gradlew build` proves this code compiles and `runClient` proves it
+// loads, but the client only ever reaches the main menu, so neither runs one line of the map. Two
+// crashes shipped through both of those gates and were caught here instead.
+
+sourceSets {
+    mapcheck {
+        // Everything main compiles against, plus main itself. ForgeGradle puts the Minecraft jar on
+        // main's classpath, so inheriting it is what lets these touch MapColor and the rest.
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+    }
+}
+
+tasks.register('mapCheck', JavaExec) {
+    group = 'verification'
+    description = 'Runs the map harnesses outside Minecraft and writes build/mapcheck/map-preview.png'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.MapCheck'
+    args project.layout.buildDirectory.dir('mapcheck').get().asFile.absolutePath
+
+    // The same Java the mod is built with. Left to Gradle's own JVM this would silently run on
+    // whatever launched the daemon, which is not necessarily 17.
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
+// The case, drawn by the code the game draws it with, outside the game. See CaseView for why this
+// exists: a sketch and an implementation are two descriptions of one thing and drift apart, so the
+// preview is made by running the real thing rather than by drawing a picture of it.
+tasks.register('caseView', JavaExec) {
+    group = 'verification'
+    description = 'Draws the tablet case to build/mapcheck/case.svg and case.png'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.CaseView$Main'
+    args project.layout.buildDirectory.dir('mapcheck').get().asFile.absolutePath
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
+// The image converter: a design tool, not part of the mod. It reads a reference picture and writes
+// Java that draws it through Paint, so the case can be taken from a picture instead of measured off
+// one by hand — see the convert package for why the stages happen in the order they do.
+//
+// It lives in the mapcheck source set because that is where "runs outside Minecraft" already works,
+// but it touches nothing from the game: the Minecraft jar is on its classpath and unused.
+tasks.register('convert', JavaExec) {
+    group = 'verification'
+    description = 'Opens the image-to-Paint.fill() converter (optional: -Pimage=path/to.png)'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.convert.ConvertUi$Main'
+    if (project.hasProperty('image')) {
+        args project.property('image')
+    }
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
+// The converter's own check: runs the four stages headless and asserts the rectangles reproduce the
+// logical grid exactly. Separate from `convert` because that one opens a window and waits.
+tasks.register('convertCheck', JavaExec) {
+    group = 'verification'
+    description = 'Runs the image converter once headless and verifies the rectangle decomposition'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.convert.ConvertCheck'
+    args 'docs/sample.png', project.layout.buildDirectory.dir('mapcheck').get().asFile.absolutePath
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
+tasks.register('frameTexture', JavaExec) {
+    group = 'verification'
+    description = 'Renders the TabletFrame chassis to build/mapcheck/frame-texture.png'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.convert.FrameTextureGen'
+    args '1024', '576', project.layout.buildDirectory.dir('mapcheck').get().asFile.absolutePath
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
+// Draws a generated class through the real Paint seam, so the file that will be compiled into the
+// mod is the thing that gets looked at — not the converter's own idea of it.
+tasks.register('generatedView', JavaExec) {
+    group = 'verification'
+    description = 'Renders a generated ConvertedCase through Paint to build/mapcheck/generated-case.png'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.convert.GeneratedView'
+    args 'net.nazarick.artillerytablet.client.screen.ConvertedCase',
+            project.layout.buildDirectory.dir('mapcheck').get().asFile.absolutePath
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
