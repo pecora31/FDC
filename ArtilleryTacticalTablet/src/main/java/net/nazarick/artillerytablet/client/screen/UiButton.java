@@ -22,39 +22,39 @@ public class UiButton {
     private static final int BACKGROUND = 0xB0141A21;
 
     // Injection-moulded matte PBT key (ash grey) — high contrast case-key palette.
-    private static final int COL_BTN_DROP_SHADOW = 0xAA020203;
-    private static final int COL_BTN_BORDER_DARK = 0xFF0A0B0E;
-    private static final int COL_BTN_WALL_EXTRUSION = 0xFF1E2026;
-    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF7A808E;
-    private static final int COL_BTN_SHOULDER_HOVER = 0xFF9DA4B4;
+    private static final int COL_BTN_DROP_SHADOW = 0xCC020203;
+    private static final int COL_BTN_BORDER_DARK = 0xFF060709;
+    private static final int COL_BTN_WALL_EXTRUSION = 0xFF181A20;
+    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF8E96A6;
+    private static final int COL_BTN_SHOULDER_HOVER = 0xFFB2BACB;
     private static final int COL_BTN_SHOULDER_PRESSED = 0xFF181A1E;
-    private static final int COL_BTN_RIM_TOP = 0xFF4E525C;
+    private static final int COL_BTN_RIM_TOP = 0xFF4A4E58;
     private static final int COL_BTN_RIM_TOP_PRESSED = 0xFF1C1E22;
-    private static final int COL_BTN_DISH_BASE = 0xFF3A3D44;
-    private static final int COL_BTN_DISH_HOVER = 0xFF4A4E58;
-    private static final int COL_BTN_DISH_PRESSED = 0xFF1E2024;
-    private static final int COL_BTN_DISH_SHADOW = 0xFF1C1E24;
-    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF0C0D10;
-    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF5C6270;
-    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF282B32;
+    private static final int COL_BTN_DISH_BASE = 0xFF282B32;
+    private static final int COL_BTN_DISH_HOVER = 0xFF363942;
+    private static final int COL_BTN_DISH_PRESSED = 0xFF181A1E;
+    private static final int COL_BTN_DISH_SHADOW = 0xFF101216;
+    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF08090C;
+    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF626878;
+    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF242730;
     private static final int COL_BTN_TEXT = 0xFFFFFFFF;
     private static final int COL_BTN_TEXT_PRESSED = 0xFFB0B4BC;
 
     // Bright tactical crimson key — CFF and POWER.
-    private static final int COL_RED_BORDER_DARK = 0xFF1E0404;
-    private static final int COL_RED_WALL_EXTRUSION = 0xFF440808;
-    private static final int COL_RED_SHOULDER_LIGHT = 0xFFC82A2A;
-    private static final int COL_RED_SHOULDER_HOVER = 0xFFE83A3A;
-    private static final int COL_RED_SHOULDER_PRESSED = 0xFF400606;
-    private static final int COL_RED_RIM_TOP = 0xFF9E1C1C;
-    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF3C0606;
-    private static final int COL_RED_DISH_BASE = 0xFF8A1A1A;
-    private static final int COL_RED_DISH_HOVER = 0xFFB22424;
-    private static final int COL_RED_DISH_PRESSED = 0xFF4E0A0A;
-    private static final int COL_RED_DISH_SHADOW = 0xFF440808;
-    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF140202;
-    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFB82828;
-    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF581010;
+    private static final int COL_RED_BORDER_DARK = 0xFF1A0303;
+    private static final int COL_RED_WALL_EXTRUSION = 0xFF3C0606;
+    private static final int COL_RED_SHOULDER_LIGHT = 0xFFD83030;
+    private static final int COL_RED_SHOULDER_HOVER = 0xFFF84A4A;
+    private static final int COL_RED_SHOULDER_PRESSED = 0xFF3A0404;
+    private static final int COL_RED_RIM_TOP = 0xFF8A1414;
+    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF2E0404;
+    private static final int COL_RED_DISH_BASE = 0xFF580C0C;
+    private static final int COL_RED_DISH_HOVER = 0xFF721212;
+    private static final int COL_RED_DISH_PRESSED = 0xFF380606;
+    private static final int COL_RED_DISH_SHADOW = 0xFF280404;
+    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF100101;
+    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFA82222;
+    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF4C0A0A;
     private static final int COL_RED_TEXT = 0xFFFFFFFF;
     private static final int COL_RED_TEXT_PRESSED = 0xFFC0C0C0;
 
@@ -220,9 +220,10 @@ public class UiButton {
             return;
         }
 
-        // 1. 3D Metallic Dark Socket Recess (Khuôn hốc kim loại chìm)
+        // 1. 3D Metallic Dark Socket Recess (Khuôn hốc kim loại chìm sâu và nổi viền)
         p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF040507);
-        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF4A5260); // Top rim specular highlight
+        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF4E5668); // Top rim specular highlight
+        p.fill(x1 - 1, y1 - 1, x1, y2 + 1, 0xFF383E4C); // Left rim highlight
 
         if (isLit) {
             // 2. Phosphor Bloom Halo (Quầng sáng phốt pho tỏa 1px)
@@ -235,16 +236,18 @@ public class UiButton {
             // 4. Specular White Core (Lõi sáng trắng bán dẫn)
             if (w >= 3 && h >= 4) {
                 p.fill(x1 + w / 2, y1 + 1, x1 + w / 2 + 1, y2 - 1, 0xFFFFFFFF);
+            } else if (w >= 4 && h >= 3) {
+                p.fill(x1 + 1, y1 + h / 2, x2 - 1, y1 + h / 2 + 1, 0xFFFFFFFF);
             } else if (w >= 2 && h >= 2) {
                 p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Smoked Glass Lens (Kính hun khói khi tắt)
-            p.fill(x1, y1, x2, y2, 0xFF181B22);
+            // Unlit Deep Smoked Glass Lens (Mặt kính hun khói sẫm đen bóng)
+            p.fill(x1, y1, x2, y2, 0xFF101216);
             if (w >= 2 && h >= 2) {
-                p.fill(x1, y1, x2, y1 + 1, 0xFF657082); // Top lens glint
-                p.fill(x1, y1, x1 + 1, y2, 0xFF3A404C); // Left rim glint
-                p.fill(x1, y2 - 1, x2, y2, 0xFF0A0C0E); // Bottom inner shadow
+                p.fill(x1, y1, x2, y1 + 1, 0xFF7A869C); // Bright specular lens glint
+                p.fill(x1, y1, x1 + 1, y2, 0xFF444C5C); // Left specular glint
+                p.fill(x1, y2 - 1, x2, y2, 0xFF060709); // Bottom inner shadow
             }
         }
     }
