@@ -48,10 +48,10 @@ final class TabletFrame {
     /** The LED beside a key: a short stroke in the clear band between the cap and the glass. */
     private static final int LED_LONG = 8;
     private static final int LED_SHORT = 4;
-    private static final int LED_ROW_TOP_Y = 77;
-    private static final int LED_ROW_BOTTOM_Y = 545;
-    private static final int LED_COL_LEFT_X = 77;
-    private static final int LED_COL_RIGHT_X = 895;
+    private static final int LED_ROW_TOP_Y = 80;
+    private static final int LED_ROW_BOTTOM_Y = 546;
+    private static final int LED_COL_LEFT_X = 80;
+    private static final int LED_COL_RIGHT_X = 896;
 
     /** How much of the window the case takes, centred in what is left. */
     private static final float SHELL_FRACTION = 0.95f;
@@ -192,24 +192,24 @@ final class TabletFrame {
         return ledFor(edge, index, false);
     }
 
-    /** The lamp for a key: one straight stroke in the clear band between the cap and the glass. */
+    /** The lamp for a key: a horizontal pill on rows, vertical pill on flanks. */
     int[] ledFor(int edge, int index, boolean wide) {
         switch (edge) {
             case EDGE_TOP: {
                 int cx = ROW_FIRST_X + index * ROW_STEP;
-                return rect(cx - LED_SHORT / 2, LED_ROW_TOP_Y, LED_SHORT, LED_LONG);
+                return rect(cx - LED_LONG / 2, LED_ROW_TOP_Y, LED_LONG, LED_SHORT);
             }
             case EDGE_BOTTOM: {
                 int cx = ROW_FIRST_X + index * ROW_STEP;
-                return rect(cx - LED_SHORT / 2, LED_ROW_BOTTOM_Y, LED_SHORT, LED_LONG);
+                return rect(cx - LED_LONG / 2, LED_ROW_BOTTOM_Y, LED_LONG, LED_SHORT);
             }
             case EDGE_LEFT: {
                 int cy = COL_FIRST_Y + index * COL_STEP;
-                return rect(LED_COL_LEFT_X, cy - LED_SHORT / 2, LED_LONG, LED_SHORT);
+                return rect(LED_COL_LEFT_X, cy - LED_LONG / 2, LED_SHORT, LED_LONG);
             }
             default: {
                 int cy = COL_FIRST_Y + index * COL_STEP;
-                return rect(LED_COL_RIGHT_X, cy - LED_SHORT / 2, LED_LONG, LED_SHORT);
+                return rect(LED_COL_RIGHT_X, cy - LED_LONG / 2, LED_SHORT, LED_LONG);
             }
         }
     }

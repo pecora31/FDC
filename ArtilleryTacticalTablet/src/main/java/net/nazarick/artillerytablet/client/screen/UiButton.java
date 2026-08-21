@@ -220,15 +220,19 @@ public class UiButton {
             return;
         }
 
+        // 1. 3D Metallic Dark Socket Recess (Khuôn hốc kim loại chìm)
+        p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF040507);
+        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF3E4450); // Top rim specular highlight
+
         if (isLit) {
-            // 1. Phosphor Bloom Halo (1px outer soft glow)
+            // 2. Phosphor Bloom Halo (Quầng sáng phốt pho tỏa 1px)
             int glow = 0x44000000 | (litColour & 0x00FFFFFF);
             p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, glow);
 
-            // 2. Vivid Diode Core (Phủ kín thân đèn bằng màu phát quang)
+            // 3. Vivid Semiconductor Diode Core (Thân bóng LED phát quang)
             p.fill(x1, y1, x2, y2, litColour);
 
-            // 3. Specular White Hotspot (Điểm sáng trắng tâm bóng LED)
+            // 4. Specular White Hotspot (Tâm sáng trắng bán dẫn)
             if (w >= 3 && h >= 3) {
                 int cx = x1 + w / 2;
                 int cy = y1 + h / 2;
@@ -237,12 +241,11 @@ public class UiButton {
                 p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Smoked Glass Socket
-            p.fill(x1, y1, x2, y2, 0xFF1C1F26);
-            // Glint
+            // Unlit Smoked Glass Lens (Kính hun khói khi tắt)
+            p.fill(x1, y1, x2, y2, 0xFF181B22);
             if (w >= 2 && h >= 2) {
-                p.fill(x1, y1, x2, y1 + 1, 0xFF4A525E);
-                p.fill(x1, y2 - 1, x2, y2, 0xFF0E1014);
+                p.fill(x1, y1, x2, y1 + 1, 0xFF657082); // Specular lens glint
+                p.fill(x1, y2 - 1, x2, y2, 0xFF0A0C0E); // Bottom inner shadow
             }
         }
     }
@@ -498,8 +501,9 @@ public class UiButton {
 
             p.rounded(kx, ky, w, h, roundRadius, borderCol);
 
-            int wallThickness = Math.max(1, Math.round(w * (1.5f / 44)));
+            int wallThickness = Math.max(1, Math.round(w * (2f / 44)));
             if (!isPressed) {
+                // Outer Shoulder 3D Extrusion Bevels
                 p.rect(kx + roundRadius, ky + h - wallThickness, w - roundRadius * 2, wallThickness, wallCol);
                 p.rect(kx + w - wallThickness, ky + roundRadius, wallThickness, h - roundRadius * 2, wallCol);
                 p.rect(kx + roundRadius, ky + 1, w - roundRadius * 2, 1, shoulderCol);
@@ -509,6 +513,7 @@ public class UiButton {
                 p.rect(kx + 1, ky + roundRadius, 2, h - roundRadius * 2, 0xFF08090B);
             }
 
+            // Cap Top Shoulder Ring
             p.rounded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), rimTopCol);
 
             int dishBaseCol = red
@@ -524,13 +529,16 @@ public class UiButton {
                     ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
                     : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
 
-            int innerMargin = Math.max(1, Math.round(w * (2.5f / 44)));
+            // Inset 3D Concave Dish Bowl (Lòng chảo lõm trung tâm)
+            int innerMargin = Math.max(2, Math.round(w * (4.5f / 44)));
             int ix = kx + innerMargin, iy = ky + innerMargin;
             int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
             int dishRadius = Math.max(1, roundRadius - 2);
 
+            // Dish base floor
             p.rounded(ix, iy, iw, ih, dishRadius, dishBaseCol);
 
+            // Inset Concave Bevels (Bóng đổ trên/trái, phản quang dưới/phải)
             int dishBevel = Math.max(1, Math.round(w * (1.5f / 44)));
             p.rect(ix + dishRadius, iy, iw - dishRadius * 2, dishBevel, dishShadow);
             p.rect(ix, iy + dishRadius, dishBevel, ih - dishRadius * 2, dishShadow);
