@@ -1161,9 +1161,6 @@ public class TabletScreen extends Screen {
         maskWellCorners(g, area[0], area[1], area[2], area[3]);
         TabletDisplay.renderGlassOverlay(g, area[0], area[1], area[2], area[3]);
 
-        // Precision Calibration Target (Vòng tròn chuẩn định pixel trung tâm)
-        drawCalibrationCircles(g, area[0] + area[2] / 2, area[1] + area[3] / 2);
-
         TabletDisplay.clear(g);
         renderControls(g, px, py);
     }
@@ -1199,49 +1196,6 @@ public class TabletScreen extends Screen {
                 int dy = bottom ? cy : r - 1 - cy;
                 if (dx * dx + dy * dy > r * r) {
                     g.fill(x + cx, y + cy, x + cx + 1, y + cy + 1, colour);
-                }
-            }
-        }
-    }
-
-    private void drawCalibrationCircles(GuiGraphics g, int cx, int cy) {
-        // 1. Crosshair
-        g.fill(cx - 32, cy, cx + 33, cy + 1, 0x88FFFFFF);
-        g.fill(cx, cy - 32, cx + 1, cy + 33, 0x88FFFFFF);
-
-        // 2. Outer Smooth Calibration Ring R=24px (Bright Cyan #00FFFF) with Subpixel AA
-        drawAARing(g, cx, cy, 24, 2, 0xFF00FFFF);
-
-        // 3. Inner Smooth Calibration Ring R=12px (Vivid Orange #FF9900) with Subpixel AA
-        drawAARing(g, cx, cy, 12, 2, 0xFFFF9900);
-
-        // 4. Center Dot
-        g.fill(cx - 1, cy - 1, cx + 2, cy + 2, 0xFFFFFFFF);
-
-        // 5. Text info
-        g.drawString(this.font, "CALIBRATION: R_inner=12px (orange), R_outer=24px (cyan)", cx - 110, cy + 32, 0xFF00FFFF, false);
-    }
-
-    private void drawAARing(GuiGraphics g, int cx, int cy, int radius, int thickness, int color) {
-        float rOut = radius;
-        float rIn = radius - thickness;
-        int a = (color >>> 24) & 0xFF;
-        int rgb = color & 0x00FFFFFF;
-
-        for (int dy = -radius - 1; dy <= radius + 1; dy++) {
-            for (int dx = -radius - 1; dx <= radius + 1; dx++) {
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
-                if (dist >= rIn - 0.7f && dist <= rOut + 0.7f) {
-                    float coverage = 1.0f;
-                    if (dist > rOut - 0.5f) {
-                        coverage = Math.max(0f, Math.min(1f, rOut + 0.5f - dist));
-                    } else if (dist < rIn + 0.5f) {
-                        coverage = Math.max(0f, Math.min(1f, dist - (rIn - 0.5f)));
-                    }
-                    if (coverage > 0.05f) {
-                        int pixelAlpha = Math.round(a * coverage);
-                        g.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, (pixelAlpha << 24) | rgb);
-                    }
                 }
             }
         }

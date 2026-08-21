@@ -830,38 +830,38 @@ final class TabletChassisPaint {
 
     private static void bakeDynamicKeySprites(NativeImage img) {
         int r = 6;
-        // PBT Idle
+        // PBT Idle (Exact match to Image 1)
         bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
-                0xAA020203, 0xFF0E1014, 0xFF282B32, 0xFF727886, 0xFF585D6A, 0xFF4A4E5A, 0xFF363942, 0xFF666C7C, false);
+                0x88040508, 0xFF101216, 0xFF2A2D36, 0xFF565C6A, 0xFF4A4E5C, 0xFF3A3E48, 0xFF22242B, 0xFF525868, false);
         // PBT Hover
         bakeKeySprite(img, SPRITE_KEY_PBT_HOVER_X, SPRITE_KEY_PBT_HOVER_Y, 44, 44, r,
-                0xAA020203, 0xFF0E1014, 0xFF282B32, 0xFF8A90A0, 0xFF585D6A, 0xFF585E6C, 0xFF363942, 0xFF666C7C, false);
+                0x88040508, 0xFF101216, 0xFF2A2D36, 0xFF6E7688, 0xFF5A6070, 0xFF484D5A, 0xFF282C34, 0xFF646C7E, false);
         // PBT Pressed
         bakeKeySprite(img, SPRITE_KEY_PBT_PRESSED_X, SPRITE_KEY_PBT_PRESSED_Y, 44, 44, r,
-                0xAA020203, 0xFF0E1014, 0xFF22252C, 0xFF22252C, 0xFF2A2D35, 0xFF2E313A, 0xFF1C1E24, 0xFF3C404C, true);
+                0x88040508, 0xFF101216, 0xFF1C1E24, 0xFF22252C, 0xFF22252C, 0xFF24262E, 0xFF16181E, 0xFF343844, true);
 
-        // Red Idle
+        // Red Idle (Exact match to Image 1)
         bakeKeySprite(img, SPRITE_KEY_RED_IDLE_X, SPRITE_KEY_RED_IDLE_Y, 44, 44, r,
-                0xAA020203, 0xFF1A0303, 0xFF480A0A, 0xFFC82A2A, 0xFF9E1C1C, 0xFF881818, 0xFF540C0C, 0xFFB82828, false);
+                0x88040508, 0xFF180303, 0xFF440808, 0xFFC82424, 0xFF9E1818, 0xFF7A1212, 0xFF480606, 0xFFA41E1E, false);
         // Red Hover
         bakeKeySprite(img, SPRITE_KEY_RED_HOVER_X, SPRITE_KEY_RED_HOVER_Y, 44, 44, r,
-                0xAA020203, 0xFF1A0303, 0xFF480A0A, 0xFFE83A3A, 0xFF9E1C1C, 0xFFA82222, 0xFF540C0C, 0xFFB82828, false);
+                0x88040508, 0xFF180303, 0xFF440808, 0xFFE63030, 0xFFB42020, 0xFF961818, 0xFF540808, 0xFFC42626, false);
         // Red Pressed
         bakeKeySprite(img, SPRITE_KEY_RED_PRESSED_X, SPRITE_KEY_RED_PRESSED_Y, 44, 44, r,
-                0xAA020203, 0xFF1A0303, 0xFF400606, 0xFF400606, 0xFF3C0606, 0xFF4E0A0A, 0xFF200303, 0xFF581010, true);
+                0x88040508, 0xFF180303, 0xFF360404, 0xFF360404, 0xFF360404, 0xFF400606, 0xFF1C0202, 0xFF500808, true);
 
-        // LEDs (Unlit, Green, Red, Amber)
+        // LEDs (Unlit, Green, Red, Amber - Exact match to Image 1)
         bakeLedSprite(img, SPRITE_LED_UNLIT_V_X, SPRITE_LED_UNLIT_V_Y, 4, 8, false, 0);
         bakeLedSprite(img, SPRITE_LED_UNLIT_H_X, SPRITE_LED_UNLIT_H_Y, 8, 4, false, 0);
 
-        bakeLedSprite(img, SPRITE_LED_GREEN_V_X, SPRITE_LED_GREEN_V_Y, 4, 8, true, 0xFF00FF66);
-        bakeLedSprite(img, SPRITE_LED_GREEN_H_X, SPRITE_LED_GREEN_H_Y, 8, 4, true, 0xFF00FF66);
+        bakeLedSprite(img, SPRITE_LED_GREEN_V_X, SPRITE_LED_GREEN_V_Y, 4, 8, true, 0xFF00E65A);
+        bakeLedSprite(img, SPRITE_LED_GREEN_H_X, SPRITE_LED_GREEN_H_Y, 8, 4, true, 0xFF00E65A);
 
-        bakeLedSprite(img, SPRITE_LED_RED_V_X, SPRITE_LED_RED_V_Y, 4, 8, true, 0xFFFF3333);
-        bakeLedSprite(img, SPRITE_LED_RED_H_X, SPRITE_LED_RED_H_Y, 8, 4, true, 0xFFFF3333);
+        bakeLedSprite(img, SPRITE_LED_RED_V_X, SPRITE_LED_RED_V_Y, 4, 8, true, 0xFFFF2A2A);
+        bakeLedSprite(img, SPRITE_LED_RED_H_X, SPRITE_LED_RED_H_Y, 8, 4, true, 0xFFFF2A2A);
 
-        bakeLedSprite(img, SPRITE_LED_AMBER_V_X, SPRITE_LED_AMBER_V_Y, 4, 8, true, 0xFFFFB300);
-        bakeLedSprite(img, SPRITE_LED_AMBER_H_X, SPRITE_LED_AMBER_H_Y, 8, 4, true, 0xFFFFB300);
+        bakeLedSprite(img, SPRITE_LED_AMBER_V_X, SPRITE_LED_AMBER_V_Y, 4, 8, true, 0xFFFFB000);
+        bakeLedSprite(img, SPRITE_LED_AMBER_H_X, SPRITE_LED_AMBER_H_Y, 8, 4, true, 0xFFFFB000);
     }
 
     private static void bakeKeySprite(NativeImage img, int kx, int ky, int w, int h, int roundRadius,
@@ -898,13 +898,13 @@ final class TabletChassisPaint {
         for (int x = roundRadius; x < w - roundRadius; x++) {
             setPixel(img, kx + x, ky + 1, rimTop);
         }
-        // Concave dish bowl
-        int inset = Math.max(3, Math.round(w * (5.5f / 44f)));
+        // Concave dish bowl (matches Image 1 perfectly)
+        int inset = 4;
         int dishW = w - inset * 2;
         int dishH = h - inset * 2;
         int dishX = kx + inset;
-        int dishY = ky + (pressed ? inset + 1 : inset - 1);
-        int dishRadius = Math.max(2, roundRadius - 2);
+        int dishY = ky + (pressed ? inset + 1 : inset);
+        int dishRadius = 4;
 
         for (int y = 0; y < dishH; y++) {
             float t = (float) y / Math.max(1, dishH - 1);
@@ -946,14 +946,8 @@ final class TabletChassisPaint {
 
     private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
         if (lit) {
-            // Socket hole
-            for (int y = -1; y <= h; y++) {
-                for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF040507);
-                }
-            }
             // Phosphor bloom
-            int glow = 0x44000000 | (litCol & 0x00FFFFFF);
+            int glow = 0x55000000 | (litCol & 0x00FFFFFF);
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
                     setPixel(img, lx + x, ly + y, glow);
@@ -965,18 +959,16 @@ final class TabletChassisPaint {
                     setPixel(img, lx + x, ly + y, litCol);
                 }
             }
-            // White core
-            if (w >= 3 && h >= 4) {
-                for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, lx + w / 2, ly + y, 0xFFFFFFFF);
-                }
-            } else if (w >= 4 && h >= 3) {
-                for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, ly + h / 2, 0xFFFFFFFF);
+            // White core dot in center (matches Image 1)
+            int dotX = lx + w / 2 - 1;
+            int dotY = ly + h / 2 - 1;
+            for (int y = 0; y < 2; y++) {
+                for (int x = 0; x < 2; x++) {
+                    setPixel(img, dotX + x, dotY + y, 0xFFFFFFFF);
                 }
             }
         } else {
-            // Unlit compact translucent optical smoked glass
+            // Unlit compact translucent optical smoked glass (matches Image 1)
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     setPixel(img, lx + x, ly + y, 0xFF222834);
@@ -984,7 +976,7 @@ final class TabletChassisPaint {
             }
             // Top reflection sheen
             for (int x = 0; x < w; x++) {
-                setPixel(img, lx + x, ly, 0xFF58667C);
+                setPixel(img, lx + x, ly, 0xFF4A5468);
             }
             // Bottom shadow
             for (int x = 0; x < w; x++) {
