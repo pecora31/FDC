@@ -479,6 +479,16 @@ final class TabletChassisPaint {
                     }
                 }
             }
+            int bevelW = 8;
+            for (int x = uX2 - bevelW; x < uX2; x++) {
+                int d = (uX2 - 1) - x;
+                int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0D0E10 : (d == bevelW - 2 ? 0xFF1F2125 : (d == bevelW - 1 ? 0xFF282A2F : 0xFF141619)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
         } else {
             for (int x = uX2 - bW; x < uX2; x++) {
                 int d = (uX2 - 1) - x;
@@ -502,6 +512,16 @@ final class TabletChassisPaint {
                 int d = (uY2 - 1) - y;
                 int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                 for (int x = uX1; x < uX2; x++) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            int bevelW = 8;
+            for (int x = uX1; x < uX1 + bevelW; x++) {
+                int d = x - uX1;
+                int col = (d == 0) ? 0xFF141518 : ((d == 1) ? 0xFF191B1E : (d == bevelW - 2 ? 0xFF26282D : (d == bevelW - 1 ? 0xFF2B2D32 : 0xFF1F2125)));
+                for (int y = uY1; y < uY2; y++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }

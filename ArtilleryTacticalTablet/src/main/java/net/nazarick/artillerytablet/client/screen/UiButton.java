@@ -220,12 +220,10 @@ public class UiButton {
             return;
         }
 
-        // 1. 3D Metallic Dark Socket Recess (Khuôn hốc kim loại chìm sâu và nổi viền)
-        p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF040507);
-        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF4E5668); // Top rim specular highlight
-        p.fill(x1 - 1, y1 - 1, x1, y2 + 1, 0xFF383E4C); // Left rim highlight
-
         if (isLit) {
+            // 1. Precise Socket Hole (Khuôn hốc gọn gàng)
+            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF040507);
+
             // 2. Phosphor Bloom Halo (Quầng sáng phốt pho tỏa 1px)
             int glow = 0x44000000 | (litColour & 0x00FFFFFF);
             p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, glow);
@@ -242,12 +240,12 @@ public class UiButton {
                 p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Deep Smoked Glass Lens (Mặt kính hun khói sẫm đen bóng)
-            p.fill(x1, y1, x2, y2, 0xFF101216);
+            // Unlit Subtle Crystal Smoked Diode (Hòa hợp chất nhám vỏ máy, bóng nhẹ tinh thể)
+            p.fill(x1, y1, x2, y2, 0xFF14161B); // Recessed socket bed
             if (w >= 2 && h >= 2) {
-                p.fill(x1, y1, x2, y1 + 1, 0xFF7A869C); // Bright specular lens glint
-                p.fill(x1, y1, x1 + 1, y2, 0xFF444C5C); // Left specular glint
-                p.fill(x1, y2 - 1, x2, y2, 0xFF060709); // Bottom inner shadow
+                p.fill(x1, y1, x2, y2, 0xFF181B20); // Matte smoked crystal diode
+                p.fill(x1, y1, x2, y1 + 1, 0xFF383F4C); // Soft crystal glint
+                p.fill(x1, y2 - 1, x2, y2, 0xFF0E1014); // Soft bottom shadow
             }
         }
     }
@@ -501,22 +499,18 @@ public class UiButton {
                     ? (isPressed ? COL_RED_RIM_TOP_PRESSED : COL_RED_RIM_TOP)
                     : (isPressed ? COL_BTN_RIM_TOP_PRESSED : COL_BTN_RIM_TOP);
 
+            // 1. Dark Border Base
             p.rounded(kx, ky, w, h, roundRadius, borderCol);
 
-            int wallThickness = Math.max(1, Math.round(w * (2f / 44)));
+            // 2. Smooth Shaded Cap Body (From shoulder highlight at top to wall shadow at bottom, smoothly following the curve!)
             if (!isPressed) {
-                // Outer Shoulder 3D Extrusion Bevels
-                p.rect(kx + roundRadius, ky + h - wallThickness, w - roundRadius * 2, wallThickness, wallCol);
-                p.rect(kx + w - wallThickness, ky + roundRadius, wallThickness, h - roundRadius * 2, wallCol);
-                p.rect(kx + roundRadius, ky + 1, w - roundRadius * 2, 1, shoulderCol);
-                p.rect(kx + 1, ky + roundRadius, 1, h - roundRadius * 2, shoulderCol);
+                p.roundedShaded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), shoulderCol, wallCol);
             } else {
-                p.rect(kx + roundRadius, ky + 1, w - roundRadius * 2, 2, 0xFF08090B);
-                p.rect(kx + 1, ky + roundRadius, 2, h - roundRadius * 2, 0xFF08090B);
+                p.rounded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), 0xFF08090B);
             }
 
-            // Cap Top Shoulder Ring
-            p.rounded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), rimTopCol);
+            // 3. Cap Shoulder Crown
+            p.rounded(kx + 2, ky + 2, w - 4, h - 4, Math.max(1, roundRadius - 2), rimTopCol);
 
             int dishBaseCol = red
                     ? (isPressed ? COL_RED_DISH_PRESSED : lit ? COL_RED_DISH_HOVER : COL_RED_DISH_BASE)
@@ -531,21 +525,17 @@ public class UiButton {
                     ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
                     : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
 
-            // Inset 3D Concave Dish Bowl (Lòng chảo lõm trung tâm)
-            int innerMargin = Math.max(2, Math.round(w * (4.5f / 44)));
+            // 4. Smooth Inset 3D Concave Dish Bowl (Lòng chảo bo tròn mịn màng)
+            int innerMargin = Math.max(2, Math.round(w * (3.5f / 44)));
             int ix = kx + innerMargin, iy = ky + innerMargin;
             int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
             int dishRadius = Math.max(1, roundRadius - 2);
 
-            // Dish base floor
-            p.rounded(ix, iy, iw, ih, dishRadius, dishBaseCol);
+            // Dish outer concave bevel ring (smooth shaded!)
+            p.roundedShaded(ix, iy, iw, ih, dishRadius, dishShadow, dishLight);
 
-            // Inset Concave Bevels (Bóng đổ trên/trái, phản quang dưới/phải)
-            int dishBevel = Math.max(1, Math.round(w * (1.5f / 44)));
-            p.rect(ix + dishRadius, iy, iw - dishRadius * 2, dishBevel, dishShadow);
-            p.rect(ix, iy + dishRadius, dishBevel, ih - dishRadius * 2, dishShadow);
-            p.rect(ix + dishRadius, iy + ih - dishBevel, iw - dishRadius * 2, dishBevel, dishLight);
-            p.rect(ix + iw - dishBevel, iy + dishRadius, dishBevel, ih - dishRadius * 2, dishLight);
+            // Dish floor
+            p.rounded(ix + 1, iy + 1, iw - 2, ih - 2, Math.max(1, dishRadius - 1), dishBaseCol);
 
             drawLamp(p);
 
