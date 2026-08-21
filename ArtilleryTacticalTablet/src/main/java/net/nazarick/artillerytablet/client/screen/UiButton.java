@@ -205,12 +205,9 @@ public class UiButton {
      * this plain: the halo was decoration standing in for the one fact worth showing, which is
      * simply whether the stroke is lit, and a plain stroke says that without saying anything else.
      *
-     * <p>Dark rather than absent when off. An unlit lamp is still a lamp, and a row of them with
-     * only the live one drawn would read as a row of keys of which some had a mark and some did
-     * not — which says nothing about what the mark means. Seeing the whole row unlit is what makes
-     * one lit one legible.
+     * <p>Dark rather than absent when off.
      */
-    private void lamp(Paint p) {
+    private void drawLamp(Paint p) {
         if (led == null) {
             return;
         }
@@ -218,19 +215,36 @@ public class UiButton {
         boolean isLit = hardOn;
 
         int x1 = led[0], y1 = led[1], x2 = x1 + led[2], y2 = y1 + led[3];
+        int w = led[2], h = led[3];
 
-        p.rect(x1 - 1, y1 - 1, led[2] + 2, led[3] + 2, 0xFF08090C);
+        // 1. 3D Dark Socket Recess (Hốc kim loại chìm)
+        p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF050608);
+        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF363A42); // Top rim highlight
+        p.fill(x1 - 1, y1 - 1, x1, y2 + 1, 0xFF2A2D35); // Left rim highlight
 
         if (isLit) {
+            // 2. Multi-layer Radial Diffusion Halo (Quầng sáng phốt pho)
+            int glowOuter = 0x25000000 | (litColour & 0x00FFFFFF);
+            int glowInner = 0x55000000 | (litColour & 0x00FFFFFF);
+            p.rect(x1 - 2, y1 - 2, w + 4, h + 4, glowOuter);
+            p.rect(x1 - 1, y1 - 1, w + 2, h + 2, glowInner);
+
+            // 3. Vivid Semiconductor Diode Core (Thân bóng LED phát sáng)
             p.fill(x1, y1, x2, y2, litColour);
-            p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, 0xFFFFFFFF);
-            int glow = 0x33000000 | (litColour & 0x00FFFFFF);
-            p.rect(x1 - 2, y1 - 2, led[2] + 4, led[3] + 4, glow);
+
+            // 4. Specular White Hot-Spot (Tâm sáng trắng của bóng bán dẫn)
+            if (w >= 4 && h >= 4) {
+                int cx = x1 + w / 2;
+                int cy = y1 + h / 2;
+                p.fill(cx - 1, cy - 1, cx + 1, cy + 1, 0xFFFFFFFF);
+            } else {
+                p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, 0xFFFFFFFF);
+            }
         } else {
-            p.fill(x1, y1, x2, y2, 0xFF272B32);
-            p.fill(x1, y1, x1 + 1, y1 + 1, 0xFF6E7886);
-            p.fill(x1, y1, x2, y1 + 1, 0xFF4A525E);
-            p.fill(x1, y2 - 1, x2, y2, 0xFF121417);
+            // Unlit Smoked Glass Diode Lens (Kính hun khói khi tắt)
+            p.fill(x1, y1, x2, y2, 0xFF1A1C22);
+            p.fill(x1, y1, x1 + 1, y1 + 1, 0xFF586270); // Top specular glint
+            p.fill(x1, y2 - 1, x2, y2, 0xFF0A0C0E);     // Bottom inner shadow
         }
     }
 
@@ -436,6 +450,10 @@ public class UiButton {
         render(new GuiPaint(g), px, py, mouseDown);
     }
 
+    public void render(Paint p, double px, double py) {
+        render(p, px, py, false);
+    }
+
     /**
      * The same key, drawn through the seam.
      *
@@ -520,7 +538,7 @@ public class UiButton {
             p.rect(ix + dishRadius, iy + ih - dishBevel, iw - dishRadius * 2, dishBevel, dishLight);
             p.rect(ix + iw - dishBevel, iy + dishRadius, dishBevel, ih - dishRadius * 2, dishLight);
 
-            lamp(p);
+            drawLamp(p);
 
             if (mark != null) {
                 drawMark(p, kx + w / 2, ky + h / 2, w, textCol);
