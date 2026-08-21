@@ -21,47 +21,47 @@ public class UiButton {
     /** Almost transparent, so the map stays faintly visible behind a key. */
     private static final int BACKGROUND = 0xB0141A21;
 
-    // Injection-moulded matte PBT key (ash grey) — case-key palette.
-    private static final int COL_BTN_DROP_SHADOW = 0x88030304;
-    private static final int COL_BTN_BORDER_DARK = 0xFF141518;
-    private static final int COL_BTN_WALL_EXTRUSION = 0xFF24262C;
-    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF626670;
-    private static final int COL_BTN_SHOULDER_HOVER = 0xFF767B86;
-    private static final int COL_BTN_SHOULDER_PRESSED = 0xFF1C1E22;
-    private static final int COL_BTN_RIM_TOP = 0xFF4A4E56;
-    private static final int COL_BTN_RIM_TOP_PRESSED = 0xFF1E2024;
-    private static final int COL_BTN_DISH_BASE = 0xFF3D4047;
-    private static final int COL_BTN_DISH_HOVER = 0xFF4A4E57;
-    private static final int COL_BTN_DISH_PRESSED = 0xFF202227;
-    private static final int COL_BTN_DISH_SHADOW = 0xFF26282E;
-    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF101114;
-    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF525660;
-    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF2C2F36;
-    private static final int COL_BTN_TEXT = 0xFFF2F4F8;
+    // Injection-moulded matte PBT key (ash grey) — high contrast case-key palette.
+    private static final int COL_BTN_DROP_SHADOW = 0xAA020203;
+    private static final int COL_BTN_BORDER_DARK = 0xFF0A0B0E;
+    private static final int COL_BTN_WALL_EXTRUSION = 0xFF1E2026;
+    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF7A808E;
+    private static final int COL_BTN_SHOULDER_HOVER = 0xFF9DA4B4;
+    private static final int COL_BTN_SHOULDER_PRESSED = 0xFF181A1E;
+    private static final int COL_BTN_RIM_TOP = 0xFF4E525C;
+    private static final int COL_BTN_RIM_TOP_PRESSED = 0xFF1C1E22;
+    private static final int COL_BTN_DISH_BASE = 0xFF3A3D44;
+    private static final int COL_BTN_DISH_HOVER = 0xFF4A4E58;
+    private static final int COL_BTN_DISH_PRESSED = 0xFF1E2024;
+    private static final int COL_BTN_DISH_SHADOW = 0xFF1C1E24;
+    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF0C0D10;
+    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF5C6270;
+    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF282B32;
+    private static final int COL_BTN_TEXT = 0xFFFFFFFF;
     private static final int COL_BTN_TEXT_PRESSED = 0xFFB0B4BC;
 
     // Bright tactical crimson key — CFF and POWER.
-    private static final int COL_RED_BORDER_DARK = 0xFF2A0606;
-    private static final int COL_RED_WALL_EXTRUSION = 0xFF500C0C;
-    private static final int COL_RED_SHOULDER_LIGHT = 0xFFB82626;
-    private static final int COL_RED_SHOULDER_HOVER = 0xFFD42E2E;
-    private static final int COL_RED_SHOULDER_PRESSED = 0xFF500A0A;
-    private static final int COL_RED_RIM_TOP = 0xFF8E1B1B;
-    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF4A0808;
-    private static final int COL_RED_DISH_BASE = 0xFF821818;
-    private static final int COL_RED_DISH_HOVER = 0xFFA62222;
-    private static final int COL_RED_DISH_PRESSED = 0xFF580E0E;
-    private static final int COL_RED_DISH_SHADOW = 0xFF4C0A0A;
-    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF180303;
-    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFA62222;
-    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF681414;
+    private static final int COL_RED_BORDER_DARK = 0xFF1E0404;
+    private static final int COL_RED_WALL_EXTRUSION = 0xFF440808;
+    private static final int COL_RED_SHOULDER_LIGHT = 0xFFC82A2A;
+    private static final int COL_RED_SHOULDER_HOVER = 0xFFE83A3A;
+    private static final int COL_RED_SHOULDER_PRESSED = 0xFF400606;
+    private static final int COL_RED_RIM_TOP = 0xFF9E1C1C;
+    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF3C0606;
+    private static final int COL_RED_DISH_BASE = 0xFF8A1A1A;
+    private static final int COL_RED_DISH_HOVER = 0xFFB22424;
+    private static final int COL_RED_DISH_PRESSED = 0xFF4E0A0A;
+    private static final int COL_RED_DISH_SHADOW = 0xFF440808;
+    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF140202;
+    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFB82828;
+    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF581010;
     private static final int COL_RED_TEXT = 0xFFFFFFFF;
     private static final int COL_RED_TEXT_PRESSED = 0xFFC0C0C0;
 
     // Smoked-lens LED, on the bezel beside a key.
-    private static final int LED_LIT_GOOD = 0xFF2BE05E;
+    private static final int LED_LIT_GOOD = 0xFF00FF66;
     private static final int LED_LIT_DANGER = 0xFFFF3333;
-    private static final int LED_LIT_POWER = 0xFFFFB020;
+    private static final int LED_LIT_POWER = 0xFFFFB300;
 
     public final int x;
     public final int y;
@@ -216,26 +216,34 @@ public class UiButton {
 
         int x1 = led[0], y1 = led[1], x2 = x1 + led[2], y2 = y1 + led[3];
         int w = led[2], h = led[3];
-
-        // 1. Precise Socket Hole (Khuôn hốc kim loại gọn gàng đúng kích thước)
-        p.fill(x1, y1, x2, y2, 0xFF08090C);
+        if (w <= 0 || h <= 0) {
+            return;
+        }
 
         if (isLit) {
-            // 2. Subtle 1px Bloom (Không bị tràn lố ra ngoài)
-            int glow = 0x30000000 | (litColour & 0x00FFFFFF);
-            p.rect(x1 - 1, y1 - 1, w + 2, h + 2, glow);
+            // 1. Phosphor Bloom Halo (1px outer soft glow)
+            int glow = 0x44000000 | (litColour & 0x00FFFFFF);
+            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, glow);
 
-            // 3. Crisp Diode Core (Thân đèn LED phát quang)
-            p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, litColour);
+            // 2. Vivid Diode Core (Phủ kín thân đèn bằng màu phát quang)
+            p.fill(x1, y1, x2, y2, litColour);
 
-            // 4. Center Specular White Hotspot
-            int cx = x1 + w / 2;
-            int cy = y1 + h / 2;
-            p.fill(cx, cy, cx + 1, cy + 1, 0xFFFFFFFF);
+            // 3. Specular White Hotspot (Điểm sáng trắng tâm bóng LED)
+            if (w >= 3 && h >= 3) {
+                int cx = x1 + w / 2;
+                int cy = y1 + h / 2;
+                p.fill(cx, cy, cx + 1, cy + 1, 0xFFFFFFFF);
+            } else if (w >= 2 && h >= 2) {
+                p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
+            }
         } else {
-            // Unlit Smoked Glass Lens (Kính hun khói khi tắt)
-            p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, 0xFF1C1F26);
-            p.fill(x1 + 1, y1 + 1, x2 - 1, y1 + 2, 0xFF4A525E); // Top specular glint
+            // Unlit Smoked Glass Socket
+            p.fill(x1, y1, x2, y2, 0xFF1C1F26);
+            // Glint
+            if (w >= 2 && h >= 2) {
+                p.fill(x1, y1, x2, y1 + 1, 0xFF4A525E);
+                p.fill(x1, y2 - 1, x2, y2, 0xFF0E1014);
+            }
         }
     }
 
