@@ -222,7 +222,7 @@ public class UiButton {
 
         // 1. 3D Metallic Dark Socket Recess (Khuôn hốc kim loại chìm)
         p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF040507);
-        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF3E4450); // Top rim specular highlight
+        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF4A5260); // Top rim specular highlight
 
         if (isLit) {
             // 2. Phosphor Bloom Halo (Quầng sáng phốt pho tỏa 1px)
@@ -232,11 +232,9 @@ public class UiButton {
             // 3. Vivid Semiconductor Diode Core (Thân bóng LED phát quang)
             p.fill(x1, y1, x2, y2, litColour);
 
-            // 4. Specular White Hotspot (Tâm sáng trắng bán dẫn)
-            if (w >= 3 && h >= 3) {
-                int cx = x1 + w / 2;
-                int cy = y1 + h / 2;
-                p.fill(cx, cy, cx + 1, cy + 1, 0xFFFFFFFF);
+            // 4. Specular White Core (Lõi sáng trắng bán dẫn)
+            if (w >= 3 && h >= 4) {
+                p.fill(x1 + w / 2, y1 + 1, x1 + w / 2 + 1, y2 - 1, 0xFFFFFFFF);
             } else if (w >= 2 && h >= 2) {
                 p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
             }
@@ -244,7 +242,8 @@ public class UiButton {
             // Unlit Smoked Glass Lens (Kính hun khói khi tắt)
             p.fill(x1, y1, x2, y2, 0xFF181B22);
             if (w >= 2 && h >= 2) {
-                p.fill(x1, y1, x2, y1 + 1, 0xFF657082); // Specular lens glint
+                p.fill(x1, y1, x2, y1 + 1, 0xFF657082); // Top lens glint
+                p.fill(x1, y1, x1 + 1, y2, 0xFF3A404C); // Left rim glint
                 p.fill(x1, y2 - 1, x2, y2, 0xFF0A0C0E); // Bottom inner shadow
             }
         }
