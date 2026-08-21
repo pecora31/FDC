@@ -82,15 +82,6 @@ public class TabletScreen extends Screen {
      */
     private static final int KEY_ROW = 12;
 
-    /**
-     * The strip across the top of the screen.
-     *
-     * <p>Sixteen, down from twenty-four. It was set when the case did not exist and this was the
-     * device's own top edge, needing enough height to read as one; with a case above it there are
-     * now two strips stacked, and two thick ones read as a wide dead band over the map. A line of
-     * text needs eight and this leaves four either side of it.
-     */
-    private static final int HEADER = 16;
     private static final int ROW = 10;
 
     /**
@@ -166,7 +157,6 @@ public class TabletScreen extends Screen {
     private static final int COLOUR_FRAME = TabletTheme.FRAME;
     private static final int COLOUR_ACCENT = TabletTheme.FRIENDLY;
     private static final int COLOUR_PANEL = TabletTheme.SURFACE;
-    private static final int COLOUR_BEZEL = TabletTheme.BEZEL;
     private static final int COLOUR_OVERLAY = TabletTheme.OVERLAY;
     private static final int COLOUR_TEXT = TabletTheme.TEXT;
     private static final int COLOUR_MUTED = TabletTheme.MUTED;
@@ -1112,18 +1102,6 @@ public class TabletScreen extends Screen {
         boolean booting = map != null && map.booting();
 
         g.fill(left, top, left + width0, top + height0, COLOUR_FRAME);
-        if (!booting) {
-            g.fill(left, top, left + width0, top + HEADER, COLOUR_BEZEL);
-        }
-
-        // The blue rule went along the very top, against the case. There it was a third edge in as
-        // many pixels — the case ends, the well's black ends, and then a bright line — and three
-        // edges a pixel apart read as a seam rather than as an edge. It belongs under the header,
-        // where it separates two things that are actually different: the strip and the map.
-        if (!booting) {
-            g.fill(left, top + HEADER - 1, left + width0, top + HEADER, COLOUR_ACCENT);
-            renderHeader(g);
-        }
 
         boolean showMap = mapAppActive();
 
@@ -1135,7 +1113,6 @@ public class TabletScreen extends Screen {
 
             g.fill(area[0], area[1], area[0] + area[2], area[1] + area[3], COLOUR_PANEL);
             map.render(g, area[0], area[1], area[2], area[3]);
-            recess(g, area);
             renderMapMarkers(g, area[0], area[1], area[2], area[3]);
 
             if (!booting) {
@@ -1181,8 +1158,46 @@ public class TabletScreen extends Screen {
             rebuild();
         }
 
+        maskWellCorners(g, area[0], area[1], area[2], area[3]);
+
         TabletDisplay.clear(g);
         renderControls(g, px, py);
+    }
+
+    /**
+     * Restores the well's rounded corners after square content has been drawn into it.
+     *
+     * <p>The chassis bakes a rounded bezel around the well (see {@link TabletChassisPaint}), but
+     * the map, every app and the boot splash all fill or draw a plain rectangle over it — the
+     * simplest thing any of those draw paths can target. Painting the bezel's own dark tone back
+     * over the four corner wedges a rounded rect would have excluded is far cheaper than teaching
+     * every one of them to clip to a curve, and reads identically: the well looks rounded because
+     * the last thing drawn into it says so.
+     */
+    private void maskWellCorners(GuiGraphics g, int x, int y, int w, int h) {
+        int r = frame.toScreenW(10);
+        if (r <= 0) {
+            return;
+        }
+        // Matches TabletChassisPaint's own four corner tones for the same bezel band (darkest at
+        // top-left, lightest at bottom-right) rather than one flat colour, so the patch disappears
+        // into the baked chassis instead of standing out as a slightly different grey.
+        maskCorner(g, x, y, r, false, false, 0xFF070809);
+        maskCorner(g, x + w - r, y, r, true, false, 0xFF1A1C1F);
+        maskCorner(g, x, y + h - r, r, false, true, 0xFF1A1C1F);
+        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF24262A);
+    }
+
+    private void maskCorner(GuiGraphics g, int x, int y, int r, boolean right, boolean bottom, int colour) {
+        for (int cy = 0; cy < r; cy++) {
+            for (int cx = 0; cx < r; cx++) {
+                int dx = right ? cx : r - 1 - cx;
+                int dy = bottom ? cy : r - 1 - cy;
+                if (dx * dx + dy * dy > r * r) {
+                    g.fill(x + cx, y + cy, x + cx + 1, y + cy + 1, colour);
+                }
+            }
+        }
     }
 
     /**
@@ -1223,77 +1238,6 @@ public class TabletScreen extends Screen {
     // target and battery views already say, in less room, over the one part of the display that is
     // the instrument — and an empty band across the bottom of a map is worse than no band at all.
 
-
-    /**
-     * The top strip: what this is, and the mission state as labelled pairs.
-     *
-     * <p>Every figure is labelled. An unlabelled row of numbers reads as something to decode rather
-     * than something to glance at — the bare coordinates and the lone digit at the end were being
-     * read that way. Pairs are dropped from the right if the view names leave no room, because a
-     * label colliding with a menu is worse than a figure the player can find elsewhere.
-     */
-    private void renderHeader(GuiGraphics g) {
-        int x = left + Ui.GAP_MD;
-        x += TabletTheme.draw(g, font, Component.translatable("hud.artillerytablet.title"),
-                x, top + (HEADER - Ui.TEXT_HEIGHT) / 2, COLOUR_ACCENT) + 10;
-
-        // Battery state, not map state. Where the map happens to be centred is a fact about the map
-        // and now lives in its corner; a status bar on a fire-control device should say what the
-        // battery has, what it is loaded with, and what is already in the air.
-        int ready = 0;
-        int laid = 0;
-        String ammo = "";
-        List<NearbyArtilleryEntry> roster = TabletClientData.roster();
-        if (roster != null) {
-            for (NearbyArtilleryEntry gun : roster) {
-                if (!boundIds.contains(gun.id) || !gun.located) {
-                    continue;
-                }
-                laid++;
-                if (missionOf(gun.id) == null) {
-                    ready++;
-                }
-                if (ammo.isEmpty()) {
-                    ammo = gun.rounds >= 10_000 ? "∞ " + gun.ammoLabel : gun.rounds + " " + gun.ammoLabel;
-                }
-            }
-        }
-
-        x = headerPair(g, x, "hud.artillerytablet.field.guns",
-                ready + "/" + Math.max(laid, boundIds.size()), boundIds.isEmpty() ? COLOUR_MUTED : COLOUR_GOOD);
-        if (!ammo.isEmpty()) {
-            x = headerPair(g, x, "hud.artillerytablet.field.ammo", ammo, COLOUR_TEXT);
-        }
-        int flying = missionCount();
-        if (flying > 0) {
-            x = headerPair(g, x, "hud.artillerytablet.field.missions", String.valueOf(flying), COLOUR_ACCENT);
-        }
-        headerPair(g, x, "hud.artillerytablet.field.targets", String.valueOf(targets.size()),
-                targets.isEmpty() ? COLOUR_MUTED : COLOUR_TEXT);
-    }
-
-    private FireMissionClientState.Entry missionOf(UUID gun) {
-        if (this.minecraft == null || this.minecraft.level == null) {
-            return null;
-        }
-        return FireMissionClientState.active(this.minecraft.level.getGameTime()).get(gun);
-    }
-
-    private int missionCount() {
-        return missions().size();
-    }
-
-    private int headerPair(GuiGraphics g, int x, String labelKey, String value, int valueColour) {
-        Component label = Component.translatable(labelKey);
-        int width = Ui.width(label) + Ui.GAP_SM + Ui.width(value) + Ui.GAP_LG;
-        if (x + width > left + width0 - Ui.GAP_MD) {
-            return x;
-        }
-        Ui.textIn(g, label, x, top, HEADER, COLOUR_MUTED);
-        x += Ui.width(label) + Ui.GAP_SM;
-        Ui.textIn(g, value, x, top, HEADER, valueColour);
-        return x + Ui.width(value) + Ui.GAP_LG;
-    }
 
     /**
      * The open view, drawn over the map rather than beside it. The backing is opaque so text stays
@@ -1391,24 +1335,6 @@ public class TabletScreen extends Screen {
             }
         }
         TabletTheme.draw(g, font, name, m[0] + Ui.GAP_SM, m[1] + Ui.GAP_MD, COLOUR_ACCENT, false);
-    }
-
-    /**
-     * Sinks the live area into the case.
-     *
-     * <p>A dark hairline along the top and left and a pale one along the bottom and right is how a
-     * flat rectangle is read as recessed, because it is what a real recess does under light coming
-     * from above. Two fills each, and the map stops looking painted onto the same surface as the
-     * keys that surround it.
-     *
-     * <p>Deliberately this cheap: a proper case is a drawn image, and this is what stands in until
-     * there is one.
-     */
-    private void recess(GuiGraphics g, int[] a) {
-        g.fill(a[0], a[1], a[0] + a[2], a[1] + 1, 0x99000000);
-        g.fill(a[0], a[1], a[0] + 1, a[1] + a[3], 0x99000000);
-        g.fill(a[0], a[1] + a[3] - 1, a[0] + a[2], a[1] + a[3], 0x22FFFFFF);
-        g.fill(a[0] + a[2] - 1, a[1], a[0] + a[2], a[1] + a[3], 0x22FFFFFF);
     }
 
     /** The surround every panel shares: ground, an accent rule along the top, and its name. */
@@ -2006,8 +1932,7 @@ public class TabletScreen extends Screen {
      */
     /** The map runs to all four edges under the header. Panels float on it; nothing frames it. */
     private int[] mapArea() {
-        int mapTop = top + HEADER;
-        return new int[]{left, mapTop, width0, top + height0 - mapTop};
+        return new int[]{left, top, width0, height0};
     }
 
     /**

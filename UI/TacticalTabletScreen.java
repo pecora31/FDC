@@ -1,5 +1,8 @@
 package com.example.artillerymod.client.gui;
 
+import com.example.artillerymod.client.gui.app.AppManager;
+import com.example.artillerymod.client.gui.app.FireControlApp;
+import com.example.artillerymod.client.shader.TacticalShaders;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -7,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,10 +27,10 @@ import java.util.Map;
  * ============================================================================
  * Minecraft Version: Forge / NeoForge 1.20.1+
  * 
+ * 🚀 PHASE 1: TACTICAL OS CORE & MULTITASKING ENGINE
  * + 100% GPU ZERO-CPU RENDERING (500+ FPS)
  * + INSTANT 0.0ms LAZY PRE-BAKED ATLAS TEXTURE
- * + 32 PHYSICAL BEVELED KEYS WITH HOVER & PRESSED SPRITE ATLAS
- * + CLEAN STANDALONE WORKSPACE (800x450 SCREEN WELL)
+ * + MULTI-APP SWITCHING (SA, WPN, DEF, SYS, COM, BMS, CFF)
  */
 public class TacticalTabletScreen extends Screen {
 
@@ -82,7 +86,9 @@ public class TacticalTabletScreen extends Screen {
     private TacticalKey hoveredKey = null;
     private TacticalKey pressedKey = null;
     private String pressedKeyId = null;
-    private String activeKeyLabel = "READY";
+
+    // Tactical OS Kernel App Manager
+    private final AppManager appManager;
 
     // 5x7 Pixel Font Table
     private static final Map<Character, int[]> GLYPHS = new HashMap<>();
@@ -129,6 +135,7 @@ public class TacticalTabletScreen extends Screen {
 
     public TacticalTabletScreen() {
         super(Component.literal("RSD-G156 Tactical Tablet"));
+        this.appManager = new AppManager();
     }
 
     @Override
@@ -1365,14 +1372,23 @@ public class TacticalTabletScreen extends Screen {
             g.blit(staticChassisAtlasLoc, 0, 0, 0, 0, DESIGN_W, DESIGN_H, ATLAS_W, ATLAS_H);
         }
 
-        // 2. RENDER STANDALONE TACTICAL CANVAS INSIDE SCREEN WELL (800x450)
+        // 2. PHASE 1: RENDER ACTIVE TACTICAL APP INSIDE SCREEN BED (800x450)
         pose.pushPose();
         pose.translate(SCR_X, SCR_Y, 0);
 
         int localMouseX = (int) Math.round(virtMouseX - SCR_X);
         int localMouseY = (int) Math.round(virtMouseY - SCR_Y);
 
-        renderScreenContent(g, SCR_W, SCR_H, localMouseX, localMouseY, partialTick);
+        ShaderInstance crtShader = TacticalShaders.getTacticalCrtShader();
+        if (crtShader != null) {
+            RenderSystem.setShader(() -> crtShader);
+        }
+
+        appManager.renderActiveApp(g, SCR_W, SCR_H, localMouseX, localMouseY, partialTick);
+
+        if (crtShader != null) {
+            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        }
 
         pose.popPose();
 
@@ -1384,11 +1400,6 @@ public class TacticalTabletScreen extends Screen {
         }
 
         pose.popPose();
-    }
-
-    private void renderScreenContent(GuiGraphics g, int w, int h, int mouseX, int mouseY, float partialTick) {
-        // Render Ứng Dụng MFD Đang Hoạt Động (ArtilleryMapApp, FireControlApp, UavReconApp, ...)
-        com.example.artillerymod.client.gui.app.AppManager.renderActiveApp(g, mouseX, mouseY, partialTick, w, h);
     }
 
     private void renderInteractiveKeyFromAtlas(GuiGraphics g, TacticalKey key, boolean isPressed) {
@@ -1511,15 +1522,13 @@ public class TacticalTabletScreen extends Screen {
             return true;
         }
 
-        // Click inside Tactical Screen Bed (800x450) -> chuyển cho Active App xử lý
+        // Click inside Tactical Screen Bed (800x450)
         if (virtX >= SCR_X && virtX < SCR_X + SCR_W && virtY >= SCR_Y && virtY < SCR_Y + SCR_H) {
-            double localX = virtX - SCR_X;
-            double localY = virtY - SCR_Y;
-            com.example.artillerymod.client.gui.app.TacticalApp app = com.example.artillerymod.client.gui.app.AppManager.getActiveApp();
-            if (app != null && app.mouseClicked(localX, localY, button, SCR_W, SCR_H)) {
+            int localX = (int) Math.round(virtX - SCR_X);
+            int localY = (int) Math.round(virtY - SCR_Y);
+            if (appManager.handleMouseClicked(localX, localY, button)) {
                 return true;
             }
-            return true;
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
@@ -1541,10 +1550,9 @@ public class TacticalTabletScreen extends Screen {
         }
 
         if (virtX >= SCR_X && virtX < SCR_X + SCR_W && virtY >= SCR_Y && virtY < SCR_Y + SCR_H) {
-            double localX = virtX - SCR_X;
-            double localY = virtY - SCR_Y;
-            com.example.artillerymod.client.gui.app.TacticalApp app = com.example.artillerymod.client.gui.app.AppManager.getActiveApp();
-            if (app != null && app.mouseReleased(localX, localY, button, SCR_W, SCR_H)) {
+            int localX = (int) Math.round(virtX - SCR_X);
+            int localY = (int) Math.round(virtY - SCR_Y);
+            if (appManager.handleMouseReleased(localX, localY, button)) {
                 return true;
             }
         }
@@ -1554,60 +1562,77 @@ public class TacticalTabletScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        double virtX = (mouseX - leftPos) / (double) scale;
-        double virtY = (mouseY - topPos) / (double) scale;
+        double virtX = (mouseX - leftPos) / scale;
+        double virtY = (mouseY - topPos) / scale;
 
         if (virtX >= SCR_X && virtX < SCR_X + SCR_W && virtY >= SCR_Y && virtY < SCR_Y + SCR_H) {
             double localX = virtX - SCR_X;
             double localY = virtY - SCR_Y;
-            com.example.artillerymod.client.gui.app.TacticalApp app = com.example.artillerymod.client.gui.app.AppManager.getActiveApp();
-            if (app != null && app.mouseDragged(localX, localY, button, dragX / scale, dragY / scale, SCR_W, SCR_H)) {
+            if (appManager.handleMouseDragged(localX, localY, button, dragX / scale, dragY / scale)) {
                 return true;
             }
         }
+
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        // Phím số 1 ~ 5 chuyển tab nhanh
-        if (keyCode == 49) { com.example.artillerymod.client.gui.app.AppManager.setActiveAppIndex(0); return true; } // [1] -> SA MAP
-        if (keyCode == 50) { com.example.artillerymod.client.gui.app.AppManager.setActiveAppIndex(1); return true; } // [2] -> WPN AFATDS
-        if (keyCode == 51) { com.example.artillerymod.client.gui.app.AppManager.setActiveAppIndex(2); return true; } // [3] -> DEF UAV
-        if (keyCode == 52) { com.example.artillerymod.client.gui.app.AppManager.setActiveAppIndex(3); return true; } // [4] -> COM C2
-        if (keyCode == 53) { com.example.artillerymod.client.gui.app.AppManager.setActiveAppIndex(4); return true; } // [5] -> SYS DIAG
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        double virtX = (mouseX - leftPos) / scale;
+        double virtY = (mouseY - topPos) / scale;
 
-        // Chuyển cho Active App xử lý phím tắt chuyên biệt (F1, F2, F3, Space, H, A, ...)
-        com.example.artillerymod.client.gui.app.TacticalApp app = com.example.artillerymod.client.gui.app.AppManager.getActiveApp();
-        if (app != null && app.keyPressed(keyCode, scanCode, modifiers)) {
-            return true;
+        if (virtX >= SCR_X && virtX < SCR_X + SCR_W && virtY >= SCR_Y && virtY < SCR_Y + SCR_H) {
+            double localX = virtX - SCR_X;
+            double localY = virtY - SCR_Y;
+            if (appManager.handleMouseScrolled(localX, localY, delta)) {
+                return true;
+            }
         }
 
+        return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (appManager.handleKeyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private void handleHardwareKeyAction(TacticalKey key) {
         String id = key.id.toUpperCase();
-        if ("PWR".equals(id)) {
-            this.onClose();
-            return;
+
+        // 1. App Switching from Top Bar
+        switch (id) {
+            case "TGT_ICON", "SA" -> appManager.switchToApp("SA");
+            case "WPN", "STR"      -> appManager.switchToApp("WPN");
+            case "DEF"             -> appManager.switchToApp("DEF");
+            case "SYS", "DRV"      -> appManager.switchToApp("SYS");
+            case "COM"             -> appManager.switchToApp("COM");
+            case "BMS"             -> appManager.switchToApp("BMS");
+            case "CFF" -> {
+                // Call for Fire Red Button action
+                appManager.switchToApp("WPN");
+                if (appManager.getActiveApp() instanceof FireControlApp fcs) {
+                    fcs.triggerCallForFire();
+                }
+            }
+            case "FLT_ICON", "FLT" -> {
+                if (appManager.getActiveApp() instanceof com.example.artillerymod.client.gui.app.ArtilleryMapApp mapApp) {
+                    mapApp.cycleFilterMode();
+                }
+            }
+            case "PWR" -> this.onClose();
         }
 
-        if ("SA".equals(id) || "TGT_ICON".equals(id)) {
-            com.example.artillerymod.client.gui.app.AppManager.switchToApp("SA");
-        } else if ("WPN".equals(id)) {
-            com.example.artillerymod.client.gui.app.AppManager.switchToApp("WPN");
-        } else if ("DEF".equals(id)) {
-            com.example.artillerymod.client.gui.app.AppManager.switchToApp("DEF");
-        } else if ("COM".equals(id)) {
-            com.example.artillerymod.client.gui.app.AppManager.switchToApp("COM");
-        } else if ("SYS".equals(id)) {
-            com.example.artillerymod.client.gui.app.AppManager.switchToApp("SYS");
-        } else if ("CFF".equals(id)) {
-            com.example.artillerymod.client.nato.TargetBus.triggerCallForFire();
+        // 2. Contextual F-Keys (F2 - F12)
+        if (id.startsWith("F")) {
+            try {
+                int fIndex = Integer.parseInt(id.substring(1));
+                appManager.handleFKey(fIndex);
+            } catch (NumberFormatException ignored) {}
         }
-
-        this.activeKeyLabel = key.label;
     }
 
     @Override

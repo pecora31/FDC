@@ -293,6 +293,55 @@ public class UiButton {
         }
     }
 
+    /**
+     * A filled rounded rectangle whose curve is antialiased, unlike {@link Paint#rounded}'s hard
+     * pixel test.
+     *
+     * <p>Straight edges stay three big rectangle fills — cheap, and there is nothing to smooth
+     * about a straight line. Only the four corner boxes pay for the per-pixel signed-distance
+     * coverage test, so this costs about the same number of draw calls as the plain version it
+     * replaces; what changes is the handful of corner pixels getting a soft edge instead of a
+     * staircase. Doing this at draw time rather than baking it once was the whole point of not
+     * porting the prototype's atlas approach — a key still has to look right while it moves.
+     */
+    private static void fillRoundedAA(Paint p, int x, int y, int w, int h, float radius, int argb) {
+        int ir = Math.max(1, Math.round(radius));
+        ir = Math.min(ir, Math.min(w, h) / 2);
+        if (ir <= 0) {
+            p.rect(x, y, w, h, argb);
+            return;
+        }
+        p.rect(x + ir, y, w - ir * 2, h, argb);
+        p.rect(x, y + ir, ir, h - ir * 2, argb);
+        p.rect(x + w - ir, y + ir, ir, h - ir * 2, argb);
+        aaCorner(p, x, y, ir, radius, false, false, argb);
+        aaCorner(p, x + w - ir, y, ir, radius, true, false, argb);
+        aaCorner(p, x, y + h - ir, ir, radius, false, true, argb);
+        aaCorner(p, x + w - ir, y + h - ir, ir, radius, true, true, argb);
+    }
+
+    private static void aaCorner(Paint p, int bx, int by, int box, float radius, boolean right, boolean bottom, int argb) {
+        float cx = right ? bx : bx + radius;
+        float cy = bottom ? by : by + radius;
+        int maxAlpha = (argb >>> 24) & 0xFF;
+        int rgb = argb & 0x00FFFFFF;
+        for (int dy = 0; dy < box; dy++) {
+            for (int dx = 0; dx < box; dx++) {
+                int px = bx + dx, py = by + dy;
+                float ddx = (px + 0.5f) - cx;
+                float ddy = (py + 0.5f) - cy;
+                float dist = (float) Math.sqrt(ddx * ddx + ddy * ddy) - radius;
+                if (dist <= 0.5f) {
+                    float cov = Math.max(0f, Math.min(1f, 0.5f - dist));
+                    int a = Math.round(cov * maxAlpha);
+                    if (a > 0) {
+                        p.fill(px, py, px + 1, py + 1, (a << 24) | rgb);
+                    }
+                }
+            }
+        }
+    }
+
     private static void fillCircle(Paint p, int cx, int cy, int radius, int color) {
         for (int dy = -radius; dy <= radius; dy++) {
             for (int dx = -radius; dx <= radius; dx++) {
@@ -408,7 +457,8 @@ public class UiButton {
             boolean isPressed = lit && mouseDown;
 
             int kx = x, ky = y;
-            int roundRadius = Math.max(2, Math.round(w * (5.5f / 44)));
+            float r = w * (5.5f / 44f);
+            int roundRadius = Math.max(2, Math.round(r));
             int shadowSize = Math.max(1, Math.round(w * (1.5f / 44)));
 
             if (!isPressed) {
@@ -429,7 +479,7 @@ public class UiButton {
                     ? (isPressed ? COL_RED_RIM_TOP_PRESSED : COL_RED_RIM_TOP)
                     : (isPressed ? COL_BTN_RIM_TOP_PRESSED : COL_BTN_RIM_TOP);
 
-            p.rounded(kx, ky, w, h, roundRadius, borderCol);
+            fillRoundedAA(p, kx, ky, w, h, r, borderCol);
 
             int wallThickness = Math.max(1, Math.round(w * (1.5f / 44)));
             if (!isPressed) {
@@ -442,7 +492,7 @@ public class UiButton {
                 p.rect(kx + 1, ky + roundRadius, 2, h - roundRadius * 2, 0xFF08090B);
             }
 
-            p.rounded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), rimTopCol);
+            fillRoundedAA(p, kx + 1, ky + 1, w - 2, h - 2, Math.max(1f, r - 1f), rimTopCol);
 
             int dishBaseCol = red
                     ? (isPressed ? COL_RED_DISH_PRESSED : lit ? COL_RED_DISH_HOVER : COL_RED_DISH_BASE)
@@ -460,9 +510,9 @@ public class UiButton {
             int innerMargin = Math.max(1, Math.round(w * (2.5f / 44)));
             int ix = kx + innerMargin, iy = ky + innerMargin;
             int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
-            int dishRadius = Math.max(1, roundRadius - 2);
 
-            p.rounded(ix, iy, iw, ih, dishRadius, dishBaseCol);
+            fillRoundedAA(p, ix, iy, iw, ih, Math.max(1f, r - 2f), dishBaseCol);
+            int dishRadius = Math.max(1, roundRadius - 2);
 
             int dishBevel = Math.max(1, Math.round(w * (1.5f / 44)));
             p.rect(ix + dishRadius, iy, iw - dishRadius * 2, dishBevel, dishShadow);
