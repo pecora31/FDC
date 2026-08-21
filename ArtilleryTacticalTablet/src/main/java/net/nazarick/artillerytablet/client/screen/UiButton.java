@@ -217,34 +217,25 @@ public class UiButton {
         int x1 = led[0], y1 = led[1], x2 = x1 + led[2], y2 = y1 + led[3];
         int w = led[2], h = led[3];
 
-        // 1. 3D Dark Socket Recess (Hốc kim loại chìm)
-        p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF050608);
-        p.fill(x1 - 1, y1 - 1, x2 + 1, y1, 0xFF363A42); // Top rim highlight
-        p.fill(x1 - 1, y1 - 1, x1, y2 + 1, 0xFF2A2D35); // Left rim highlight
+        // 1. Precise Socket Hole (Khuôn hốc kim loại gọn gàng đúng kích thước)
+        p.fill(x1, y1, x2, y2, 0xFF08090C);
 
         if (isLit) {
-            // 2. Multi-layer Radial Diffusion Halo (Quầng sáng phốt pho)
-            int glowOuter = 0x25000000 | (litColour & 0x00FFFFFF);
-            int glowInner = 0x55000000 | (litColour & 0x00FFFFFF);
-            p.rect(x1 - 2, y1 - 2, w + 4, h + 4, glowOuter);
-            p.rect(x1 - 1, y1 - 1, w + 2, h + 2, glowInner);
+            // 2. Subtle 1px Bloom (Không bị tràn lố ra ngoài)
+            int glow = 0x30000000 | (litColour & 0x00FFFFFF);
+            p.rect(x1 - 1, y1 - 1, w + 2, h + 2, glow);
 
-            // 3. Vivid Semiconductor Diode Core (Thân bóng LED phát sáng)
-            p.fill(x1, y1, x2, y2, litColour);
+            // 3. Crisp Diode Core (Thân đèn LED phát quang)
+            p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, litColour);
 
-            // 4. Specular White Hot-Spot (Tâm sáng trắng của bóng bán dẫn)
-            if (w >= 4 && h >= 4) {
-                int cx = x1 + w / 2;
-                int cy = y1 + h / 2;
-                p.fill(cx - 1, cy - 1, cx + 1, cy + 1, 0xFFFFFFFF);
-            } else {
-                p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, 0xFFFFFFFF);
-            }
+            // 4. Center Specular White Hotspot
+            int cx = x1 + w / 2;
+            int cy = y1 + h / 2;
+            p.fill(cx, cy, cx + 1, cy + 1, 0xFFFFFFFF);
         } else {
-            // Unlit Smoked Glass Diode Lens (Kính hun khói khi tắt)
-            p.fill(x1, y1, x2, y2, 0xFF1A1C22);
-            p.fill(x1, y1, x1 + 1, y1 + 1, 0xFF586270); // Top specular glint
-            p.fill(x1, y2 - 1, x2, y2, 0xFF0A0C0E);     // Bottom inner shadow
+            // Unlit Smoked Glass Lens (Kính hun khói khi tắt)
+            p.fill(x1 + 1, y1 + 1, x2 - 1, y2 - 1, 0xFF1C1F26);
+            p.fill(x1 + 1, y1 + 1, x2 - 1, y1 + 2, 0xFF4A525E); // Top specular glint
         }
     }
 
@@ -497,7 +488,7 @@ public class UiButton {
                     ? (isPressed ? COL_RED_RIM_TOP_PRESSED : COL_RED_RIM_TOP)
                     : (isPressed ? COL_BTN_RIM_TOP_PRESSED : COL_BTN_RIM_TOP);
 
-            fillRoundedAA(p, kx, ky, w, h, r, borderCol);
+            p.rounded(kx, ky, w, h, roundRadius, borderCol);
 
             int wallThickness = Math.max(1, Math.round(w * (1.5f / 44)));
             if (!isPressed) {
@@ -510,7 +501,7 @@ public class UiButton {
                 p.rect(kx + 1, ky + roundRadius, 2, h - roundRadius * 2, 0xFF08090B);
             }
 
-            fillRoundedAA(p, kx + 1, ky + 1, w - 2, h - 2, Math.max(1f, r - 1f), rimTopCol);
+            p.rounded(kx + 1, ky + 1, w - 2, h - 2, Math.max(1, roundRadius - 1), rimTopCol);
 
             int dishBaseCol = red
                     ? (isPressed ? COL_RED_DISH_PRESSED : lit ? COL_RED_DISH_HOVER : COL_RED_DISH_BASE)
@@ -528,9 +519,9 @@ public class UiButton {
             int innerMargin = Math.max(1, Math.round(w * (2.5f / 44)));
             int ix = kx + innerMargin, iy = ky + innerMargin;
             int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
-
-            fillRoundedAA(p, ix, iy, iw, ih, Math.max(1f, r - 2f), dishBaseCol);
             int dishRadius = Math.max(1, roundRadius - 2);
+
+            p.rounded(ix, iy, iw, ih, dishRadius, dishBaseCol);
 
             int dishBevel = Math.max(1, Math.round(w * (1.5f / 44)));
             p.rect(ix + dishRadius, iy, iw - dishRadius * 2, dishBevel, dishShadow);
