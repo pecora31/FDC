@@ -301,10 +301,15 @@ public final class TerrainImage {
      * How many background bake tasks may be in flight at once.
      *
      * <p>More than this and the pool falls behind, the queue grows, and the results arrive after
-     * the view has moved on — wasted work. The pool has two threads, so eight tasks is four per
-     * thread, which is enough to keep them busy across two frames.
+     * the view has moved on — wasted work. Sized off {@code MAX_BUILDS_PER_FRAME} (16, declared
+     * below — a plain field reference here would be an illegal forward reference, hence the literal):
+     * enough to hold two frames' worth of fresh submissions without refusing work the pool's two
+     * threads could still get to in time — confirmed against the {@code artillerytablet.mapTrace}
+     * log, which was showing "refused ... for pool" as the dominant refusal once
+     * {@code MAX_BUILDS_PER_FRAME} was corrected from 4 to 16 (this constant was never recalibrated
+     * when that happened).
      */
-    private static final int MAX_BAKING = 8;
+    private static final int MAX_BAKING = 32;
 
     /**
      * How many sheets may be built <em>again</em> in one frame.
@@ -333,10 +338,25 @@ public final class TerrainImage {
      * cap that is one frame doing a third of a second of work. Sixteen a frame fills a fresh view in
      * about a fifth of a second, which reads as the map arriving rather than as the game stopping.
      */
-    private static final int MAX_BUILDS_PER_FRAME = 4;
+    private static final int MAX_BUILDS_PER_FRAME = 16;
+
+    /**
+     * How many finished background bakes may be copied into a {@link NativeImage} and uploaded to
+     * the GPU in one frame.
+     *
+     * <p>{@link #drainBakes} used to drain the whole queue unconditionally every frame, on the
+     * reasoning that a copy-and-upload is cheap — true for one, not for as many as {@link
+     * #MAX_BAKING} now allows to queue up at once. A burst of surveyed ground landing all together
+     * (a fresh boot over already-explored country, say) could fill the bake queue and then have this
+     * drain every one of them in a single frame — measured at 68ms in one such frame, well past a
+     * dropped-frame stutter. Capped the same way the submit side already is, so a burst spreads
+     * across a few frames instead of spiking one of them.
+     */
+    private static final int MAX_DRAINS_PER_FRAME = 8;
 
     private int rebuildsLeft;
     private int buildsLeft;
+    private int drainsLeft;
 
     /** The world these pictures belong to. A change means every one of them is of somewhere else. */
     private long builtGeneration = -1L;
@@ -433,6 +453,7 @@ public final class TerrainImage {
         }
 
         // Pick up whatever the background threads have finished since the last frame.
+        drainsLeft = MAX_DRAINS_PER_FRAME;
         drainBakes();
 
         // On a clock and nothing else. It used to run whenever the view had moved as well, which
@@ -1049,15 +1070,20 @@ public final class TerrainImage {
     }
 
     /**
-     * Picks up every finished bake and uploads it to the GPU.
+     * Picks up finished bakes and uploads them to the GPU, up to {@link #MAX_DRAINS_PER_FRAME} of
+     * them.
      *
      * <p>Called once at the start of every {@link #draw} frame. Each result is a rectangle of pixels
-     * computed on a background thread; the render thread's only work is to copy them into a
-     * {@link NativeImage} and issue one {@code glTexSubImage}.
+     * computed on a background thread; the render thread's own work is to copy them into a
+     * {@link NativeImage} and issue one {@code glTexSubImage} — cheap for one result, not for as
+     * many as {@link #MAX_BAKING} lets queue up in a burst. Whatever doesn't fit this frame's budget
+     * stays in the queue and is picked up next frame; nothing here depends on being drained
+     * promptly.
      */
     private void drainBakes() {
         BakeResult result;
-        while ((result = finishedBakes.poll()) != null) {
+        while (drainsLeft > 0 && (result = finishedBakes.poll()) != null) {
+            drainsLeft--;
             bakingKeys.remove(result.sheetKey);
 
             Sheet sheet = sheets.get(result.sheetKey);

@@ -184,30 +184,22 @@ class MapPanel {
     private static long bootStarted;
 
     /**
-     * The longest the boot screen may hold the map.
+     * How long the boot screen stays up.
      *
-     * <p>It waits for the map to be ready, and ready is a condition the map can fail to reach —
-     * ground the server is slow to survey, a tile that never comes back, a fault nobody has found
-     * yet. Waiting on a condition with no bound means one slow corner of the world hides a map that
-     * is nine tenths drawn and perfectly usable. After this the screen goes whether or not the
-     * ground did, because a map you can see filling in beats a screen that says it is filling in.
-     *
-     * <p>Raised from five seconds: a first survey of unseen country regularly wants longer than
-     * that, and the cap was cutting in on maps that were about to be ready rather than on the stuck
-     * ones it exists for.
+     * <p>Pure animation, deliberately — a fixed length rather than a wait on the map being ready.
+     * It used to hold until {@code !TerrainClientCache.isWaiting() && terrain.isComplete()}, with a
+     * floor so switching the display off and straight back on (every tile already cached) still
+     * showed a moment of "coming up" rather than looking like the device had never been off, and a
+     * ceiling so one slow corner of the world didn't hide a map that was nine tenths drawn and
+     * perfectly usable. Both of those were real problems, but tying the animation to data readiness
+     * at all was the wrong fix for either: refilling from the on-disk cache after a restart could
+     * still run past the ceiling on a widely-explored world (thousands of small tile files read one
+     * at a time — see {@code TerrainDisk}'s split read pool), which read as "the map is reloading
+     * from scratch" even though the ground was already known. A device switching on looks the same
+     * regardless of how much there is to boot into; the map keeps filling in behind the animation
+     * exactly as before; only what ends the animation has changed.
      */
-    private static final long BOOT_MAX_MS = 8000L;
-
-    /**
-     * The shortest the boot screen may be up.
-     *
-     * <p>Without a floor there is no boot screen at all in the case that matters most. Switching the
-     * display off and straight back on leaves every tile still cached, so "ready" is true on the
-     * very first frame and the screen is dismissed before it has been drawn once — the device would
-     * appear to have never been off. A machine coming up takes a moment; this is that moment, and it
-     * is short enough not to be in the way when the map really is waiting on ground.
-     */
-    private static final long BOOT_MIN_MS = 900L;
+    private static final long BOOT_DURATION_MS = 900L;
 
     void tick() {
         // A remembered centre is a set of coordinates in a world that may no longer be the one we
@@ -412,20 +404,16 @@ class MapPanel {
         }
         g.pose().popPose();
 
-        // The device starting up: held until the map has actually filled in, rather than until the
-        // first square of it lands. Two things have to be quiet before it is ready — nothing still
-        // being fetched, and no square left that the drawing wanted and could not have. Ground that
-        // has been looked at and found bare satisfies both, so unsurveyed country does not hold this
-        // open for ever.
+        // The device starting up: a fixed-length animation, not a wait on the map. See
+        // BOOT_DURATION_MS for why this is no longer gated on map readiness.
         if (!booted) {
             if (bootStarted == 0L) {
                 // Timed from the first frame drawn rather than from the change of world, because a
                 // world can be joined long before anyone reaches for the tablet.
                 bootStarted = System.currentTimeMillis();
             }
-            boolean ready = !TerrainClientCache.isWaiting() && terrain.isComplete();
             long up = System.currentTimeMillis() - bootStarted;
-            booted = (ready && up >= BOOT_MIN_MS) || up > BOOT_MAX_MS;
+            booted = up >= BOOT_DURATION_MS;
         }
         // The boot display itself is drawn by the screen, over the whole glass. Drawn from here it
         // covered the map panel and nothing else, so the header above it and the view keys on it

@@ -12,7 +12,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.nazarick.artillerytablet.client.screen.app.AppManager;
+import net.nazarick.artillerytablet.client.screen.app.FireControlApp;
+import net.nazarick.artillerytablet.client.screen.app.LogApp;
 import net.nazarick.artillerytablet.client.screen.app.MapApp;
+import net.nazarick.artillerytablet.client.screen.app.StatusApp;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.nazarick.artillerytablet.client.FireLog;
@@ -181,12 +184,39 @@ public class TabletScreen extends Screen {
     private MapPanel map;
 
     /**
+     * Read-only access to the tablet's own state for the full-screen apps in
+     * {@code client/screen/app} — a different package, so a private field is invisible to them.
+     * Every method here already exists for the case's own keys; these just let an app reach the
+     * same facts and the same actions instead of duplicating them.
+     */
+    public List<TargetEntry> targets() {
+        return targets;
+    }
+
+    public int selectedTarget() {
+        return selected;
+    }
+
+    public FireMode fireModeValue() {
+        return fireMode;
+    }
+
+    public boolean depressed() {
+        return depressed;
+    }
+
+    public MapPanel map() {
+        return map;
+    }
+
+    /**
      * Which full-screen app owns the glass, and the switch between them — replacing the panel
      * system domain key by domain key as each app is migrated (see the app-framework hand-off
      * plan). While an app's slot has nothing registered yet (or none is active), the screen well
      * shows the map exactly as it always has; only a genuinely active, non-map app hides it.
      */
-    private final AppManager appManager = new AppManager(List.of(new MapApp()));
+    private final AppManager appManager = new AppManager(List.of(
+            new MapApp(), new FireControlApp(this), new StatusApp(), new LogApp()));
 
 
 
@@ -371,7 +401,7 @@ public class TabletScreen extends Screen {
         }
     }
 
-    Set<UUID> boundIds() {
+    public Set<UUID> boundIds() {
         return boundIds;
     }
 
@@ -514,8 +544,8 @@ public class TabletScreen extends Screen {
                 .mark(UiButton.Mark.GRID);
         top(1, kw, kh, Component.literal("SA"), () -> appManager.switchTo(MapApp.ID),
                 appManager.isActive(MapApp.ID), Component.translatable("gui.artillerytablet.app.map"));
-        top(2, kw, kh, Component.literal(TabletTab.AMMO.code), () -> toggleTab(TabletTab.AMMO),
-                openTab == TabletTab.AMMO, Component.translatable(TabletTab.AMMO.titleKey));
+        top(2, kw, kh, Component.literal("WPN"), () -> appManager.switchTo(FireControlApp.ID),
+                appManager.isActive(FireControlApp.ID), Component.literal("Fire Control"));
         spareTop(3, kw, kh, "DEF");
         top(4, kw, kh, Component.literal(TabletTab.STATUS.code), () -> toggleTab(TabletTab.STATUS),
                 openTab == TabletTab.STATUS, Component.translatable(TabletTab.STATUS.titleKey));
@@ -821,7 +851,7 @@ public class TabletScreen extends Screen {
         rebuild();
     }
 
-    private void select(int index) {
+    public void select(int index) {
         this.selected = index >= 0 && index < targets.size() ? index : -1;
         if (this.selected >= 0) {
             this.selectedGun = null;
@@ -909,25 +939,25 @@ public class TabletScreen extends Screen {
         // used while looking at the map, so they should not need a panel open to reach.
     }
 
-    private Component fireModeLabel() {
+    public Component fireModeLabel() {
         return Component.translatable("gui.artillerytablet.fire_mode_prefix").append(fireMode.name());
     }
 
-    private Component trajectoryLabel() {
+    public Component trajectoryLabel() {
         return Component.translatable("gui.artillerytablet.trajectory_prefix").append(
                 Component.translatable(depressed
                         ? "gui.artillerytablet.trajectory_depressed"
                         : "gui.artillerytablet.trajectory_lofted"));
     }
 
-    private void cycleFireMode() {
+    public void cycleFireMode() {
         FireMode[] modes = FireMode.values();
         this.fireMode = modes[(fireMode.ordinal() + 1) % modes.length];
         pushSettings();
         rebuild();
     }
 
-    private void toggleTrajectory() {
+    public void toggleTrajectory() {
         this.depressed = !this.depressed;
         pushSettings();
         rebuild();
@@ -964,7 +994,7 @@ public class TabletScreen extends Screen {
         rebuild();
     }
 
-    void fire(int index) {
+    public void fire(int index) {
         fire(index, fireMode, fireMode.name());
     }
 
@@ -983,7 +1013,7 @@ public class TabletScreen extends Screen {
      * finishes traversing. Firing does this laying itself; this is the half of it worth having on
      * its own key.
      */
-    private void lay(int index) {
+    public void lay(int index) {
         if (index < 0 || index >= targets.size()) {
             return;
         }
@@ -1704,6 +1734,10 @@ public class TabletScreen extends Screen {
      * and drag handlers keep hearing about a gesture it started. */
     private boolean appGesture;
 
+    /** The case key a press last landed on, so its release sound plays wherever the mouse comes
+     * back up rather than only if it is still sitting on the same key. */
+    private UiButton pressedKey;
+
     /**
      * Whether the left mouse button is currently held down.
      *
@@ -1733,7 +1767,9 @@ public class TabletScreen extends Screen {
                 field.setFocused(field.contains(dx, dy));
             }
             for (int i = keys.size() - 1; i >= 0; i--) {
-                if (keys.get(i).press(dx, dy)) {
+                UiButton key = keys.get(i);
+                if (key.press(dx, dy)) {
+                    pressedKey = key;
                     mapPress = false;
                     return true;
                 }
@@ -1798,6 +1834,10 @@ public class TabletScreen extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0) {
             mouseDown = false;
+            if (pressedKey != null) {
+                pressedKey.release();
+                pressedKey = null;
+            }
         }
         if (mapPress && button == 0) {
             mapPress = false;

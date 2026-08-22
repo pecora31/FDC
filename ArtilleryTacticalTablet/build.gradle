@@ -132,14 +132,20 @@ dependencies {
     // gradle.properties: one line brings it back.
     runtimeOnly fg.deobf("${journeymap_curse_file}")
 
-    // BlueMap was tried here for comparison (2026-08-18) and pulled back out the same day: file
-    // 7057487 (5.12-mc1.20-6-forge) is compiled for Java 21 class files, and this project's whole
-    // toolchain is pinned to Java 17, which is what Forge 1.20.1 itself requires. The client would
-    // not even reach the main menu — UnsupportedClassVersionError, class file version 65 against a
-    // runtime that reads up to 61. Not a config mistake on this side; the coordinate is correct and
-    // resolves cleanly, the jar simply cannot run here. An older BlueMap release still targeting
-    // Java 17 might work, untried. The coordinate is kept in gradle.properties (bluemap_curse_file)
-    // so the next attempt does not have to re-verify it against CurseForge's file list.
+    // BlueMap was tried here for comparison (2026-08-18, then again 2026-08-22) and pulled back out
+    // both times — it was only ever a yardstick in the dev client, never a real dependency. File
+    // 7057487 (BlueMap 5.12) is compiled for Java 21 class files against this project's Java-17
+    // toolchain — UnsupportedClassVersionError, never reaches the main menu. File 4645267 (BlueMap
+    // 3.15, July 2023, well before Java 21 was a mod-toolchain option) DOES work — confirmed
+    // booting with FMLModContainer creating de.bluecolored.bluemap.forge.ForgeMod cleanly and its
+    // web map reachable at localhost:8100 — so that's the coordinate kept in gradle.properties
+    // (bluemap_curse_file) for next time. Uncomment to bring it back for another comparison run:
+    // runtimeOnly fg.deobf("${bluemap_curse_file}")
+
+    // SBW Drone Warfare — a SuperbWarfare addon (FPV + LUCAS drones), not a dependency of this
+    // mod. Same runtimeOnly footing as the map mods above: brought in to actually fly and inspect
+    // in the dev client while designing the recon-gated survey feature, never compiled against.
+    runtimeOnly fg.deobf("${sbwdronewarfare_curse_file}")
 
     // Performance mods for the dev client — see gradle.properties for what each is for, why
     // ImmediatelyFast is deliberately absent, and the caveat about measuring our own code with these

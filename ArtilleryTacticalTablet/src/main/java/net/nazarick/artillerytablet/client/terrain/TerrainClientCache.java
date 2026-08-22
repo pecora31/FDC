@@ -383,12 +383,16 @@ public final class TerrainClientCache {
         }
         synchronized (TILE_LOCK) {
             if (empty) {
-                TILES.remove(key);
+                TileArrayPool.release(TILES.remove(key));
                 MIPS.remove(key);
                 HASHES.remove(key);
                 COMPLETE.remove(key);
             } else {
-                TILES.put(key, tile);
+                // The arrays that arrived off the network/disk decode are a one-off allocation
+                // either way (that decode path is shared with the server); the copy that actually
+                // sits in TILES for a while is built from pooled storage, and whatever tile this
+                // one replaces gives its arrays back to the same pool.
+                TileArrayPool.release(TILES.put(key, TileArrayPool.pooledCopy(tile)));
                 // Not reduced here — see mipsAt. Dropped rather than replaced, so a tile that has been
                 // resurveyed is reduced again the next time a wide view reads it and not before.
                 MIPS.remove(key);
@@ -640,7 +644,7 @@ public final class TerrainClientCache {
 
         synchronized (TILE_LOCK) {
             for (long key : gone) {
-                TILES.remove(key);
+                TileArrayPool.release(TILES.remove(key));
                 MIPS.remove(key);
                 HASHES.remove(key);
                 COMPLETE.remove(key);

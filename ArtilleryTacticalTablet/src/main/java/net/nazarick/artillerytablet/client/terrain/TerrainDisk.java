@@ -33,11 +33,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * the nether is not the overworld. Getting this wrong would not fail — it would paint one world's
  * ground onto another, which is the fault the whole cache is careful about elsewhere.
  *
- * <p><b>Which thread.</b> Every file touch happens on one background thread. Reads hand their answer
- * back through a queue that the cache drains on the render thread, because everything downstream of
- * a tile arriving — the reduction chain, the pictures — belongs to that thread. One thread rather
- * than a pool on purpose: the work is disk-bound and ordered, and two threads writing the same tile
- * is a corrupt file rather than a faster one.
+ * <p><b>Which thread(s).</b> Writes stay on a single background thread — the work is ordered and two
+ * threads writing the same tile is a corrupt file rather than a faster one. Reads run on a small
+ * pool instead: a read never corrupts anything, whether racing another read or a write to the same
+ * key (see {@link #READ_IO}), and refilling from disk after a restart is genuinely slow one file at
+ * a time. Either way, results hand back through a queue that the cache drains on the render thread,
+ * because everything downstream of a tile arriving — the reduction chain, the pictures — belongs to
+ * that thread.
  *
  * <p><b>Trusting what is stored.</b> A tile read back is treated exactly like one the server sent,
  * which is deliberate and worth stating: this map does not update itself with battle damage, so
@@ -46,14 +48,36 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @OnlyIn(Dist.CLIENT)
 public final class TerrainDisk {
-    private static final ExecutorService IO = Executors.newSingleThreadExecutor(runnable -> {
-        Thread thread = new Thread(runnable, "artillerytablet-terrain-disk");
-        thread.setDaemon(true);
-        // Below the game. A map that loads a moment later is nothing; a map that steals time from
-        // the frame it is drawn in is the fault this whole session has been chasing.
-        thread.setPriority(Thread.MIN_PRIORITY);
-        return thread;
-    });
+    /**
+     * Writes, one thread. Two threads writing the same tile is a corrupt file rather than a faster
+     * one, and {@link #save} is rare enough (once per newly-surveyed tile) that serialising it costs
+     * nothing worth avoiding.
+     */
+    private static final ExecutorService WRITE_IO = Executors.newSingleThreadExecutor(diskThread("write"));
+
+    /**
+     * Reads, several threads. Unlike a write, two reads of different keys — or even the same key,
+     * racing a write to it — never corrupt anything: {@link net.nazarick.artillerytablet.terrain.TileFiles#write}
+     * writes to a temp file and atomically renames it into place, so a concurrent reader always sees
+     * either the old complete file or the new one, never a torn one. A restart that refills from
+     * disk was reading thousands of small tile files one at a time on a single thread — genuinely
+     * slow, not just perceived, and the actual cause behind the map looking like it "reloads from
+     * scratch" every time the tablet opens. Four rather than more: modest, on the same reasoning
+     * {@code TerrainImage.BAKE_POOL} already argues for elsewhere in this codebase — leave room for
+     * the game's own threads.
+     */
+    private static final ExecutorService READ_IO = Executors.newFixedThreadPool(4, diskThread("read"));
+
+    private static java.util.concurrent.ThreadFactory diskThread(String kind) {
+        return runnable -> {
+            Thread thread = new Thread(runnable, "artillerytablet-terrain-disk-" + kind);
+            thread.setDaemon(true);
+            // Below the game. A map that loads a moment later is nothing; a map that steals time from
+            // the frame it is drawn in is the fault this whole session has been chasing.
+            thread.setPriority(Thread.MIN_PRIORITY);
+            return thread;
+        };
+    }
 
     /** Tiles read back, waiting for the render thread to collect them. */
     private static final Queue<TerrainTile> ARRIVED = new ConcurrentLinkedQueue<>();
@@ -129,7 +153,7 @@ public final class TerrainDisk {
             return;
         }
         PENDING.incrementAndGet();
-        IO.execute(() -> {
+        WRITE_IO.execute(() -> {
             try {
                 TileFiles.write(at, tile);
             } catch (Throwable t) {
@@ -153,7 +177,7 @@ public final class TerrainDisk {
         }
         int asOf = epoch;
         PENDING.incrementAndGet();
-        IO.execute(() -> {
+        READ_IO.execute(() -> {
             try {
                 TerrainTile tile = TileFiles.read(at, key);
                 if (epoch != asOf) {

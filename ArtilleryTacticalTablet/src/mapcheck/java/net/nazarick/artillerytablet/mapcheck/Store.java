@@ -56,6 +56,16 @@ final class Store {
             save.invoke(null, out);
         }
 
+        // save() is documented as asynchronous — "files a tile away, in the background" — with no
+        // promise about when a request() for that same key would see it. Writes and reads now run
+        // on separate pools (WRITE_IO/READ_IO — see TerrainDisk), so unlike when both shared one
+        // FIFO thread, that ordering is no longer free; wait for every queued write to actually
+        // land before reading any of them back, which is what a caller relying only on the
+        // documented contract would have to do too.
+        Field writeIo = c.getDeclaredField("WRITE_IO");
+        writeIo.setAccessible(true);
+        ((java.util.concurrent.ExecutorService) writeIo.get(null)).submit(() -> null).get();
+
         for (int[] tile : where) {
             long key = TerrainTile.key(tile[0], tile[1]);
             check((boolean) request.invoke(null, key), "the store took a request for " + key);
@@ -246,15 +256,19 @@ final class Store {
      * world empties the queues, and that covers only what has already come back — the dangerous one
      * is the read still in flight, whose tile coordinates mean somewhere else by the time it lands.
      *
-     * <p>Made to happen rather than waited for: the store has one IO thread, so a task holding it
-     * keeps the read pending while the world changes underneath.
+     * <p>The read pool is several threads now (see {@code TerrainDisk.READ_IO}), so there is no
+     * single task to hold and no strict FIFO to lean on the way a one-thread pool gave for free —
+     * every thread is saturated with a blocking task first, so the real read genuinely queues rather
+     * than running before {@code clear()} does, and the check afterwards polls with a bound rather
+     * than assuming a specific task ordering among several racing threads.
      */
     private static void inFlightReadsDoNotCrossWorlds() throws Exception {
         Class<?> c = Class.forName("net.nazarick.artillerytablet.client.terrain.TerrainDisk");
-        Field io = c.getDeclaredField("IO");
+        Field io = c.getDeclaredField("READ_IO");
         io.setAccessible(true);
-        java.util.concurrent.ExecutorService pool =
-                (java.util.concurrent.ExecutorService) io.get(null);
+        java.util.concurrent.ThreadPoolExecutor pool =
+                (java.util.concurrent.ThreadPoolExecutor) io.get(null);
+        int threads = pool.getMaximumPoolSize();
 
         Method request = c.getDeclaredMethod("request", long.class);
         Method collect = c.getDeclaredMethod("collect");
@@ -265,24 +279,32 @@ final class Store {
         }
 
         java.util.concurrent.CountDownLatch gate = new java.util.concurrent.CountDownLatch(1);
-        pool.execute(() -> {
-            try {
-                gate.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        for (int i = 0; i < threads; i++) {
+            pool.execute(() -> {
+                try {
+                    gate.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+        }
 
         // Ground that is really there, so anything arriving is the guard failing rather than the
-        // store having nothing to give.
+        // store having nothing to give. Every thread is blocked on the gate above, so this genuinely
+        // queues rather than running immediately.
         long key = TerrainTile.key(5, 9);
         check((boolean) request.invoke(null, key), "the store took a request before the world changed");
 
         clear.invoke(null);
         gate.countDown();
 
-        // One thread, so a task queued behind the read has run only once the read is done.
-        pool.submit(() -> null).get();
+        // No single task to wait on with several threads free at once — poll instead. The read
+        // itself is a local-disk read of a few KB, milliseconds; a whole second of headroom is
+        // generous without turning a regression into a slow test.
+        long until = System.currentTimeMillis() + 1000L;
+        while (System.currentTimeMillis() < until) {
+            Thread.sleep(20);
+        }
 
         check(collect.invoke(null) == null,
                 "a tile read for the previous world arrived in this one");

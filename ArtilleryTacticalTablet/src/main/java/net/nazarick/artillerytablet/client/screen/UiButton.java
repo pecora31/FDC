@@ -196,6 +196,19 @@ public class UiButton {
         return true;
     }
 
+    /** The noise of a moulded case key coming back up. Soft controls stay silent, same as press. */
+    public void release() {
+        if (!hard) {
+            return;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.getSoundManager() == null) {
+            return;
+        }
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(
+                ModSounds.TACTICAL_KEY_RELEASE.get(), 0.62f, 2.20f));
+    }
+
     /**
      * The lamp: dark when the thing behind the key is off, lit when it is on.
      *
