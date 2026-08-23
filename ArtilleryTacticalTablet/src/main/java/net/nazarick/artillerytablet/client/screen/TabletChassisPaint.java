@@ -1272,7 +1272,6 @@ public final class TabletChassisPaint {
             int cx = 148 + i * 76;
             int cy = 589;
             if (i == 9) {
-                // Bake the recessed socket pocket well for the Power button (prevent accidental actuation)
                 bakePowerButtonWell(img, cx, cy);
             }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
@@ -1281,42 +1280,34 @@ public final class TabletChassisPaint {
     }
 
     private static void bakePowerButtonWell(NativeImage img, int cx, int cy) {
-        int wellW = 54, wellH = 54, wellR = 9;
-        int x1 = cx - wellW / 2, y1 = cy - wellH / 2;
-        int x2 = x1 + wellW, y2 = y1 + wellH;
+        int keyW = 44, keyH = 44, keyR = 7;
+        int rimThick = 3;
+        int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
+        int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
+        int ox2 = ox1 + outW, oy2 = oy1 + outH;
+        int ix1 = cx - keyW / 2, iy1 = cy - keyH / 2;
+        int ix2 = ix1 + keyW, iy2 = iy1 + keyH;
 
-        for (int y = y1 - 2; y <= y2 + 2; y++) {
-            for (int x = x1 - 2; x <= x2 + 2; x++) {
-                float sdf = getRoundedRectSDF(x, y, x1, y1, x2, y2, wellR);
-                if (sdf >= 0 && sdf <= 1.5f) {
-                    // Mouth crest highlight around the top/left of the socket
-                    int crestCol = (x + y < cx + cy) ? 0xFF383B42 : 0xFF1C1E22;
-                    setPixel(img, x, y, applyStipple(crestCol, x, y));
-                } else if (sdf >= -2.0f && sdf < 0) {
-                    // Sloped wall descending into the well
-                    int wallCol = (x + y < cx + cy) ? 0xFF0A0B0E : 0xFF16181B;
-                    setPixel(img, x, y, applyStipple(wallCol, x, y));
-                } else if (sdf >= -3.5f && sdf < -2.0f) {
-                    // Cavity bottom root shadow
-                    setPixel(img, x, y, 0xFF040506);
-                } else if (sdf < -3.5f) {
-                    // Sunken floor of the power button pocket
-                    int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
-                    int floorCol = (grain == 1) ? 0xFF0C0D0F : ((grain == 2) ? 0xFF101113 : 0xFF0E0F11);
-                    setPixel(img, x, y, floorCol);
+        for (int y = oy1; y < oy2; y++) {
+            for (int x = ox1; x < ox2; x++) {
+                if (isInsideRoundedRect(x, y, ox1, oy1, ox2, oy2, outR)
+                        && !isInsideRoundedRect(x, y, ix1, iy1, ix2, iy2, keyR)) {
+
+                    boolean inTopLeft = (x + y < cx + cy);
+                    int dxFromInner = Math.min(Math.abs(x - ix1), Math.min(Math.abs(x - ix2), Math.min(Math.abs(y - iy1), Math.abs(y - iy2))));
+
+                    int col;
+                    if (inTopLeft) {
+                        // Top & Left of sunken cavity: Deep drop shadow
+                        col = (dxFromInner <= 1) ? 0xFF050608 : 0xFF0C0D10;
+                    } else {
+                        // Bottom & Right of sunken cavity: Catching reflective light
+                        col = (dxFromInner <= 1) ? 0xFF2A2D33 : 0xFF1E2025;
+                    }
+                    setPixel(img, x, y, applyStipple(col, x, y));
                 }
             }
         }
-    }
-
-    private static float getRoundedRectSDF(int px, int py, int x1, int y1, int x2, int y2, int r) {
-        int cx = (px < x1 + r) ? (x1 + r) : ((px > x2 - r) ? (x2 - r) : px);
-        int cy = (py < y1 + r) ? (y1 + r) : ((py > y2 - r) ? (y2 - r) : py);
-        float dx = px - cx;
-        float dy = py - cy;
-        float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        boolean inside = (px >= x1 && px <= x2 && py >= y1 && py <= y2);
-        return inside ? (r - dist) : -(dist - r);
     }
 
     private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red, String label) {
