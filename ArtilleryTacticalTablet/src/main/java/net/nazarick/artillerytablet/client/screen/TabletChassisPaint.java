@@ -107,7 +107,10 @@ public final class TabletChassisPaint {
         bakeSideCBracket(img, true, bW);
         bakeSideCBracket(img, false, bW);
 
-        // 8. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
+        // 8. Divider Ribs between inner key clusters
+        bakeAllDividerRibs(img);
+
+        // 9. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
         bakeDynamicKeySprites(img);
 
         // 11. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
@@ -280,11 +283,24 @@ public final class TabletChassisPaint {
         }
 
         if (!isTop) {
-            for (int y = uY1; y < uY2; y++) {
-                for (int x = uX1; x < uX2; x++) {
-                    if (!isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
-                    if (x < uX1 + 2) setPixel(img, x, y, applyStipple(0xFF36393E, x, y));
-                    else if (x >= uX2 - 2) setPixel(img, x, y, applyStipple(0xFF050506, x, y));
+            // Lateral side bevels (uX1 left facing light, uX2 right next to Power button)
+            int bevelW = 8;
+            for (int x = uX1; x < uX1 + bevelW; x++) {
+                int d = x - uX1;
+                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2C2E33 : (d == bevelW - 2 ? 0xFF191A1D : (d == bevelW - 1 ? 0xFF17181B : 0xFF222428)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            for (int x = uX2 - bevelW; x < uX2; x++) {
+                int d = (uX2 - 1) - x;
+                int col = (d == 0) ? 0xFF040506 : ((d == 1) ? 0xFF090A0C : (d == 2 ? 0xFF0E0F12 : (d == bevelW - 2 ? 0xFF1B1D20 : (d == bevelW - 1 ? 0xFF25272B : 0xFF15171A))));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
                 }
             }
 
@@ -310,11 +326,24 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            for (int y = uY1; y < uY2; y++) {
-                for (int x = uX1; x < uX2; x++) {
-                    if (!isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
-                    if (x < uX1 + 2) setPixel(img, x, y, applyStipple(0xFF36393E, x, y));
-                    else if (x >= uX2 - 2) setPixel(img, x, y, applyStipple(0xFF050506, x, y));
+            // Top U-collar lateral side bevels
+            int bevelW = 8;
+            for (int x = uX1; x < uX1 + bevelW; x++) {
+                int d = x - uX1;
+                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2C2E33 : (d == bevelW - 2 ? 0xFF191A1D : (d == bevelW - 1 ? 0xFF17181B : 0xFF222428)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            for (int x = uX2 - bevelW; x < uX2; x++) {
+                int d = (uX2 - 1) - x;
+                int col = (d == 0) ? 0xFF040506 : ((d == 1) ? 0xFF090A0C : (d == 2 ? 0xFF0E0F12 : (d == bevelW - 2 ? 0xFF1B1D20 : (d == bevelW - 1 ? 0xFF25272B : 0xFF15171A))));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
                 }
             }
 
@@ -662,24 +691,24 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeAllDividerRibs(NativeImage img) {
-        int ribLen = 44;
-        // Top row single ribs
-        for (int i = 0; i < 9; i++) {
+        int ribLen = 42;
+        // Top row single ribs between inner key pairs (SA-WPN-DEF-SYS-DRV-STR-COM-BMS)
+        for (int i = 1; i <= 7; i++) {
             int cx = 148 + 38 + i * 76;
             bakeCapsuleRib(img, cx, 41, ribLen, true);
         }
-        // Bottom row single ribs
-        for (int i = 0; i < 9; i++) {
+        // Bottom row single ribs between inner key pairs (F13-F14-F15-F16-F17-F18-F19-F20)
+        for (int i = 1; i <= 7; i++) {
             int cx = 148 + 38 + i * 76;
             bakeCapsuleRib(img, cx, 589, ribLen, true);
         }
-        // Left flank single ribs
-        for (int i = 0; i < 5; i++) {
+        // Left flank single ribs between inner key pairs (F2-F3-F4-F5-F6)
+        for (int i = 1; i <= 4; i++) {
             int cy = 155 + 32 + i * 64;
             bakeCapsuleRib(img, 39, cy, ribLen, false);
         }
-        // Right flank single ribs
-        for (int i = 0; i < 5; i++) {
+        // Right flank single ribs between (F7-F8-F9-F10-F11-F12)
+        for (int i = 0; i <= 4; i++) {
             int cy = 155 + 32 + i * 64;
             bakeCapsuleRib(img, 941, cy, ribLen, false);
         }
