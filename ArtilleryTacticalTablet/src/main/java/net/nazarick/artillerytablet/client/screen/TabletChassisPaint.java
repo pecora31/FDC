@@ -482,7 +482,7 @@ public final class TabletChassisPaint {
         int uX2 = isLeft ? 90 : TabletFrame.DESIGN_W;
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
-        int rInner = 9, bChamfer = 9;
+        int rInner = 14, bChamfer = 0;
 
         for (int y = uY1 - 4; y <= uY2 + 5; y++) {
             for (int x = uX1; x <= uX2; x++) {
@@ -498,6 +498,7 @@ public final class TabletChassisPaint {
             }
         }
 
+        // 1. Base plateau surface
         for (int y = uY1; y < uY2; y++) {
             for (int x = uX1; x < uX2; x++) {
                 if (isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
@@ -508,6 +509,7 @@ public final class TabletChassisPaint {
             }
         }
 
+        // 2. Clean Outer Edge Shading & Top/Bottom Bevels
         if (isLeft) {
             for (int x = uX1; x < uX1 + bW; x++) {
                 int d = x - uX1;
@@ -531,16 +533,6 @@ public final class TabletChassisPaint {
                 int d = (uY2 - 1) - y;
                 int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                 for (int x = uX1; x < uX2; x++) {
-                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                        setPixel(img, x, y, applyStipple(col, x, y));
-                    }
-                }
-            }
-            int bevelW = 8;
-            for (int x = uX2 - bevelW; x < uX2; x++) {
-                int d = (uX2 - 1) - x;
-                int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0D0E10 : (d == bevelW - 2 ? 0xFF1F2125 : (d == bevelW - 1 ? 0xFF282A2F : 0xFF141619)));
-                for (int y = uY1; y < uY2; y++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
@@ -574,18 +566,9 @@ public final class TabletChassisPaint {
                     }
                 }
             }
-            int bevelW = 8;
-            for (int x = uX1; x < uX1 + bevelW; x++) {
-                int d = x - uX1;
-                int col = (d == 0) ? 0xFF141518 : ((d == 1) ? 0xFF191B1E : (d == bevelW - 2 ? 0xFF26282D : (d == bevelW - 1 ? 0xFF2B2D32 : 0xFF1F2125)));
-                for (int y = uY1; y < uY2; y++) {
-                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                        setPixel(img, x, y, applyStipple(col, x, y));
-                    }
-                }
-            }
         }
 
+        // 3. Inner fillet wall transition around the U-cutout (bo cong 2 đầu R=14)
         int boundX1 = isLeft ? cutX1 : cutX1 - 4;
         int boundX2 = isLeft ? cutX2 + 4 : cutX2;
         int boundY1 = cutY1 - 4;
@@ -607,14 +590,15 @@ public final class TabletChassisPaint {
             }
         }
 
+        // 4. Uniform flat planar bevel facing screen well
         int bevelW = 8;
         if (isLeft) {
             int bx1 = uX2 - bevelW, bx2 = uX2;
             for (int x = bx1; x < bx2; x++) {
                 int d = x - bx1;
-                int col = (d == 0) ? 0xFF2E3137 // 1px sống gờ tiếp giáp giữa 2 mặt phẳng
-                        : ((d == bevelW - 1) ? 0xFF08090B // 1px chân góc giao rãnh màn hình
-                        : 0xFF15171B); // Toàn bộ bề mặt phẳng nghiêng (mặt phẳng đồng nhất)
+                int col = (d == 0) ? 0xFF2E3137
+                        : ((d == bevelW - 1) ? 0xFF08090B
+                        : 0xFF15171B);
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
@@ -625,9 +609,9 @@ public final class TabletChassisPaint {
             int bx1 = uX1, bx2 = uX1 + bevelW;
             for (int x = bx1; x < bx2; x++) {
                 int d = (bx2 - 1) - x;
-                int col = (d == 0) ? 0xFF2E3137 // 1px sống gờ tiếp giáp giữa 2 mặt phẳng
-                        : ((d == bevelW - 1) ? 0xFF08090B // 1px chân góc giao rãnh màn hình
-                        : 0xFF15171B); // Toàn bộ bề mặt phẳng nghiêng (mặt phẳng đồng nhất)
+                int col = (d == 0) ? 0xFF2E3137
+                        : ((d == bevelW - 1) ? 0xFF08090B
+                        : 0xFF15171B);
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
@@ -647,7 +631,7 @@ public final class TabletChassisPaint {
                                            int uX1, int uX2, int rInner, int bChamfer) {
         if (isLeft) {
             int curCutY1 = cutY1, curCutY2 = cutY2;
-            if (px <= uX1 + bChamfer) {
+            if (bChamfer > 0 && px <= uX1 + bChamfer) {
                 int offset = (uX1 + bChamfer) - px;
                 curCutY1 = cutY1 + offset;
                 curCutY2 = cutY2 - offset;
@@ -666,7 +650,7 @@ public final class TabletChassisPaint {
             return (float) Math.max(curCutY1 - py, py - curCutY2);
         } else {
             int curCutY1 = cutY1, curCutY2 = cutY2;
-            if (px >= uX2 - bChamfer) {
+            if (bChamfer > 0 && px >= uX2 - bChamfer) {
                 int offset = px - (uX2 - bChamfer);
                 curCutY1 = cutY1 + offset;
                 curCutY2 = cutY2 - offset;
@@ -1287,9 +1271,52 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
+            if (i == 9) {
+                // Bake the recessed socket pocket well for the Power button (prevent accidental actuation)
+                bakePowerButtonWell(img, cx, cy);
+            }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
             bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
         }
+    }
+
+    private static void bakePowerButtonWell(NativeImage img, int cx, int cy) {
+        int wellW = 54, wellH = 54, wellR = 9;
+        int x1 = cx - wellW / 2, y1 = cy - wellH / 2;
+        int x2 = x1 + wellW, y2 = y1 + wellH;
+
+        for (int y = y1 - 2; y <= y2 + 2; y++) {
+            for (int x = x1 - 2; x <= x2 + 2; x++) {
+                float sdf = getRoundedRectSDF(x, y, x1, y1, x2, y2, wellR);
+                if (sdf >= 0 && sdf <= 1.5f) {
+                    // Mouth crest highlight around the top/left of the socket
+                    int crestCol = (x + y < cx + cy) ? 0xFF383B42 : 0xFF1C1E22;
+                    setPixel(img, x, y, applyStipple(crestCol, x, y));
+                } else if (sdf >= -2.0f && sdf < 0) {
+                    // Sloped wall descending into the well
+                    int wallCol = (x + y < cx + cy) ? 0xFF0A0B0E : 0xFF16181B;
+                    setPixel(img, x, y, applyStipple(wallCol, x, y));
+                } else if (sdf >= -3.5f && sdf < -2.0f) {
+                    // Cavity bottom root shadow
+                    setPixel(img, x, y, 0xFF040506);
+                } else if (sdf < -3.5f) {
+                    // Sunken floor of the power button pocket
+                    int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
+                    int floorCol = (grain == 1) ? 0xFF0C0D0F : ((grain == 2) ? 0xFF101113 : 0xFF0E0F11);
+                    setPixel(img, x, y, floorCol);
+                }
+            }
+        }
+    }
+
+    private static float getRoundedRectSDF(int px, int py, int x1, int y1, int x2, int y2, int r) {
+        int cx = (px < x1 + r) ? (x1 + r) : ((px > x2 - r) ? (x2 - r) : px);
+        int cy = (py < y1 + r) ? (y1 + r) : ((py > y2 - r) ? (y2 - r) : py);
+        float dx = px - cx;
+        float dy = py - cy;
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        boolean inside = (px >= x1 && px <= x2 && py >= y1 && py <= y2);
+        return inside ? (r - dist) : -(dist - r);
     }
 
     private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red, String label) {

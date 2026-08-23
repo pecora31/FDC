@@ -8,7 +8,11 @@
 * **Khu vực Màn hình MFD**: $800 \times 450\text{ px}$ (Góc trên-trái: $X = 90, Y = 90$).
 * **Vát góc ngoài & Ốc Lục Giác**: 4 góc vát bậc 3 tầng ($45 \times 45\text{ px}$), ốc lục giác M4 ở tâm góc.
 * **Gờ U-Collar (Trên / Dưới)**: $120 \le X \le 860$ bao quanh dãy phím trên và dưới.
-* **Khung C-Bracket (Trái / Phải)**: $120 \le Y \le 510$ bao quanh dãy phím 2 cạnh sườn.
+* **Mặt Sàn Phím & Cấu Trúc Nổi (Chassis Elevation Rules)**:
+  * **Sàn đặt phím**: Cùng mặt phẳng cơ sở với thân khung máy chính (`#161719`).
+  * **Nẹp chữ C (2 bên) & Nẹp chữ U (trên/dưới)**: Là 2 cấu trúc duy nhất được cố ý **thiết kế ĐẮP NỔI** cao hơn mặt sàn (`#212326` với viền vát CNC 3D).
+  * **Đầu vòm nẹp chữ C (C-Bracket Filleted Ends)**: Mép hốc khoét nẹp C ở 2 đầu trên (trên F1/F7) và dưới (dưới F6/F12) được **bo cong vòm ôm lấy phím** ($R_{\text{inner}} = 14\text{px}$) kèm dải vát đa diện (Faceted End Chamfers) ở 2 đầu ngoài.
+* **Khung C-Bracket (Trái / Phải)**: $105 \le Y \le 525$ bao quanh dãy phím 2 cạnh sườn.
 * **Gờ Vạch Ngăn Cách Giữa Các Nút (Tactical Divider Ribs)**:
   * **Các vị trí CÓ vạch ngăn**: Tất cả các cặp phím chức năng nội bộ đều có **1 gờ trụ đơn nổi** nằm chính giữa (giữa `SA-WPN`, `WPN-DEF`, `DEF-SYS`, `SYS-DRV`, `DRV-STR`, `STR-COM`, `COM-BMS`; giữa `F13`..`F20`; giữa `F2`..`F6`; giữa `F7`..`F12`).
   * **4 vị trí TUYỆT ĐỐI KHÔNG CÓ vạch ngăn (theo ảnh mẫu chụp thực tế)**:
