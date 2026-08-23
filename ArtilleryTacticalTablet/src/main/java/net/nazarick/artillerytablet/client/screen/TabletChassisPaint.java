@@ -36,11 +36,10 @@ public final class TabletChassisPaint {
         int h = TabletFrame.DESIGN_H;
         int r = 18;
         int bW = 9;
-        int cornerW = 45;
-        int cornerH = 45;
+        int cornerW = 48;
+        int cornerH = 48;
 
-        // 1. Base rim, true-transparent outside the rounded rect (no square corners bleeding
-        // through) rather than a filled drop shadow.
+        // 1. Base rim, true-transparent outside the rounded rect (no square corners bleeding through)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRoundedRect(x, y, 0, 0, w, h, r)) {
@@ -60,31 +59,31 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Four soft-corner chamfer facets
+        // 3. Four soft-corner chamfer facets (connecting seamlessly with 48px corner pockets)
         for (int cy = 1; cy < bW; cy++) {
             int d = cy - 1;
-            int col = (d == 0) ? 0xFF2D2F33 : ((d == 1) ? 0xFF282A2E : ((d == bW - 2) ? 0xFF1A1C1E : 0xFF222427));
+            int col = (d == 0) ? 0xFF2D2F33 : ((d == 1) ? 0xFF26282C : ((d == bW - 2) ? 0xFF1B1D1F : 0xFF202225));
             for (int cx = cornerW; cx < w - cornerW; cx++) {
                 setPixel(img, cx, cy, applyStipple(col, cx, cy));
             }
         }
         for (int cx = 1; cx < bW; cx++) {
             int d = cx - 1;
-            int col = (d == 0) ? 0xFF2A2C30 : ((d == 1) ? 0xFF242629 : ((d == bW - 2) ? 0xFF191A1D : 0xFF1E2023));
+            int col = (d == 0) ? 0xFF2A2C30 : ((d == 1) ? 0xFF242629 : ((d == bW - 2) ? 0xFF1B1D1F : 0xFF1E2023));
             for (int cy = cornerH; cy < h - cornerH; cy++) {
                 setPixel(img, cx, cy, applyStipple(col, cx, cy));
             }
         }
         for (int cy = h - bW; cy < h - 1; cy++) {
             int d = (h - 2) - cy;
-            int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0B0C0E : ((d == bW - 2) ? 0xFF131416 : 0xFF0E0F11));
+            int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0C0D0F : ((d == bW - 2) ? 0xFF141517 : 0xFF101113));
             for (int cx = cornerW; cx < w - cornerW; cx++) {
                 setPixel(img, cx, cy, applyStipple(col, cx, cy));
             }
         }
         for (int cx = w - bW; cx < w - 1; cx++) {
             int d = (w - 2) - cx;
-            int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0B0C0E : ((d == bW - 2) ? 0xFF131416 : 0xFF0F1012));
+            int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0C0D0F : ((d == bW - 2) ? 0xFF141517 : 0xFF101113));
             for (int cy = cornerH; cy < h - cornerH; cy++) {
                 setPixel(img, cx, cy, applyStipple(col, cx, cy));
             }
@@ -92,9 +91,9 @@ public final class TabletChassisPaint {
 
         // 4. Stepped corners, each with its own layered hex bolt
         bakeSteppedCorner(img, 0, 0, true, true, cornerW, cornerH, 7, r, bW);
-        bakeSteppedCorner(img, w - 45, 0, false, true, cornerW, cornerH, 7, r, bW);
-        bakeSteppedCorner(img, 0, h - 45, true, false, cornerW, cornerH, 7, r, bW);
-        bakeSteppedCorner(img, w - 45, h - 45, false, false, cornerW, cornerH, 7, r, bW);
+        bakeSteppedCorner(img, w - cornerW, 0, false, true, cornerW, cornerH, 7, r, bW);
+        bakeSteppedCorner(img, 0, h - cornerH, true, false, cornerW, cornerH, 7, r, bW);
+        bakeSteppedCorner(img, w - cornerW, h - cornerH, false, false, cornerW, cornerH, 7, r, bW);
 
         // 5. Screen bezel well + tactical grid baked into the well floor
         bakeScreenAndTacticalGrid(img);
