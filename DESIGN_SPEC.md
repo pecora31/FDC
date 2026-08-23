@@ -44,10 +44,9 @@
 
 ## 3. 💡 HỆ THỐNG ĐÈN LED (OPTICAL LIGHT-PIPE CAPSULE SPECIFICATION)
 * **Số lượng**: Đúng 32 đèn LED, đặt ngay dưới chân / cạnh mỗi nút bấm.
-  * Hàng trên: $Y = 76$ (khe dọc $4 \times 8\text{ px}$).
-  * Cạnh trái: $X = 76$ (khe ngang $8 \times 4\text{ px}$).
-  * Cạnh phải: $X = 896$ (khe ngang $8 \times 4\text{ px}$).
-  * Hàng dưới: $Y = 546$ (khe dọc $4 \times 8\text{ px}$).
+* **⚠️ Quy tắc phương của đèn LED**: **Chiều dài của đèn LED luôn VUÔNG GÓC với cạnh kề của phím bấm**:
+  * **Hàng trên & Hàng dưới** (kề cạnh ngang của phím): Đèn LED nằm **DỌC ($4 \times 8\text{ px}$)** tại $Y = 76$ (trên) và $Y = 546$ (dưới).
+  * **Cạnh trái & Cạnh phải** (kề cạnh đứng của phím): Đèn LED nằm **NGANG ($8 \times 4\text{ px}$)** tại $X = 76$ (trái) và $X = 896$ (phải).
 * **Trạng thái TẮT (Unlit - Thấu Kính Quang Học Chìm)**:
   * Khe khoét chìm màu đen: `#0C0E12`.
   * Thân que dẫn quang bằng polycarbonate khói: `#222630`.

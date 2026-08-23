@@ -1201,22 +1201,22 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
         }
 
-        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76)
+        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
         String[] leftLabels = {"CFF", "F2", "F3", "F4", "F5", "F6"};
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 0), leftLabels[i]);
-            bakeLedSprite(img, 76, cy - 4, 4, 8, false, 0);
+            bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
-        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896)
+        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
         String[] rightLabels = {"F7", "F8", "F9", "F10", "F11", "F12"};
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, rightLabels[i]);
-            bakeLedSprite(img, 896, cy - 4, 4, 8, false, 0);
+            bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
         // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 10 LEDs at LED_ROW_BOTTOM_Y = 546)

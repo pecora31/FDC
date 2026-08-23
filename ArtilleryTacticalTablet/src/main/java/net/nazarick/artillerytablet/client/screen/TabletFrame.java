@@ -205,11 +205,11 @@ final class TabletFrame {
             }
             case EDGE_LEFT: {
                 int cy = COL_FIRST_Y + index * COL_STEP;
-                return rect(LED_COL_LEFT_X, cy - LED_LONG / 2, LED_SHORT, LED_LONG);
+                return rect(LED_COL_LEFT_X, cy - LED_SHORT / 2, LED_LONG, LED_SHORT);
             }
             default: {
                 int cy = COL_FIRST_Y + index * COL_STEP;
-                return rect(LED_COL_RIGHT_X, cy - LED_LONG / 2, LED_SHORT, LED_LONG);
+                return rect(LED_COL_RIGHT_X, cy - LED_SHORT / 2, LED_LONG, LED_SHORT);
             }
         }
     }
