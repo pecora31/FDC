@@ -107,20 +107,13 @@ final class TabletChassisPaint {
         bakeSideCBracket(img, true, bW);
         bakeSideCBracket(img, false, bW);
 
-        // 8. Four recessed corner-key pockets
-        int pocketSize = 55;
-        bakeRecessedButtonPocket(img, 148, 589, pocketSize);
-        bakeRecessedButtonPocket(img, 832, 589, pocketSize);
-        bakeRecessedButtonPocket(img, 148, 41, pocketSize);
-        bakeRecessedButtonPocket(img, 832, 41, pocketSize);
-
         // 9. Lit capsule divider ribs
         bakeAllDividerRibs(img);
 
         // 10. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
         bakeDynamicKeySprites(img);
 
-        // 11. Bake all 28 default tactical keys and unlit LEDs directly onto 980px chassis
+        // 11. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
         bakeAllDefaultKeysAndLeds(img);
 
         return img;
@@ -834,46 +827,46 @@ final class TabletChassisPaint {
     public static final int SPRITE_LED_AMBER_H_X = 205, SPRITE_LED_AMBER_H_Y = 160;
 
     private static void bakeDynamicKeySprites(NativeImage img) {
-        int r = 6;
-        // PBT Idle (Exact match to Image 1)
+        int r = 7;
+        // PBT Idle (Matte Ash-Gray PBT)
         bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
-                0x88040508, 0xFF101216, 0xFF2A2D36, 0xFF565C6A, 0xFF4A4E5C, 0xFF3A3E48, 0xFF22242B, 0xFF525868, false);
+                0x88040508, 0xFF14161A, 0xFF22242A, 0xFF484E58, 0xFF505664, 0xFF343840, 0xFF1C1E24, 0xFF444A56, false);
         // PBT Hover
         bakeKeySprite(img, SPRITE_KEY_PBT_HOVER_X, SPRITE_KEY_PBT_HOVER_Y, 44, 44, r,
-                0x88040508, 0xFF101216, 0xFF2A2D36, 0xFF6E7688, 0xFF5A6070, 0xFF484D5A, 0xFF282C34, 0xFF646C7E, false);
+                0x88040508, 0xFF14161A, 0xFF2C3038, 0xFF5C6474, 0xFF667080, 0xFF404652, 0xFF242830, 0xFF505868, false);
         // PBT Pressed
         bakeKeySprite(img, SPRITE_KEY_PBT_PRESSED_X, SPRITE_KEY_PBT_PRESSED_Y, 44, 44, r,
-                0x88040508, 0xFF101216, 0xFF1C1E24, 0xFF22252C, 0xFF22252C, 0xFF24262E, 0xFF16181E, 0xFF343844, true);
+                0x88040508, 0xFF14161A, 0xFF1C1E24, 0xFF242830, 0xFF282C34, 0xFF242830, 0xFF181A20, 0xFF303642, true);
 
-        // Red Idle (Exact match to Image 1)
+        // Red Idle
         bakeKeySprite(img, SPRITE_KEY_RED_IDLE_X, SPRITE_KEY_RED_IDLE_Y, 44, 44, r,
-                0x88040508, 0xFF180303, 0xFF440808, 0xFFC82424, 0xFF9E1818, 0xFF7A1212, 0xFF480606, 0xFFA41E1E, false);
+                0x88040508, 0xFF220606, 0xFF560E0E, 0xFFA62424, 0xFFB82E2E, 0xFF8C1D1D, 0xFF4A0808, 0xFFB02C2C, false);
         // Red Hover
         bakeKeySprite(img, SPRITE_KEY_RED_HOVER_X, SPRITE_KEY_RED_HOVER_Y, 44, 44, r,
-                0x88040508, 0xFF180303, 0xFF440808, 0xFFE63030, 0xFFB42020, 0xFF961818, 0xFF540808, 0xFFC42626, false);
+                0x88040508, 0xFF220606, 0xFF6A1212, 0xFFC43030, 0xFFD83C3C, 0xFFA42424, 0xFF580C0C, 0xFFC83636, false);
         // Red Pressed
         bakeKeySprite(img, SPRITE_KEY_RED_PRESSED_X, SPRITE_KEY_RED_PRESSED_Y, 44, 44, r,
-                0x88040508, 0xFF180303, 0xFF360404, 0xFF360404, 0xFF360404, 0xFF400606, 0xFF1C0202, 0xFF500808, true);
+                0x88040508, 0xFF220606, 0xFF360606, 0xFF4E0C0C, 0xFF5C1010, 0xFF4A0A0A, 0xFF240404, 0xFF5E1212, true);
 
-        // LEDs (Unlit, Green, Red, Amber - Exact match to Image 1)
+        // LEDs with high-aura bloom (Unlit, Green, Red, Amber)
         bakeLedSprite(img, SPRITE_LED_UNLIT_V_X, SPRITE_LED_UNLIT_V_Y, 4, 8, false, 0);
         bakeLedSprite(img, SPRITE_LED_UNLIT_H_X, SPRITE_LED_UNLIT_H_Y, 8, 4, false, 0);
 
-        bakeLedSprite(img, SPRITE_LED_GREEN_V_X, SPRITE_LED_GREEN_V_Y, 4, 8, true, 0xFF00E65A);
-        bakeLedSprite(img, SPRITE_LED_GREEN_H_X, SPRITE_LED_GREEN_H_Y, 8, 4, true, 0xFF00E65A);
+        bakeLedSprite(img, SPRITE_LED_GREEN_V_X, SPRITE_LED_GREEN_V_Y, 4, 8, true, 0xFF00FF66);
+        bakeLedSprite(img, SPRITE_LED_GREEN_H_X, SPRITE_LED_GREEN_H_Y, 8, 4, true, 0xFF00FF66);
 
-        bakeLedSprite(img, SPRITE_LED_RED_V_X, SPRITE_LED_RED_V_Y, 4, 8, true, 0xFFFF2A2A);
-        bakeLedSprite(img, SPRITE_LED_RED_H_X, SPRITE_LED_RED_H_Y, 8, 4, true, 0xFFFF2A2A);
+        bakeLedSprite(img, SPRITE_LED_RED_V_X, SPRITE_LED_RED_V_Y, 4, 8, true, 0xFFFF2233);
+        bakeLedSprite(img, SPRITE_LED_RED_H_X, SPRITE_LED_RED_H_Y, 8, 4, true, 0xFFFF2233);
 
-        bakeLedSprite(img, SPRITE_LED_AMBER_V_X, SPRITE_LED_AMBER_V_Y, 4, 8, true, 0xFFFFB000);
-        bakeLedSprite(img, SPRITE_LED_AMBER_H_X, SPRITE_LED_AMBER_H_Y, 8, 4, true, 0xFFFFB000);
+        bakeLedSprite(img, SPRITE_LED_AMBER_V_X, SPRITE_LED_AMBER_V_Y, 4, 8, true, 0xFFFFBB00);
+        bakeLedSprite(img, SPRITE_LED_AMBER_H_X, SPRITE_LED_AMBER_H_Y, 8, 4, true, 0xFFFFBB00);
     }
 
     private static void bakeKeySprite(NativeImage img, int kx, int ky, int w, int h, int roundRadius,
                                       int dropShadow, int borderDark, int wallExtrusion,
                                       int shoulderLight, int rimTop, int dishBase,
                                       int dishShadow, int dishHighlight, boolean pressed) {
-        // Outer drop shadow (bottom-right 1px)
+        // 1. Subtle drop shadow
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRounded(x, y, w, h, roundRadius)) {
@@ -881,7 +874,8 @@ final class TabletChassisPaint {
                 }
             }
         }
-        // Outer border
+
+        // 2. Dark perimeter socket border
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRounded(x, y, w, h, roundRadius)) {
@@ -889,38 +883,42 @@ final class TabletChassisPaint {
                 }
             }
         }
-        // Body with gradient shoulder
+
+        // 3. Thin Matte PBT Body (Xám tro nhám mờ, không metallic, bo góc mượt mà)
         for (int y = 1; y < h - 1; y++) {
-            float t = (float) (y - 1) / Math.max(1, h - 3);
-            int col = Paint.blend(shoulderLight, wallExtrusion, t);
+            int col = dishBase;
+            if (y <= 2) col = shoulderLight;
+            else if (y >= h - 3) col = wallExtrusion;
+
             for (int x = 1; x < w - 1; x++) {
                 if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, roundRadius - 1)) {
                     setPixel(img, kx + x, ky + y, col);
                 }
             }
         }
-        // Top rim catch line
+
+        // 4. Clean 1px top highlight rim
         for (int x = roundRadius; x < w - roundRadius; x++) {
             setPixel(img, kx + x, ky + 1, rimTop);
         }
-        // Concave dish bowl (matches Image 1 perfectly)
+
+        // 5. Flat low-profile key face
         int inset = 4;
         int dishW = w - inset * 2;
         int dishH = h - inset * 2;
         int dishX = kx + inset;
         int dishY = ky + (pressed ? inset + 1 : inset);
-        int dishRadius = 4;
+        int dishRadius = Math.max(2, roundRadius - 3);
 
         for (int y = 0; y < dishH; y++) {
-            float t = (float) y / Math.max(1, dishH - 1);
-            int col = Paint.blend(dishShadow, dishBase, t);
             for (int x = 0; x < dishW; x++) {
                 if (isInsideRounded(x, y, dishW, dishH, dishRadius)) {
-                    setPixel(img, dishX + x, dishY + y, col);
+                    setPixel(img, dishX + x, dishY + y, dishBase);
                 }
             }
         }
-        // Dish inner shadow / highlight rim
+
+        // Top shadow & bottom catch
         for (int x = dishRadius; x < dishW - dishRadius; x++) {
             setPixel(img, dishX + x, dishY, dishShadow);
             setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
@@ -951,32 +949,53 @@ final class TabletChassisPaint {
 
     private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
         if (lit) {
-            // Phosphor bloom
-            int glow = 0x55000000 | (litCol & 0x00FFFFFF);
-            for (int y = -1; y <= h; y++) {
-                for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, glow);
+            int rgb = litCol & 0x00FFFFFF;
+            // High-Aura Phosphor Bloom Halo (Tỏa quầng sáng ngọc lục bảo rực rỡ)
+            for (int dy = -4; dy < h + 4; dy++) {
+                for (int dx = -4; dx < w + 4; dx++) {
+                    int distSq = 0;
+                    if (dx < 0) distSq += dx * dx;
+                    else if (dx >= w) distSq += (dx - w + 1) * (dx - w + 1);
+                    if (dy < 0) distSq += dy * dy;
+                    else if (dy >= h) distSq += (dy - h + 1) * (dy - h + 1);
+
+                    int alpha = 0;
+                    if (distSq <= 1) alpha = 0xD0;
+                    else if (distSq <= 4) alpha = 0x88;
+                    else if (distSq <= 9) alpha = 0x48;
+                    else if (distSq <= 16) alpha = 0x20;
+
+                    if (alpha > 0) {
+                        setPixel(img, lx + dx, ly + dy, (alpha << 24) | rgb);
+                    }
                 }
             }
-            // Diode body
+
+            // High-intensity diode body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, litCol);
+                    setPixel(img, lx + x, ly + y, 0xFF000000 | rgb);
                 }
             }
-            // White core dot in center (matches Image 1)
+
+            // Hot-white semiconductor core (Tâm sáng trắng bán dẫn)
             int dotX = lx + w / 2 - 1;
-            int dotY = ly + h / 2 - 1;
-            for (int y = 0; y < 2; y++) {
+            int dotY = ly + 1;
+            for (int y = 0; y < h - 2; y++) {
                 for (int x = 0; x < 2; x++) {
                     setPixel(img, dotX + x, dotY + y, 0xFFFFFFFF);
                 }
             }
         } else {
-            // Unlit compact translucent optical smoked glass (matches Image 1)
+            // Unlit compact translucent optical smoked glass with thin 1px recessed socket border
+            for (int y = -1; y <= h; y++) {
+                for (int x = -1; x <= w; x++) {
+                    setPixel(img, lx + x, ly + y, 0xFF0C0E12);
+                }
+            }
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF222834);
+                    setPixel(img, lx + x, ly + y, 0xFF242A36);
                 }
             }
             // Top reflection sheen
@@ -985,7 +1004,7 @@ final class TabletChassisPaint {
             }
             // Bottom shadow
             for (int x = 0; x < w; x++) {
-                setPixel(img, lx + x, ly + h - 1, 0xFF0E1116);
+                setPixel(img, lx + x, ly + h - 1, 0xFF10141C);
             }
         }
     }
@@ -1095,55 +1114,56 @@ final class TabletChassisPaint {
 
     private static void bakeAllDefaultKeysAndLeds(NativeImage img) {
         int keySize = 44;
+        int half = keySize / 2;
 
-        // 1. Top Row (10 Keys + 10 LEDs)
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 10 LEDs at LED_ROW_TOP_Y = 76)
         String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", "BRIGHT"};
         for (int i = 0; i < 10; i++) {
-            int kx = 148 + i * 76;
-            int ky = 41;
-            bakeSingleKey(img, kx, ky, keySize, keySize, false, topLabels[i]);
-            bakeLedSprite(img, kx + keySize / 2 - 2, 76, 4, 8, false, 0);
+            int cx = 148 + i * 76;
+            int cy = 41;
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, topLabels[i]);
+            bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
         }
 
-        // 2. Left Flank (6 Keys + 6 LEDs)
+        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76)
         String[] leftLabels = {"CFF", "ADJ", "MOD", "ARC", "F5", "F6"};
         for (int i = 0; i < 6; i++) {
-            int kx = 39;
-            int ky = 155 + i * 64;
-            bakeSingleKey(img, kx, ky, keySize, keySize, (i == 0), leftLabels[i]);
-            bakeLedSprite(img, 76, ky + keySize / 2 - 4, 4, 8, false, 0);
+            int cx = 39;
+            int cy = 155 + i * 64;
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 0), leftLabels[i]);
+            bakeLedSprite(img, 76, cy - 4, 4, 8, false, 0);
         }
 
-        // 3. Right Flank (6 Keys + 6 LEDs)
+        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896)
         String[] rightLabels = {"F7", "F8", "F9", "F10", "F11", "F12"};
         for (int i = 0; i < 6; i++) {
-            int kx = 941;
-            int ky = 155 + i * 64;
-            bakeSingleKey(img, kx, ky, keySize, keySize, false, rightLabels[i]);
-            bakeLedSprite(img, 896, ky + keySize / 2 - 4, 4, 8, false, 0);
+            int cx = 941;
+            int cy = 155 + i * 64;
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, rightLabels[i]);
+            bakeLedSprite(img, 896, cy - 4, 4, 8, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys + 10 LEDs)
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 10 LEDs at LED_ROW_BOTTOM_Y = 546)
         String[] botLabels = {"NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER"};
         for (int i = 0; i < 10; i++) {
-            int kx = 148 + i * 76;
-            int ky = 589;
-            bakeSingleKey(img, kx, ky, keySize, keySize, (i == 9), botLabels[i]);
-            bakeLedSprite(img, kx + keySize / 2 - 2, 546, 4, 8, false, 0);
+            int cx = 148 + i * 76;
+            int cy = 589;
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
+            bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
         }
     }
 
     private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red, String label) {
-        int r = 6;
+        int r = 7;
         if (red) {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88040508, 0xFF180303, 0xFF440808, 0xFFC82424, 0xFF9E1818, 0xFF7A1212, 0xFF480606, 0xFFA41E1E, false);
+                    0x88040508, 0xFF220606, 0xFF560E0E, 0xFFA62424, 0xFFB82E2E, 0xFF8C1D1D, 0xFF4A0808, 0xFFB02C2C, false);
         } else {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88040508, 0xFF101216, 0xFF2A2D36, 0xFF565C6A, 0xFF4A4E5C, 0xFF3A3E48, 0xFF22242B, 0xFF525868, false);
+                    0x88040508, 0xFF14161A, 0xFF22242A, 0xFF484E58, 0xFF505664, 0xFF343840, 0xFF1C1E24, 0xFF444A56, false);
         }
 
-        int textCol = 0xFFFFFFFF;
+        int textCol = 0xFFE8ECF2;
         int cx = kx + w / 2;
         int cy = ky + h / 2;
 
