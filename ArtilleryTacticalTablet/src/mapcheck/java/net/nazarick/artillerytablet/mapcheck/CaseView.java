@@ -71,16 +71,21 @@ final class CaseView {
         keys(frame, frameClass, paintClass, shapes);
 
         Files.createDirectories(out);
+
+        try {
+            Class<?> chassisClass = Class.forName("net.nazarick.artillerytablet.client.screen.TabletChassisPaint");
+            Method bakeMethod = chassisClass.getDeclaredMethod("bake");
+            bakeMethod.setAccessible(true);
+            com.mojang.blaze3d.platform.NativeImage bakedImg = (com.mojang.blaze3d.platform.NativeImage) bakeMethod.invoke(null);
+            bakedImg.writeToFile(out.resolve("case.png"));
+            bakedImg.writeToFile(out.resolve("case-master.png"));
+        } catch (Exception e) {
+            writePng(out.resolve("case.png"), shapes.shapes, 1, 0, 0, WINDOW_W, WINDOW_H);
+        }
+
         writeSvg(out.resolve("case.svg"), shapes.shapes);
-        writePng(out.resolve("case.png"), shapes.shapes, 1, 0, 0, WINDOW_W, WINDOW_H);
-        // A corner, six times over. Detail work is done on parts rather than on the whole, and at
-        // one pixel per pixel a moulding nine across is not something an eye can judge — which is
-        // how a step that was never drawn survived being looked at four times.
         writePng(out.resolve("case-corner.png"), shapes.shapes, 4, 0, 0, 260, 260);
         writePng(out.resolve("case-keys.png"), shapes.shapes, 3, 180, 0, 460, 300);
-        // The other end of the top row and the corner under it: the two keys that carry a symbol
-        // and a sign together, and the one filled cap on the case. Both are places where two things
-        // share one cap, which is where a layout goes wrong first.
         writePng(out.resolve("case-ends.png"), shapes.shapes, 3, 1370, 0, 550, 300);
         writePng(out.resolve("case-power.png"), shapes.shapes, 4, 1480, 900, 440, 180);
 

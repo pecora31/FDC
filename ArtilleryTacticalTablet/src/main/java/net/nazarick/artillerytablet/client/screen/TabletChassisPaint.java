@@ -1,5 +1,7 @@
 package net.nazarick.artillerytablet.client.screen;
 
+import java.util.HashMap;
+import java.util.Map;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -115,8 +117,11 @@ final class TabletChassisPaint {
         // 9. Lit capsule divider ribs
         bakeAllDividerRibs(img);
 
-        // 10. Dynamic high-resolution Keycap & LED Sprite Atlas
+        // 10. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
         bakeDynamicKeySprites(img);
+
+        // 11. Bake all 28 default tactical keys and unlit LEDs directly onto 980px chassis
+        bakeAllDefaultKeysAndLeds(img);
 
         return img;
     }
@@ -1042,6 +1047,178 @@ final class TabletChassisPaint {
                     setPixel(img, cx + x, cy + y, argb);
                 }
             }
+        }
+    }
+
+    // =========================================================================
+    // 32 PRE-BAKED MASTER TACTICAL KEYS & 32 UNLIT LEDS
+    // =========================================================================
+    private static final Map<Character, int[]> GLYPHS = new HashMap<>();
+
+    static {
+        GLYPHS.put(' ', new int[]{0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000});
+        GLYPHS.put('-', new int[]{0b00000, 0b00000, 0b00000, 0b11111, 0b00000, 0b00000, 0b00000});
+        GLYPHS.put('+', new int[]{0b00000, 0b00100, 0b00100, 0b11111, 0b00100, 0b00100, 0b00000});
+        GLYPHS.put(':', new int[]{0b00000, 0b01100, 0b01100, 0b00000, 0b01100, 0b01100, 0b00000});
+        GLYPHS.put('0', new int[]{0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110});
+        GLYPHS.put('1', new int[]{0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110});
+        GLYPHS.put('2', new int[]{0b01110, 0b10001, 0b00001, 0b00110, 0b01000, 0b10000, 0b11111});
+        GLYPHS.put('3', new int[]{0b11110, 0b00001, 0b00001, 0b01110, 0b00001, 0b00001, 0b11110});
+        GLYPHS.put('4', new int[]{0b00010, 0b00110, 0b01010, 0b10010, 0b11111, 0b00010, 0b00010});
+        GLYPHS.put('5', new int[]{0b11111, 0b10000, 0b11110, 0b00001, 0b00001, 0b10001, 0b01110});
+        GLYPHS.put('6', new int[]{0b00110, 0b01000, 0b10000, 0b11110, 0b10001, 0b10001, 0b01110});
+        GLYPHS.put('7', new int[]{0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b01000, 0b01000});
+        GLYPHS.put('8', new int[]{0b01110, 0b10001, 0b10001, 0b01110, 0b10001, 0b10001, 0b01110});
+        GLYPHS.put('9', new int[]{0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100});
+        GLYPHS.put('A', new int[]{0b01110, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001});
+        GLYPHS.put('B', new int[]{0b11110, 0b10001, 0b10001, 0b11110, 0b10001, 0b10001, 0b11110});
+        GLYPHS.put('C', new int[]{0b01110, 0b10001, 0b10000, 0b10000, 0b10000, 0b10001, 0b01110});
+        GLYPHS.put('D', new int[]{0b11100, 0b10010, 0b10001, 0b10001, 0b10001, 0b10010, 0b11100});
+        GLYPHS.put('E', new int[]{0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b11111});
+        GLYPHS.put('F', new int[]{0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b10000});
+        GLYPHS.put('G', new int[]{0b01110, 0b10001, 0b10000, 0b10111, 0b10001, 0b10001, 0b01110});
+        GLYPHS.put('I', new int[]{0b01110, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110});
+        GLYPHS.put('J', new int[]{0b00010, 0b00010, 0b00010, 0b00010, 0b10010, 0b10010, 0b01100});
+        GLYPHS.put('L', new int[]{0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b11111});
+        GLYPHS.put('M', new int[]{0b10001, 0b11011, 0b10101, 0b10001, 0b10001, 0b10001, 0b10001});
+        GLYPHS.put('N', new int[]{0b10001, 0b11001, 0b10101, 0b10011, 0b10001, 0b10001, 0b10001});
+        GLYPHS.put('O', new int[]{0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110});
+        GLYPHS.put('P', new int[]{0b11110, 0b10001, 0b10001, 0b11110, 0b10000, 0b10000, 0b10000});
+        GLYPHS.put('R', new int[]{0b11110, 0b10001, 0b10001, 0b11110, 0b10100, 0b10001, 0b10001});
+        GLYPHS.put('S', new int[]{0b01111, 0b10000, 0b10000, 0b01110, 0b00001, 0b00001, 0b11110});
+        GLYPHS.put('T', new int[]{0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100});
+        GLYPHS.put('U', new int[]{0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110});
+        GLYPHS.put('V', new int[]{0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01010, 0b00100});
+        GLYPHS.put('W', new int[]{0b10001, 0b10001, 0b10001, 0b10101, 0b10101, 0b11011, 0b10001});
+        GLYPHS.put('Y', new int[]{0b10001, 0b10001, 0b01010, 0b00100, 0b00100, 0b00100, 0b00100});
+    }
+
+    private static void bakeAllDefaultKeysAndLeds(NativeImage img) {
+        int keySize = 44;
+
+        // 1. Top Row (10 Keys + 10 LEDs)
+        String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", "BRIGHT"};
+        for (int i = 0; i < 10; i++) {
+            int kx = 148 + i * 76;
+            int ky = 41;
+            bakeSingleKey(img, kx, ky, keySize, keySize, false, topLabels[i]);
+            bakeLedSprite(img, kx + keySize / 2 - 2, 76, 4, 8, false, 0);
+        }
+
+        // 2. Left Flank (6 Keys + 6 LEDs)
+        String[] leftLabels = {"CFF", "ADJ", "MOD", "ARC", "F5", "F6"};
+        for (int i = 0; i < 6; i++) {
+            int kx = 39;
+            int ky = 155 + i * 64;
+            bakeSingleKey(img, kx, ky, keySize, keySize, (i == 0), leftLabels[i]);
+            bakeLedSprite(img, 76, ky + keySize / 2 - 4, 4, 8, false, 0);
+        }
+
+        // 3. Right Flank (6 Keys + 6 LEDs)
+        String[] rightLabels = {"F7", "F8", "F9", "F10", "F11", "F12"};
+        for (int i = 0; i < 6; i++) {
+            int kx = 941;
+            int ky = 155 + i * 64;
+            bakeSingleKey(img, kx, ky, keySize, keySize, false, rightLabels[i]);
+            bakeLedSprite(img, 896, ky + keySize / 2 - 4, 4, 8, false, 0);
+        }
+
+        // 4. Bottom Row (10 Keys + 10 LEDs)
+        String[] botLabels = {"NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER"};
+        for (int i = 0; i < 10; i++) {
+            int kx = 148 + i * 76;
+            int ky = 589;
+            bakeSingleKey(img, kx, ky, keySize, keySize, (i == 9), botLabels[i]);
+            bakeLedSprite(img, kx + keySize / 2 - 2, 546, 4, 8, false, 0);
+        }
+    }
+
+    private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red, String label) {
+        int r = 6;
+        if (red) {
+            bakeKeySprite(img, kx, ky, w, h, r,
+                    0x88040508, 0xFF180303, 0xFF440808, 0xFFC82424, 0xFF9E1818, 0xFF7A1212, 0xFF480606, 0xFFA41E1E, false);
+        } else {
+            bakeKeySprite(img, kx, ky, w, h, r,
+                    0x88040508, 0xFF101216, 0xFF2A2D36, 0xFF565C6A, 0xFF4A4E5C, 0xFF3A3E48, 0xFF22242B, 0xFF525868, false);
+        }
+
+        int textCol = 0xFFFFFFFF;
+        int cx = kx + w / 2;
+        int cy = ky + h / 2;
+
+        switch (label) {
+            case "GRID" -> { // crosshair
+                for (int x = cx - 7; x <= cx + 7; x++) setPixel(img, x, cy, textCol);
+                for (int y = cy - 7; y <= cy + 7; y++) setPixel(img, cx, y, textCol);
+                fillCircle(img, cx, cy, 2, textCol);
+            }
+            case "BRIGHT" -> { // 8-pointed star
+                fillCircle(img, cx, cy, 3, textCol);
+                for (int x = cx - 8; x <= cx + 8; x++) setPixel(img, x, cy, textCol);
+                for (int y = cy - 8; y <= cy + 8; y++) setPixel(img, cx, y, textCol);
+                int d = 5;
+                setPixel(img, cx - d, cy - d, textCol);
+                setPixel(img, cx + d, cy - d, textCol);
+                setPixel(img, cx - d, cy + d, textCol);
+                setPixel(img, cx + d, cy + d, textCol);
+            }
+            case "NIGHT" -> { // diamond
+                int s = 7;
+                for (int dy = -s; dy <= s; dy++) {
+                    int span = s - Math.abs(dy);
+                    for (int dx = -span; dx <= span; dx++) {
+                        setPixel(img, cx + dx, cy + dy, textCol);
+                    }
+                }
+            }
+            case "POWER" -> { // IEC Standby symbol
+                int radius = 8;
+                for (int y = cy - radius - 2; y <= cy - radius + 6; y++) {
+                    setPixel(img, cx, y, textCol);
+                }
+                int rIn2 = (radius - 2) * (radius - 2);
+                int rOut2 = radius * radius;
+                int gapHalfW = 3;
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dx = -radius; dx <= radius; dx++) {
+                        int d2 = dx * dx + dy * dy;
+                        if (d2 <= rOut2 && d2 >= rIn2) {
+                            if (dy < -2 && Math.abs(dx) <= gapHalfW) continue;
+                            setPixel(img, cx + dx, cy + dy, textCol);
+                        }
+                    }
+                }
+            }
+            default -> rasterizePixelString(img, label, cx, cy, 2, textCol);
+        }
+    }
+
+    private static void rasterizePixelString(NativeImage img, String text, int cx, int cy, int fontScale, int color) {
+        String upper = text.toUpperCase();
+        int charW = 5 * fontScale;
+        int charSp = 1 * fontScale;
+        int totalW = upper.length() * charW + (upper.length() - 1) * charSp;
+        int startX = Math.round(cx - totalW / 2.0f);
+        int startY = Math.round(cy - (7 * fontScale) / 2.0f);
+
+        int curX = startX;
+        for (int i = 0; i < upper.length(); i++) {
+            char ch = upper.charAt(i);
+            int[] glyph = GLYPHS.getOrDefault(ch, GLYPHS.get(' '));
+            for (int r = 0; r < 7; r++) {
+                int row = glyph[r];
+                for (int c = 0; c < 5; c++) {
+                    if (((row >> (4 - c)) & 1) == 1) {
+                        for (int dy = 0; dy < fontScale; dy++) {
+                            for (int dx = 0; dx < fontScale; dx++) {
+                                setPixel(img, curX + c * fontScale + dx, startY + r * fontScale + dy, color);
+                            }
+                        }
+                    }
+                }
+            }
+            curX += (5 + 1) * fontScale;
         }
     }
 }
