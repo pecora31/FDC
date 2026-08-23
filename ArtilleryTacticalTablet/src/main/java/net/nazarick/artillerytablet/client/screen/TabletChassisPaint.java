@@ -283,11 +283,11 @@ public final class TabletChassisPaint {
         }
 
         if (!isTop) {
-            // Lateral side bevels (uX1 left facing light, uX2 right next to Power button)
-            int bevelW = 8;
+            // Slim lateral side bevels (uX1 left facing light, uX2 right next to Power button)
+            int bevelW = 3;
             for (int x = uX1; x < uX1 + bevelW; x++) {
                 int d = x - uX1;
-                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2C2E33 : (d == bevelW - 2 ? 0xFF191A1D : (d == bevelW - 1 ? 0xFF17181B : 0xFF222428)));
+                int col = (d == 0) ? 0xFF32353A : ((d == 1) ? 0xFF282A2F : 0xFF222428);
                 for (int y = uY1; y < uY2; y++) {
                     if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
@@ -296,7 +296,7 @@ public final class TabletChassisPaint {
             }
             for (int x = uX2 - bevelW; x < uX2; x++) {
                 int d = (uX2 - 1) - x;
-                int col = (d == 0) ? 0xFF040506 : ((d == 1) ? 0xFF090A0C : (d == 2 ? 0xFF0E0F12 : (d == bevelW - 2 ? 0xFF1B1D20 : (d == bevelW - 1 ? 0xFF25272B : 0xFF15171A))));
+                int col = (d == 0) ? 0xFF050608 : ((d == 1) ? 0xFF101215 : 0xFF1A1C20);
                 for (int y = uY1; y < uY2; y++) {
                     if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
@@ -326,11 +326,11 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Top U-collar lateral side bevels
-            int bevelW = 8;
+            // Slim Top U-collar lateral side bevels
+            int bevelW = 3;
             for (int x = uX1; x < uX1 + bevelW; x++) {
                 int d = x - uX1;
-                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2C2E33 : (d == bevelW - 2 ? 0xFF191A1D : (d == bevelW - 1 ? 0xFF17181B : 0xFF222428)));
+                int col = (d == 0) ? 0xFF32353A : ((d == 1) ? 0xFF282A2F : 0xFF222428);
                 for (int y = uY1; y < uY2; y++) {
                     if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
@@ -339,7 +339,7 @@ public final class TabletChassisPaint {
             }
             for (int x = uX2 - bevelW; x < uX2; x++) {
                 int d = (uX2 - 1) - x;
-                int col = (d == 0) ? 0xFF040506 : ((d == 1) ? 0xFF090A0C : (d == 2 ? 0xFF0E0F12 : (d == bevelW - 2 ? 0xFF1B1D20 : (d == bevelW - 1 ? 0xFF25272B : 0xFF15171A))));
+                int col = (d == 0) ? 0xFF050608 : ((d == 1) ? 0xFF101215 : 0xFF1A1C20);
                 for (int y = uY1; y < uY2; y++) {
                     if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
