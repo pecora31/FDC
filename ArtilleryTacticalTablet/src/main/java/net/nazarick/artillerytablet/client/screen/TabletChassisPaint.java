@@ -1281,7 +1281,7 @@ public final class TabletChassisPaint {
 
     private static void bakePowerButtonWell(NativeImage img, int cx, int cy) {
         int keyW = 44, keyH = 44, keyR = 7;
-        int rimThick = 3;
+        int rimThick = 6;
         int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
         int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
         int ox2 = ox1 + outW, oy2 = oy1 + outH;
@@ -1298,11 +1298,13 @@ public final class TabletChassisPaint {
 
                     int col;
                     if (inTopLeft) {
-                        // Top & Left of sunken cavity: Deep drop shadow
-                        col = (dxFromInner <= 1) ? 0xFF050608 : 0xFF0C0D10;
+                        // Top & Left of sunken cavity: Multi-layer drop shadow
+                        col = (dxFromInner <= 2) ? 0xFF040507
+                                : ((dxFromInner <= 4) ? 0xFF090A0D : 0xFF101114);
                     } else {
-                        // Bottom & Right of sunken cavity: Catching reflective light
-                        col = (dxFromInner <= 1) ? 0xFF2A2D33 : 0xFF1E2025;
+                        // Bottom & Right of sunken cavity: Sloped surface catching light
+                        col = (dxFromInner <= 2) ? 0xFF1C1E23
+                                : ((dxFromInner <= 4) ? 0xFF282B32 : 0xFF32353D);
                     }
                     setPixel(img, x, y, applyStipple(col, x, y));
                 }
