@@ -828,25 +828,25 @@ public final class TabletChassisPaint {
 
     private static void bakeDynamicKeySprites(NativeImage img) {
         int r = 7;
-        // PBT Idle (Matte Ash-Gray PBT - Brighter, cleaner)
+        // PBT Idle (Khớp 100% ảnh mẫu: Viền nổi cao, lòng chìm sâu, tông xám tro quân sự)
         bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
-                0x88040508, 0xFF1C1F26, 0xFF323640, 0xFF5A6272, 0xFF626B7C, 0xFF444954, 0xFF2E323A, 0xFF545C6C, false);
+                0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E, false);
         // PBT Hover
         bakeKeySprite(img, SPRITE_KEY_PBT_HOVER_X, SPRITE_KEY_PBT_HOVER_Y, 44, 44, r,
-                0x88040508, 0xFF1C1F26, 0xFF3C424E, 0xFF6E788C, 0xFF768296, 0xFF505664, 0xFF363C46, 0xFF606A7C, false);
+                0x77060709, 0xFF14161C, 0xFF323640, 0xFF666E7E, 0xFF586070, 0xFF404652, 0xFF22262E, 0xFF565E6E, false);
         // PBT Pressed
         bakeKeySprite(img, SPRITE_KEY_PBT_PRESSED_X, SPRITE_KEY_PBT_PRESSED_Y, 44, 44, r,
-                0x88040508, 0xFF1C1F26, 0xFF282C34, 0xFF323640, 0xFF363B46, 0xFF30343E, 0xFF242830, 0xFF404654, true);
+                0x77060709, 0xFF14161C, 0xFF20232A, 0xFF363B45, 0xFF30353E, 0xFF2A2E36, 0xFF16181E, 0xFF3E4450, true);
 
         // Red Idle
         bakeKeySprite(img, SPRITE_KEY_RED_IDLE_X, SPRITE_KEY_RED_IDLE_Y, 44, 44, r,
-                0x88040508, 0xFF2A0808, 0xFF6A1414, 0xFFB82E2E, 0xFFC83636, 0xFF9C2222, 0xFF540E0E, 0xFFBE3232, false);
+                0x77060709, 0xFF220606, 0xFF5E1212, 0xFFB02828, 0xFF9E2222, 0xFF7A1818, 0xFF3C0808, 0xFFA62424, false);
         // Red Hover
         bakeKeySprite(img, SPRITE_KEY_RED_HOVER_X, SPRITE_KEY_RED_HOVER_Y, 44, 44, r,
-                0x88040508, 0xFF2A0808, 0xFF7E1818, 0xFFD43838, 0xFFE64646, 0xFFB22A2A, 0xFF641212, 0xFFD84040, false);
+                0x77060709, 0xFF220606, 0xFF721616, 0xFFC83232, 0xFFB62828, 0xFF8E1E1E, 0xFF480A0A, 0xFFBE2E2E, false);
         // Red Pressed
         bakeKeySprite(img, SPRITE_KEY_RED_PRESSED_X, SPRITE_KEY_RED_PRESSED_Y, 44, 44, r,
-                0x88040508, 0xFF2A0808, 0xFF460A0A, 0xFF5C1010, 0xFF681414, 0xFF561010, 0xFF300606, 0xFF6E1616, true);
+                0x77060709, 0xFF220606, 0xFF3E0808, 0xFF561010, 0xFF4E0E0E, 0xFF420A0A, 0xFF200404, 0xFF621414, true);
 
         // LEDs with high-aura bloom (Unlit, Green, Red, Amber)
         bakeLedSprite(img, SPRITE_LED_UNLIT_V_X, SPRITE_LED_UNLIT_V_Y, 4, 8, false, 0);
@@ -866,7 +866,16 @@ public final class TabletChassisPaint {
                                       int dropShadow, int borderDark, int wallExtrusion,
                                       int shoulderLight, int rimTop, int dishBase,
                                       int dishShadow, int dishHighlight, boolean pressed) {
-        // 1. Thin 1px dark perimeter socket border
+        // 1. Outer base drop shadow (mỏng 1px dưới chân phím)
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (isInsideRounded(x, y, w, h, roundRadius)) {
+                    setPixel(img, kx + x, ky + y + 1, dropShadow);
+                }
+            }
+        }
+
+        // 2. 1px dark outer socket border
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRounded(x, y, w, h, roundRadius)) {
@@ -875,44 +884,67 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Matte PBT Body (Xám tro nhạt hơn một chút, sạch sẽ, mỏng gọn)
+        // 3. Raised outer rim body (Viền nút nổi cao hơn bề mặt chứa chữ)
         for (int y = 1; y < h - 1; y++) {
-            int col = dishBase;
-            if (y <= 2) col = shoulderLight;
-            else if (y >= h - 3) col = wallExtrusion;
+            int rimCol = dishBase;
+            if (y <= 2) rimCol = shoulderLight;
+            else if (y <= 4) rimCol = rimTop;
+            else if (y >= h - 3) rimCol = wallExtrusion;
 
             for (int x = 1; x < w - 1; x++) {
                 if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, roundRadius - 1)) {
-                    setPixel(img, kx + x, ky + y, col);
+                    setPixel(img, kx + x, ky + y, rimCol);
                 }
             }
         }
 
-        // 3. Clean 1px top highlight rim
+        // 4. Highlight on top outer rim edge
         for (int x = roundRadius; x < w - roundRadius; x++) {
-            setPixel(img, kx + x, ky + 1, rimTop);
+            setPixel(img, kx + x, ky + 1, shoulderLight);
         }
 
-        // 4. Flat low-profile key face
-        int inset = 3;
-        int dishW = w - inset * 2;
-        int dishH = h - inset * 2;
-        int dishX = kx + inset;
-        int dishY = ky + (pressed ? inset + 1 : inset);
-        int dishRadius = Math.max(2, roundRadius - 2);
+        // 5. Deep Recessed Dish Floor (Bề mặt chứa chữ chìm sâu bên trong viền)
+        int rimThickness = 4;
+        int dishW = w - rimThickness * 2;
+        int dishH = h - rimThickness * 2;
+        int dishX = kx + rimThickness;
+        int dishY = ky + (pressed ? rimThickness + 1 : rimThickness);
+        int innerRadius = Math.max(2, roundRadius - rimThickness + 1);
 
+        // 5a. Fill recessed dish floor
         for (int y = 0; y < dishH; y++) {
             for (int x = 0; x < dishW; x++) {
-                if (isInsideRounded(x, y, dishW, dishH, dishRadius)) {
+                if (isInsideRounded(x, y, dishW, dishH, innerRadius)) {
                     setPixel(img, dishX + x, dishY + y, dishBase);
                 }
             }
         }
 
-        // Top subtle shadow & bottom rim
-        for (int x = dishRadius; x < dishW - dishRadius; x++) {
-            setPixel(img, dishX + x, dishY, dishShadow);
-            setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
+        // 5b. Inner top & left drop shadow (Bóng đổ từ gờ viền cao xuống lòng phím chìm)
+        for (int x = 0; x < dishW; x++) {
+            if (isInsideRounded(x, 0, dishW, dishH, innerRadius)) {
+                setPixel(img, dishX + x, dishY, dishShadow);
+            }
+            if (isInsideRounded(x, 1, dishW, dishH, innerRadius)) {
+                setPixel(img, dishX + x, dishY + 1, (dishShadow & 0x00FFFFFF) | 0x88000000);
+            }
+        }
+        for (int y = 0; y < dishH; y++) {
+            if (isInsideRounded(0, y, dishW, dishH, innerRadius)) {
+                setPixel(img, dishX, dishY + y, dishShadow);
+            }
+        }
+
+        // 5c. Inner bottom & right highlight reflection (Ánh sáng hắt ở mép trong dưới của gờ)
+        for (int x = 0; x < dishW; x++) {
+            if (isInsideRounded(x, dishH - 1, dishW, dishH, innerRadius)) {
+                setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
+            }
+        }
+        for (int y = 0; y < dishH; y++) {
+            if (isInsideRounded(dishW - 1, y, dishW, dishH, innerRadius)) {
+                setPixel(img, dishX + dishW - 1, dishY + y, dishHighlight);
+            }
         }
     }
 
@@ -1146,10 +1178,10 @@ public final class TabletChassisPaint {
         int r = 7;
         if (red) {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88040508, 0xFF2A0808, 0xFF6A1414, 0xFFB82E2E, 0xFFC83636, 0xFF9C2222, 0xFF540E0E, 0xFFBE3232, false);
+                    0x77060709, 0xFF220606, 0xFF5E1212, 0xFFB02828, 0xFF9E2222, 0xFF7A1818, 0xFF3C0808, 0xFFA62424, false);
         } else {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88040508, 0xFF1C1F26, 0xFF323640, 0xFF5A6272, 0xFF626B7C, 0xFF444954, 0xFF2E323A, 0xFF545C6C, false);
+                    0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E, false);
         }
 
         int textCol = 0xFFF0F4FA;
