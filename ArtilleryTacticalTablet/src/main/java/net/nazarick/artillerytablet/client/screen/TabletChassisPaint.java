@@ -994,9 +994,10 @@ public final class TabletChassisPaint {
         boolean isVert = (h > w);
         if (lit) {
             int rgb = litCol & 0x00FFFFFF;
-            // Moderate Phosphor Aura (Quầng sáng vừa phải, nổi bật mà không chói gắt)
-            for (int dy = -2; dy < h + 2; dy++) {
-                for (int dx = -2; dx < w + 2; dx++) {
+
+            // 1. Elongated Capsule Phosphor Halo (Quầng hào quang tỏa đều theo thân ống dẫn quang)
+            for (int dy = -3; dy <= h + 2; dy++) {
+                for (int dx = -3; dx <= w + 2; dx++) {
                     int distSq = 0;
                     if (dx < 0) distSq += dx * dx;
                     else if (dx >= w) distSq += (dx - w + 1) * (dx - w + 1);
@@ -1004,8 +1005,10 @@ public final class TabletChassisPaint {
                     else if (dy >= h) distSq += (dy - h + 1) * (dy - h + 1);
 
                     int alpha = 0;
-                    if (distSq <= 1) alpha = 0x55;
-                    else if (distSq <= 4) alpha = 0x22;
+                    if (distSq == 0) alpha = 0; // Handled by body
+                    else if (distSq <= 2) alpha = 0x60;
+                    else if (distSq <= 5) alpha = 0x30;
+                    else if (distSq <= 9) alpha = 0x14;
 
                     if (alpha > 0) {
                         setPixel(img, lx + dx, ly + dy, (alpha << 24) | rgb);
@@ -1013,20 +1016,38 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // High-clarity diode body
+            // 2. Optical slot bevel base (vỏ rãnh chìm có hắt sáng quang học)
+            for (int y = -1; y <= h; y++) {
+                for (int x = -1; x <= w; x++) {
+                    if (x == -1 || x == w || y == -1 || y == h) {
+                        setPixel(img, lx + x, ly + y, 0x99000000 | rgb);
+                    }
+                }
+            }
+
+            // 3. High-saturation luminous light-guide capsule body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     setPixel(img, lx + x, ly + y, 0xFF000000 | rgb);
                 }
             }
 
-            // Soft white core dot (chấm sáng dịu ở tâm)
-            int dotX = lx + w / 2 - 1;
-            int dotY = ly + h / 2 - 1;
-            for (int y = 0; y < 2; y++) {
-                for (int x = 0; x < 2; x++) {
-                    setPixel(img, dotX + x, dotY + y, 0xFFEFFFF5);
+            // 4. Axial Optical Core Filament (Lõi quang học sáng trắng chạy dọc theo trục ống dẫn)
+            if (isVert) {
+                int coreX = lx + w / 2 - 1;
+                for (int y = 1; y < h - 1; y++) {
+                    setPixel(img, coreX, ly + y, 0xFFFFFFFF);
+                    setPixel(img, coreX + 1, ly + y, 0xFFE0FFF0);
                 }
+                // Curved lens internal refraction highlight at curved bottom
+                setPixel(img, lx + w - 1, ly + h - 2, 0xFFFFFFFF);
+            } else {
+                int coreY = ly + h / 2 - 1;
+                for (int x = 1; x < w - 1; x++) {
+                    setPixel(img, lx + x, coreY, 0xFFFFFFFF);
+                    setPixel(img, lx + x, coreY + 1, 0xFFE0FFF0);
+                }
+                setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
             }
         } else {
             // Unlit Optical Light-Pipe Capsule (Khớp 100% que dẫn sáng thấu kính cong trong ảnh mẫu)
