@@ -22,14 +22,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * that reason. Only the static background — the part with no game state behind it — is baked.
  */
 @OnlyIn(Dist.CLIENT)
-final class TabletChassisPaint {
+public final class TabletChassisPaint {
     private TabletChassisPaint() {
     }
 
     // =========================================================================
     // BAKE — runs once, into a design-space (980x630) image
     // =========================================================================
-    static NativeImage bake() {
+    public static NativeImage bake() {
         NativeImage img = new NativeImage(TabletFrame.DESIGN_W, TabletFrame.DESIGN_H, false);
 
         int w = TabletFrame.DESIGN_W;
@@ -828,25 +828,25 @@ final class TabletChassisPaint {
 
     private static void bakeDynamicKeySprites(NativeImage img) {
         int r = 7;
-        // PBT Idle (Matte Ash-Gray PBT)
+        // PBT Idle (Matte Ash-Gray PBT - Brighter, cleaner)
         bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
-                0x88040508, 0xFF14161A, 0xFF22242A, 0xFF484E58, 0xFF505664, 0xFF343840, 0xFF1C1E24, 0xFF444A56, false);
+                0x88040508, 0xFF1C1F26, 0xFF323640, 0xFF5A6272, 0xFF626B7C, 0xFF444954, 0xFF2E323A, 0xFF545C6C, false);
         // PBT Hover
         bakeKeySprite(img, SPRITE_KEY_PBT_HOVER_X, SPRITE_KEY_PBT_HOVER_Y, 44, 44, r,
-                0x88040508, 0xFF14161A, 0xFF2C3038, 0xFF5C6474, 0xFF667080, 0xFF404652, 0xFF242830, 0xFF505868, false);
+                0x88040508, 0xFF1C1F26, 0xFF3C424E, 0xFF6E788C, 0xFF768296, 0xFF505664, 0xFF363C46, 0xFF606A7C, false);
         // PBT Pressed
         bakeKeySprite(img, SPRITE_KEY_PBT_PRESSED_X, SPRITE_KEY_PBT_PRESSED_Y, 44, 44, r,
-                0x88040508, 0xFF14161A, 0xFF1C1E24, 0xFF242830, 0xFF282C34, 0xFF242830, 0xFF181A20, 0xFF303642, true);
+                0x88040508, 0xFF1C1F26, 0xFF282C34, 0xFF323640, 0xFF363B46, 0xFF30343E, 0xFF242830, 0xFF404654, true);
 
         // Red Idle
         bakeKeySprite(img, SPRITE_KEY_RED_IDLE_X, SPRITE_KEY_RED_IDLE_Y, 44, 44, r,
-                0x88040508, 0xFF220606, 0xFF560E0E, 0xFFA62424, 0xFFB82E2E, 0xFF8C1D1D, 0xFF4A0808, 0xFFB02C2C, false);
+                0x88040508, 0xFF2A0808, 0xFF6A1414, 0xFFB82E2E, 0xFFC83636, 0xFF9C2222, 0xFF540E0E, 0xFFBE3232, false);
         // Red Hover
         bakeKeySprite(img, SPRITE_KEY_RED_HOVER_X, SPRITE_KEY_RED_HOVER_Y, 44, 44, r,
-                0x88040508, 0xFF220606, 0xFF6A1212, 0xFFC43030, 0xFFD83C3C, 0xFFA42424, 0xFF580C0C, 0xFFC83636, false);
+                0x88040508, 0xFF2A0808, 0xFF7E1818, 0xFFD43838, 0xFFE64646, 0xFFB22A2A, 0xFF641212, 0xFFD84040, false);
         // Red Pressed
         bakeKeySprite(img, SPRITE_KEY_RED_PRESSED_X, SPRITE_KEY_RED_PRESSED_Y, 44, 44, r,
-                0x88040508, 0xFF220606, 0xFF360606, 0xFF4E0C0C, 0xFF5C1010, 0xFF4A0A0A, 0xFF240404, 0xFF5E1212, true);
+                0x88040508, 0xFF2A0808, 0xFF460A0A, 0xFF5C1010, 0xFF681414, 0xFF561010, 0xFF300606, 0xFF6E1616, true);
 
         // LEDs with high-aura bloom (Unlit, Green, Red, Amber)
         bakeLedSprite(img, SPRITE_LED_UNLIT_V_X, SPRITE_LED_UNLIT_V_Y, 4, 8, false, 0);
@@ -866,16 +866,7 @@ final class TabletChassisPaint {
                                       int dropShadow, int borderDark, int wallExtrusion,
                                       int shoulderLight, int rimTop, int dishBase,
                                       int dishShadow, int dishHighlight, boolean pressed) {
-        // 1. Subtle drop shadow
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                if (isInsideRounded(x, y, w, h, roundRadius)) {
-                    setPixel(img, kx + x + 1, ky + y + 1, dropShadow);
-                }
-            }
-        }
-
-        // 2. Dark perimeter socket border
+        // 1. Thin 1px dark perimeter socket border
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRounded(x, y, w, h, roundRadius)) {
@@ -884,7 +875,7 @@ final class TabletChassisPaint {
             }
         }
 
-        // 3. Thin Matte PBT Body (Xám tro nhám mờ, không metallic, bo góc mượt mà)
+        // 2. Matte PBT Body (Xám tro nhạt hơn một chút, sạch sẽ, mỏng gọn)
         for (int y = 1; y < h - 1; y++) {
             int col = dishBase;
             if (y <= 2) col = shoulderLight;
@@ -897,18 +888,18 @@ final class TabletChassisPaint {
             }
         }
 
-        // 4. Clean 1px top highlight rim
+        // 3. Clean 1px top highlight rim
         for (int x = roundRadius; x < w - roundRadius; x++) {
             setPixel(img, kx + x, ky + 1, rimTop);
         }
 
-        // 5. Flat low-profile key face
-        int inset = 4;
+        // 4. Flat low-profile key face
+        int inset = 3;
         int dishW = w - inset * 2;
         int dishH = h - inset * 2;
         int dishX = kx + inset;
         int dishY = ky + (pressed ? inset + 1 : inset);
-        int dishRadius = Math.max(2, roundRadius - 3);
+        int dishRadius = Math.max(2, roundRadius - 2);
 
         for (int y = 0; y < dishH; y++) {
             for (int x = 0; x < dishW; x++) {
@@ -918,7 +909,7 @@ final class TabletChassisPaint {
             }
         }
 
-        // Top shadow & bottom catch
+        // Top subtle shadow & bottom rim
         for (int x = dishRadius; x < dishW - dishRadius; x++) {
             setPixel(img, dishX + x, dishY, dishShadow);
             setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
@@ -950,9 +941,9 @@ final class TabletChassisPaint {
     private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
         if (lit) {
             int rgb = litCol & 0x00FFFFFF;
-            // High-Aura Phosphor Bloom Halo (Tỏa quầng sáng ngọc lục bảo rực rỡ)
-            for (int dy = -4; dy < h + 4; dy++) {
-                for (int dx = -4; dx < w + 4; dx++) {
+            // Moderate Phosphor Aura (Quầng sáng vừa phải, nổi bật mà không chói gắt)
+            for (int dy = -2; dy < h + 2; dy++) {
+                for (int dx = -2; dx < w + 2; dx++) {
                     int distSq = 0;
                     if (dx < 0) distSq += dx * dx;
                     else if (dx >= w) distSq += (dx - w + 1) * (dx - w + 1);
@@ -960,10 +951,8 @@ final class TabletChassisPaint {
                     else if (dy >= h) distSq += (dy - h + 1) * (dy - h + 1);
 
                     int alpha = 0;
-                    if (distSq <= 1) alpha = 0xD0;
-                    else if (distSq <= 4) alpha = 0x88;
-                    else if (distSq <= 9) alpha = 0x48;
-                    else if (distSq <= 16) alpha = 0x20;
+                    if (distSq <= 1) alpha = 0x55;
+                    else if (distSq <= 4) alpha = 0x22;
 
                     if (alpha > 0) {
                         setPixel(img, lx + dx, ly + dy, (alpha << 24) | rgb);
@@ -971,26 +960,26 @@ final class TabletChassisPaint {
                 }
             }
 
-            // High-intensity diode body
+            // High-clarity diode body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     setPixel(img, lx + x, ly + y, 0xFF000000 | rgb);
                 }
             }
 
-            // Hot-white semiconductor core (Tâm sáng trắng bán dẫn)
+            // Soft white core dot (chấm sáng dịu ở tâm)
             int dotX = lx + w / 2 - 1;
-            int dotY = ly + 1;
-            for (int y = 0; y < h - 2; y++) {
+            int dotY = ly + h / 2 - 1;
+            for (int y = 0; y < 2; y++) {
                 for (int x = 0; x < 2; x++) {
-                    setPixel(img, dotX + x, dotY + y, 0xFFFFFFFF);
+                    setPixel(img, dotX + x, dotY + y, 0xFFEFFFF5);
                 }
             }
         } else {
             // Unlit compact translucent optical smoked glass with thin 1px recessed socket border
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF0C0E12);
+                    setPixel(img, lx + x, ly + y, 0xFF0E1014);
                 }
             }
             for (int y = 0; y < h; y++) {
@@ -1157,13 +1146,13 @@ final class TabletChassisPaint {
         int r = 7;
         if (red) {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88040508, 0xFF220606, 0xFF560E0E, 0xFFA62424, 0xFFB82E2E, 0xFF8C1D1D, 0xFF4A0808, 0xFFB02C2C, false);
+                    0x88040508, 0xFF2A0808, 0xFF6A1414, 0xFFB82E2E, 0xFFC83636, 0xFF9C2222, 0xFF540E0E, 0xFFBE3232, false);
         } else {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88040508, 0xFF14161A, 0xFF22242A, 0xFF484E58, 0xFF505664, 0xFF343840, 0xFF1C1E24, 0xFF444A56, false);
+                    0x88040508, 0xFF1C1F26, 0xFF323640, 0xFF5A6272, 0xFF626B7C, 0xFF444954, 0xFF2E323A, 0xFF545C6C, false);
         }
 
-        int textCol = 0xFFE8ECF2;
+        int textCol = 0xFFF0F4FA;
         int cx = kx + w / 2;
         int cy = ky + h / 2;
 
