@@ -59,6 +59,16 @@ logs/
 
 # Eclipse / IDE compile output
 bin/
+out/
+.project
+.classpath
+.settings/
+
+# Internal UI Previews & Development Helpers
+UI/
+*.bat
+run_case_live_preview.bat
+run_live_preview.bat
 
 # Claude Code local tool-permission settings — machine-local, not for the repo
 .claude/settings.local.json
