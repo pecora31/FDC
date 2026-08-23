@@ -131,63 +131,94 @@ public final class TabletChassisPaint {
 
     private static void bakeSteppedCorner(NativeImage img, int vx, int vy, boolean isLeft, boolean isTop,
                                            int cornerW, int cornerH, int rIn, int outerR, int bW) {
-        int kx1 = vx, ky1 = vy, kx2 = kx1 + cornerW, ky2 = ky1 + cornerH;
+        int w = TabletFrame.DESIGN_W;
+        int h = TabletFrame.DESIGN_H;
+        int pSize = 48;
+        int rInner = 14;
+
+        int kx1 = isLeft ? 0 : w - pSize;
+        int kx2 = isLeft ? pSize : w;
+        int ky1 = isTop ? 0 : h - pSize;
+        int ky2 = isTop ? pSize : h;
 
         for (int y = ky1; y < ky2; y++) {
             for (int x = kx1; x < kx2; x++) {
-                if (!isInsideRoundedRect(x, y, 0, 0, TabletFrame.DESIGN_W, TabletFrame.DESIGN_H, outerR)) continue;
+                // 1. Calculate local coordinates from outer corner inwards
+                int lx = isLeft ? x : (w - 1 - x);
+                int ly = isTop ? y : (h - 1 - y);
 
-                boolean inCut = false;
-                if (isLeft && isTop) {
-                    if (x > kx2 - rIn && y > ky2 - rIn) {
-                        int dx = x - (kx2 - rIn), dy = y - (ky2 - rIn);
-                        if (dx * dx + dy * dy > rIn * rIn) inCut = true;
-                    }
-                } else if (!isLeft && isTop) {
-                    if (x < kx1 + rIn && y > ky2 - rIn) {
-                        int dx = x - (kx1 + rIn), dy = y - (ky2 - rIn);
-                        if (dx * dx + dy * dy > rIn * rIn) inCut = true;
-                    }
-                } else if (isLeft) {
-                    if (x > kx2 - rIn && y < ky1 + rIn) {
-                        int dx = x - (kx2 - rIn), dy = y - (ky1 + rIn);
-                        if (dx * dx + dy * dy > rIn * rIn) inCut = true;
-                    }
-                } else {
-                    if (x < kx1 + rIn && y < ky1 + rIn) {
-                        int dx = x - (kx1 + rIn), dy = y - (ky1 + rIn);
-                        if (dx * dx + dy * dy > rIn * rIn) inCut = true;
+                // 2. Outer tablet rounded corner check (R = 18)
+                if (lx < outerR && ly < outerR) {
+                    float dx = outerR - lx, dy = outerR - ly;
+                    float distOut = (float) Math.sqrt(dx * dx + dy * dy);
+                    if (distOut > outerR) {
+                        setPixel(img, x, y, 0x00000000); // Transparent outside tablet
+                        continue;
                     }
                 }
 
-                if (!inCut) {
+                // 3. Signed Distance Field to the inner L-pocket fillet wall
+                float distToWall;
+                int centerFillet = pSize - rInner;
+                if (lx > centerFillet && ly > centerFillet) {
+                    float dx = lx - centerFillet, dy = ly - centerFillet;
+                    distToWall = rInner - (float) Math.sqrt(dx * dx + dy * dy);
+                } else if (lx > ly) {
+                    distToWall = pSize - lx;
+                } else {
+                    distToWall = pSize - ly;
+                }
+
+                // 4. Color assignment based on wall distance and 3D surface plane
+                if (distToWall < -2.0f) {
+                    // Outside pocket: On the main raised chassis plateau
+                    continue;
+                } else if (distToWall >= -2.0f && distToWall < 0.0f) {
+                    // Top crest highlight ridge along the mouth of the pocket
+                    int crestCol = (isTop && isLeft) ? 0xFF363940
+                            : (isTop ? 0xFF2C2F35
+                            : (isLeft ? 0xFF282B30 : 0xFF1C1E22));
+                    setPixel(img, x, y, applyStipple(crestCol, x, y));
+                } else if (distToWall >= 0.0f && distToWall < 2.0f) {
+                    // Vertical sloped fillet wall descending into the pocket
+                    int wallCol = 0xFF0D0E11;
+                    setPixel(img, x, y, applyStipple(wallCol, x, y));
+                } else if (distToWall >= 2.0f && distToWall < 3.5f) {
+                    // Cavity root drop shadow along the bottom of the wall
+                    setPixel(img, x, y, 0xFF040506);
+                } else {
+                    // Recessed pocket floor
                     int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
-                    int col = (grain == 1) ? 0xFF0E0F11 : ((grain == 2) ? 0xFF121315 : 0xFF101113);
-                    setPixel(img, x, y, col);
+                    int floorCol = (grain == 1) ? 0xFF0C0D0F : ((grain == 2) ? 0xFF101113 : 0xFF0E0F11);
+                    setPixel(img, x, y, floorCol);
+                }
+
+                // 5. Outer edge bevel contour around the rounded corner
+                if (lx < outerR && ly < outerR) {
+                    float dx = outerR - lx, dy = outerR - ly;
+                    float distOut = (float) Math.sqrt(dx * dx + dy * dy);
+                    if (distOut >= outerR - 2.0f && distOut <= outerR) {
+                        int rimCol = (isTop && isLeft) ? 0xFF2E3136 : (isTop ? 0xFF24262A : (isLeft ? 0xFF222428 : 0xFF08080A));
+                        setPixel(img, x, y, rimCol);
+                    }
+                } else if (lx < 2) {
+                    setPixel(img, x, y, isLeft ? 0xFF2A2C30 : 0xFF08080A);
+                } else if (ly < 2) {
+                    setPixel(img, x, y, isTop ? 0xFF2D2F33 : 0xFF08080A);
                 }
             }
         }
 
-        if (isLeft && isTop) {
-            for (int y = ky1 + bW; y < ky2 - rIn; y++) setPixel(img, kx2, y, 0xFF2A2C30);
-            for (int x = kx1 + bW; x < kx2 - rIn; x++) setPixel(img, x, ky2, 0xFF2A2C30);
-        } else if (!isLeft && isTop) {
-            for (int y = ky1 + bW; y < ky2 - rIn; y++) setPixel(img, kx1, y, 0xFF090A0C);
-            for (int x = kx1 + rIn; x < kx2 - bW; x++) setPixel(img, x, ky2, 0xFF2A2C30);
-        } else if (isLeft) {
-            for (int x = kx1 + bW; x < kx2 - rIn; x++) setPixel(img, x, ky1, 0xFF090A0C);
-            for (int y = ky1 + rIn; y < ky2 - bW; y++) setPixel(img, kx2, y, 0xFF2A2C30);
-        } else {
-            for (int y = ky1 + rIn; y < ky2 - bW; y++) setPixel(img, kx1, y, 0xFF090A0C);
-            for (int x = kx1 + rIn; x < kx2 - bW; x++) setPixel(img, x, ky1, 0xFF090A0C);
-        }
+        // 6. Deep CNC-milled counterbore screw hole
+        int cx = isLeft ? 23 : (w - 24);
+        int cy = isTop ? 23 : (h - 24);
+        int boltR = 5;
 
-        int cx = vx + 22, cy = vy + 22, boltR = 5;
-        fillCircle(img, cx, cy, boltR + 2, 0xFF030304);
-        fillCircle(img, cx, cy, boltR + 1, 0xFF08090B);
-        fillCircle(img, cx - 1, cy - 1, boltR, 0xFF030304);
-        fillCircle(img, cx, cy, boltR - 2, 0xFF141518);
-        fillCircle(img, cx, cy, Math.max(1, boltR - 4), 0xFF050507);
+        fillCircle(img, cx, cy, boltR + 3, 0xFF1A1C20); // Outer counterbore rim
+        fillCircle(img, cx, cy, boltR + 2, 0xFF0E0F12);
+        fillCircle(img, cx, cy, boltR + 1, 0xFF030304); // Deep black cavity opening
+        fillCircle(img, cx, cy, boltR - 1, 0xFF010102); // Hole bottom
+        fillCircle(img, cx, cy, Math.max(1, boltR - 3), 0xFF08090C); // Subtle center socket pin
     }
 
     private static void bakeScreenAndTacticalGrid(NativeImage img) {
