@@ -665,11 +665,31 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeAllDividerRibs(NativeImage img) {
-        int ribLen = 46;
-        for (int i = 1; i <= 7; i++) bakeCapsuleRib(img, 148 + 38 + i * 76, 41, ribLen, true);
-        for (int i = 1; i <= 7; i++) bakeCapsuleRib(img, 148 + 38 + i * 76, 589, ribLen, true);
-        for (int i = 0; i < 5; i++) bakeCapsuleRib(img, 39, 155 + 32 + i * 64, ribLen, false);
-        for (int i = 0; i < 5; i++) bakeCapsuleRib(img, 941, 155 + 32 + i * 64, ribLen, false);
+        int ribLen = 42;
+        // Top row dual ribs
+        for (int i = 0; i < 9; i++) {
+            int cx = 148 + 38 + i * 76;
+            bakeCapsuleRib(img, cx - 4, 41, ribLen, true);
+            bakeCapsuleRib(img, cx + 4, 41, ribLen, true);
+        }
+        // Bottom row dual ribs
+        for (int i = 0; i < 9; i++) {
+            int cx = 148 + 38 + i * 76;
+            bakeCapsuleRib(img, cx - 4, 589, ribLen, true);
+            bakeCapsuleRib(img, cx + 4, 589, ribLen, true);
+        }
+        // Left flank dual ribs
+        for (int i = 0; i < 5; i++) {
+            int cy = 155 + 32 + i * 64;
+            bakeCapsuleRib(img, 39, cy - 4, ribLen, false);
+            bakeCapsuleRib(img, 39, cy + 4, ribLen, false);
+        }
+        // Right flank dual ribs
+        for (int i = 0; i < 5; i++) {
+            int cy = 155 + 32 + i * 64;
+            bakeCapsuleRib(img, 941, cy - 4, ribLen, false);
+            bakeCapsuleRib(img, 941, cy + 4, ribLen, false);
+        }
     }
 
     private static void bakeCapsuleRib(NativeImage img, int cx, int cy, int len, boolean isVertical) {
@@ -971,6 +991,7 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
+        boolean isVert = (h > w);
         if (lit) {
             int rgb = litCol & 0x00FFFFFF;
             // Moderate Phosphor Aura (Quầng sáng vừa phải, nổi bật mà không chói gắt)
@@ -1008,24 +1029,44 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Unlit compact translucent optical smoked glass with thin 1px recessed socket border
+            // Unlit Optical Light-Pipe Capsule (Khớp 100% que dẫn sáng thấu kính cong trong ảnh mẫu)
+            // 1. Recessed dark slot
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF0E1014);
+                    setPixel(img, lx + x, ly + y, 0xFF0C0E12);
                 }
             }
+
+            // 2. Smoked polycarbonate translucent body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF242A36);
+                    setPixel(img, lx + x, ly + y, 0xFF222630);
                 }
             }
-            // Top reflection sheen
-            for (int x = 0; x < w; x++) {
-                setPixel(img, lx + x, ly, 0xFF4A5468);
-            }
-            // Bottom shadow
-            for (int x = 0; x < w; x++) {
-                setPixel(img, lx + x, ly + h - 1, 0xFF10141C);
+
+            // 3. Curved specular highlight reflection (Vệt phản quang trắng bạc uốn cong đặc trưng trên que dẫn sáng)
+            if (isVert) {
+                // Vertical light pipe (Top/Bottom buttons)
+                for (int y = 1; y < h - 1; y++) {
+                    setPixel(img, lx + w - 1, ly + y, 0xFF7A889E);
+                }
+                // Bright reflection tick on the curved bottom edge
+                setPixel(img, lx + w - 1, ly + h - 2, 0xFFD8E2F0);
+                setPixel(img, lx + w - 2, ly + h - 1, 0xFFB4C2D6);
+                // Top refraction shadow
+                for (int x = 0; x < w; x++) {
+                    setPixel(img, lx + x, ly, 0xFF14171E);
+                }
+            } else {
+                // Horizontal light pipe (Flank buttons)
+                for (int x = 1; x < w - 1; x++) {
+                    setPixel(img, lx + x, ly + h - 1, 0xFF7A889E);
+                }
+                setPixel(img, lx + w - 2, ly + h - 1, 0xFFD8E2F0);
+                setPixel(img, lx + w - 1, ly + h - 2, 0xFFB4C2D6);
+                for (int y = 0; y < h; y++) {
+                    setPixel(img, lx, ly + y, 0xFF14171E);
+                }
             }
         }
     }
