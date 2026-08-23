@@ -254,26 +254,24 @@ public final class TabletChassisPaint {
         }
     }
 
-     private static void bakeRaisedUCollar(NativeImage img, boolean isTop, int bW) {
+    private static void bakeRaisedUCollar(NativeImage img, boolean isTop, int bW) {
         int uX1 = 106, uX2 = 874;
-        int cutX1 = 124, cutX2 = 856;
+        int cutX1 = 188, cutX2 = 792;
         int uY1 = !isTop ? 540 : 0;
         int uY2 = !isTop ? TabletFrame.DESIGN_H : 90;
         int cutY1 = !isTop ? 558 : 0;
         int cutY2 = !isTop ? TabletFrame.DESIGN_H : 72;
-        int rInner = 10, bChamfer = 14;
+        int rInner = 9, bChamfer = 9;
 
-        // 1. Drop shadow around collar perimeter
-        for (int y = (isTop ? 88 : 538); y <= (isTop ? 96 : 548); y++) {
-            for (int x = uX1; x <= uX2; x++) {
-                if (isInsideUPlateau(x, y - (isTop ? 4 : -4), isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)
+        for (int y = (isTop ? 90 : 540); y <= (isTop ? 96 : TabletFrame.DESIGN_H - bW); y++) {
+            for (int x = uX1 + bW; x <= uX2 - bW; x++) {
+                if (isInsideUPlateau(x - 4, y - 4, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)
                         && !isInsideUPlateau(x, y, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                     setPixel(img, x, y, 0x55010102);
                 }
             }
         }
 
-        // 2. Collar body with tactical stipple
         for (int y = uY1; y < uY2; y++) {
             for (int x = uX1; x < uX2; x++) {
                 if (isInsideUPlateau(x, y, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
@@ -284,40 +282,74 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Highlight and Shadow contour on outer edges and shoulders
-        for (int y = uY1; y <= uY2; y++) {
-            for (int x = uX1; x <= uX2; x++) {
-                if (!isInsideUPlateau(x, y, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
-
-                // Left & Right shoulder bevels
-                if (x <= uX1 + 4) {
-                    int d = x - uX1;
-                    int col = (d == 0) ? 0xFF3E434B : ((d == 1) ? 0xFF32363D : 0xFF26292F);
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                } else if (x >= uX2 - 4) {
-                    int d = (uX2 - 1) - x;
-                    int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0E0F12 : 0xFF181A1D);
-                    setPixel(img, x, y, applyStipple(col, x, y));
+        if (!isTop) {
+            for (int y = uY1; y < uY2; y++) {
+                for (int x = uX1; x < uX2; x++) {
+                    if (!isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
+                    if (x < uX1 + 2) setPixel(img, x, y, applyStipple(0xFF36393E, x, y));
+                    else if (x >= uX2 - 2) setPixel(img, x, y, applyStipple(0xFF050506, x, y));
                 }
+            }
 
-                // Outer horizontal top/bottom rim highlights
-                if (isTop && y <= 4) {
-                    int d = y;
-                    int col = (d == 0) ? 0xFF3E434B : ((d == 1) ? 0xFF343840 : 0xFF282B31);
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                } else if (!isTop && y >= TabletFrame.DESIGN_H - 5) {
-                    int d = (TabletFrame.DESIGN_H - 1) - y;
-                    int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0E0F12 : 0xFF181A1D);
-                    setPixel(img, x, y, applyStipple(col, x, y));
+            int bEdgeY = TabletFrame.DESIGN_H - 9;
+            for (int y = bEdgeY; y < uY2; y++) {
+                int d = (uY2 - 1) - y;
+                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0B0C0E : (y <= bEdgeY + 1 ? 0xFF16171A : 0xFF0E0F11));
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+
+            int bevelH = 8;
+            for (int y = uY1; y < uY1 + bevelH; y++) {
+                int d = y - uY1;
+                int col = (d == 0) ? 0xFF141518 : ((d == 1) ? 0xFF191B1E : (d == bevelH - 2 ? 0xFF26282D : (d == bevelH - 1 ? 0xFF2B2D32 : 0xFF1F2125)));
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+        } else {
+            for (int y = uY1; y < uY2; y++) {
+                for (int x = uX1; x < uX2; x++) {
+                    if (!isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
+                    if (x < uX1 + 2) setPixel(img, x, y, applyStipple(0xFF36393E, x, y));
+                    else if (x >= uX2 - 2) setPixel(img, x, y, applyStipple(0xFF050506, x, y));
+                }
+            }
+
+            int tEdgeY = 9;
+            for (int y = uY1; y < tEdgeY; y++) {
+                int d = y - uY1;
+                int col = (d == 0) ? 0xFF2D2F33 : ((d == 1) ? 0xFF282A2E : (y >= tEdgeY - 2 ? 0xFF1B1C1F : 0xFF222427));
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+
+            int bevelH = 8;
+            for (int y = uY2 - bevelH; y < uY2; y++) {
+                int d = (uY2 - 1) - y;
+                int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0D0E10 : (d == bevelH - 2 ? 0xFF1F2125 : (d == bevelH - 1 ? 0xFF282A2F : 0xFF141619)));
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
                 }
             }
         }
 
-        // 4. Smooth SDF contour on inner cutout edge
-        for (int y = uY1; y <= uY2; y++) {
-            for (int x = uX1; x <= uX2; x++) {
+        int boundY1 = !isTop ? cutY1 - 4 : uY1;
+        int boundY2 = !isTop ? uY2 : cutY2 + 4;
+        for (int y = boundY1; y <= boundY2; y++) {
+            for (int x = cutX1 - 4; x <= cutX2 + 4; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
-                float sdf = getCutoutSDF(x, y, isTop, cutX1, cutX2, cutY1, cutY2, rInner);
+                float sdf = getCutoutSDF(x, y, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer);
                 if (sdf >= 0 && sdf <= 1.5f) {
                     setPixel(img, x, y, applyStipple(0xFF383B41, x, y));
                 } else if (sdf >= -1.2f && sdf < 0) {
@@ -334,56 +366,82 @@ public final class TabletChassisPaint {
     private static boolean isInsideUPlateau(int px, int py, boolean isTop, int uX1, int uX2, int uY1, int uY2,
                                              int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bChamfer) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
-        return getCutoutSDF(px, py, isTop, cutX1, cutX2, cutY1, cutY2, rInner) >= 0;
+        return getCutoutSDF(px, py, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer) >= 0;
     }
 
     private static float getCutoutSDF(int px, int py, boolean isTop, int cutX1, int cutX2, int cutY1, int cutY2,
-                                       int rInner) {
-        if (isTop) {
-            if (px < cutX1 + rInner && py > cutY2 - rInner) {
-                float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
-                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+                                       int rInner, int bChamfer) {
+        // uY1/uY2 not needed once inside the plateau test above; only the cutout geometry matters.
+        if (!isTop) {
+            int curCutX1 = cutX1, curCutX2 = cutX2;
+            int uY2 = TabletFrame.DESIGN_H;
+            if (py >= uY2 - bChamfer) {
+                int offset = py - (uY2 - bChamfer);
+                curCutX1 = cutX1 + offset;
+                curCutX2 = cutX2 - offset;
             }
-            if (px > cutX2 - rInner && py > cutY2 - rInner) {
-                float dx = px - (cutX2 - rInner), dy = py - (cutY2 - rInner);
-                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+            if (py < cutY1 + rInner) {
+                if (px < cutX1 + rInner) {
+                    float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
+                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+                } else if (px > cutX2 - rInner) {
+                    float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
+                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+                } else {
+                    return (float) (cutY1 - py);
+                }
             }
-            return (float) (cutY2 - py);
+            if (px < curCutX1) return (float) (curCutX1 - px);
+            if (px > curCutX2) return (float) (px - curCutX2);
+            return (float) -Math.min(px - curCutX1, Math.min(curCutX2 - px, py - cutY1));
         } else {
-            if (px < cutX1 + rInner && py < cutY1 + rInner) {
-                float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
-                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+            int curCutX1 = cutX1, curCutX2 = cutX2;
+            int uY1 = 0;
+            if (py <= uY1 + bChamfer) {
+                int offset = (uY1 + bChamfer) - py;
+                curCutX1 = cutX1 + offset;
+                curCutX2 = cutX2 - offset;
             }
-            if (px > cutX2 - rInner && py < cutY1 + rInner) {
-                float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
-                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+            if (py > cutY2 - rInner) {
+                if (px < cutX1 + rInner) {
+                    float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
+                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+                } else if (px > cutX2 - rInner) {
+                    float dx = px - (cutX2 - rInner), dy = py - (cutY2 - rInner);
+                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
+                } else {
+                    return (float) (py - cutY2);
+                }
             }
-            return (float) (py - cutY1);
+            if (px < curCutX1) return (float) (curCutX1 - px);
+            if (px > curCutX2) return (float) (px - curCutX2);
+            return (float) -Math.min(px - curCutX1, Math.min(curCutX2 - px, cutY2 - py));
         }
     }
 
     private static void bakeSideCBracket(NativeImage img, boolean isLeft, int bW) {
-        int uY1 = 106, uY2 = 524;
+        int uY1 = 105, uY2 = 525;
         int cutY1 = 124, cutY2 = 506;
         int uX1 = isLeft ? 0 : 890;
         int uX2 = isLeft ? 90 : TabletFrame.DESIGN_W;
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
-        int rInner = 10, bChamfer = 14;
+        int rInner = 9, bChamfer = 9;
 
-        // 1. Drop shadow
         for (int y = uY1 - 4; y <= uY2 + 5; y++) {
             for (int x = uX1; x <= uX2; x++) {
                 if (isLeft && x >= TabletFrame.DESIGN_W - bW) continue;
                 if (!isLeft && x <= bW) continue;
-                if (isInsideSidePlateau(x - (isLeft ? 3 : -3), y - 3, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)
+                if (isInsideSidePlateau(x - 3, y - 3, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)
                         && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                    setPixel(img, x, y, 0x44010102);
+                    setPixel(img, x, y, 0x33010102);
+                } else if (isInsideSidePlateau(x - 1, y - 1, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)
+                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    setPixel(img, x, y, 0x66020203);
                 }
             }
         }
 
-        // 2. Bracket body
         for (int y = uY1; y < uY2; y++) {
             for (int x = uX1; x < uX2; x++) {
                 if (isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
@@ -394,40 +452,93 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Outer edge highlights and shadows
-        for (int y = uY1; y <= uY2; y++) {
-            for (int x = uX1; x <= uX2; x++) {
-                if (!isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
-
-                // Top & Bottom shoulder bevels
-                if (y <= uY1 + 4) {
-                    int d = y - uY1;
-                    int col = (d == 0) ? 0xFF3E434B : ((d == 1) ? 0xFF32363D : 0xFF26292F);
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                } else if (y >= uY2 - 4) {
-                    int d = (uY2 - 1) - y;
-                    int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0E0F12 : 0xFF181A1D);
-                    setPixel(img, x, y, applyStipple(col, x, y));
+        if (isLeft) {
+            for (int x = uX1; x < uX1 + bW; x++) {
+                int d = x - uX1;
+                int col = (d == 0) ? 0xFF2A2C30 : ((d == 1) ? 0xFF242629 : (d == bW - 2 ? 0xFF191A1D : (d == bW - 1 ? 0xFF17181A : 0xFF222428)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
                 }
-
-                // Outer vertical left/right rim
-                if (isLeft && x <= 4) {
-                    int d = x;
-                    int col = (d == 0) ? 0xFF3E434B : ((d == 1) ? 0xFF343840 : 0xFF282B31);
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                } else if (!isLeft && x >= TabletFrame.DESIGN_W - 5) {
-                    int d = (TabletFrame.DESIGN_W - 1) - x;
-                    int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0E0F12 : 0xFF181A1D);
-                    setPixel(img, x, y, applyStipple(col, x, y));
+            }
+            for (int y = uY1; y < uY1 + 4; y++) {
+                int d = y - uY1;
+                int col = (d == 0) ? 0xFF36393E : ((d == 1) ? 0xFF2C2F34 : 0xFF24262A);
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            for (int y = uY2 - 4; y < uY2; y++) {
+                int d = (uY2 - 1) - y;
+                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            int bevelW = 8;
+            for (int x = uX2 - bevelW; x < uX2; x++) {
+                int d = (uX2 - 1) - x;
+                int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0D0E10 : (d == bevelW - 2 ? 0xFF1F2125 : (d == bevelW - 1 ? 0xFF282A2F : 0xFF141619)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+        } else {
+            for (int x = uX2 - bW; x < uX2; x++) {
+                int d = (uX2 - 1) - x;
+                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0B0C0E : (d == bW - 2 ? 0xFF131416 : (d == bW - 1 ? 0xFF151618 : 0xFF0F1012)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            for (int y = uY1; y < uY1 + 4; y++) {
+                int d = y - uY1;
+                int col = (d == 0) ? 0xFF36393E : ((d == 1) ? 0xFF2C2F34 : 0xFF24262A);
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            for (int y = uY2 - 4; y < uY2; y++) {
+                int d = (uY2 - 1) - y;
+                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
+                for (int x = uX1; x < uX2; x++) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            int bevelW = 8;
+            for (int x = uX1; x < uX1 + bevelW; x++) {
+                int d = x - uX1;
+                int col = (d == 0) ? 0xFF141518 : ((d == 1) ? 0xFF191B1E : (d == bevelW - 2 ? 0xFF26282D : (d == bevelW - 1 ? 0xFF2B2D32 : 0xFF1F2125)));
+                for (int y = uY1; y < uY2; y++) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
                 }
             }
         }
 
-        // 4. Smooth SDF contour on inner cutout edge
-        for (int y = uY1; y <= uY2; y++) {
-            for (int x = uX1; x <= uX2; x++) {
+        int boundX1 = isLeft ? cutX1 : cutX1 - 4;
+        int boundX2 = isLeft ? cutX2 + 4 : cutX2;
+        int boundY1 = cutY1 - 4;
+        int boundY2 = cutY2 + 4;
+
+        for (int y = boundY1; y <= boundY2; y++) {
+            for (int x = boundX1; x <= boundX2; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
-                float sdf = getSideCutoutSDF(x, y, isLeft, cutX1, cutX2, cutY1, cutY2, rInner);
+                float sdf = getSideCutoutSDF(x, y, isLeft, cutX1, cutX2, cutY1, cutY2, uX1, uX2, rInner, bChamfer);
                 if (sdf >= 0 && sdf <= 1.5f) {
                     setPixel(img, x, y, applyStipple(0xFF383B41, x, y));
                 } else if (sdf >= -1.2f && sdf < 0) {
@@ -439,17 +550,48 @@ public final class TabletChassisPaint {
                 }
             }
         }
+
+        int bevelW = 8;
+        if (isLeft) {
+            int bx1 = uX2 - bevelW, bx2 = uX2;
+            for (int x = bx1; x < bx2; x++) {
+                int d = x - bx1;
+                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2B2D32 : (d == bevelW - 2 ? 0xFF101113 : (d == bevelW - 1 ? 0xFF0C0D0F : 0xFF181A1D)));
+                for (int y = uY1 + 2; y < uY2 - 2; y++) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+        } else {
+            int bx1 = uX1, bx2 = uX1 + bevelW;
+            for (int x = bx1; x < bx2; x++) {
+                int d = (bx2 - 1) - x;
+                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2B2D32 : (d == bevelW - 2 ? 0xFF101113 : (d == bevelW - 1 ? 0xFF0C0D0F : 0xFF181A1D)));
+                for (int y = uY1 + 2; y < uY2 - 2; y++) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+        }
     }
 
     private static boolean isInsideSidePlateau(int px, int py, boolean isLeft, int uX1, int uX2, int uY1, int uY2,
                                                 int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bChamfer) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
-        return getSideCutoutSDF(px, py, isLeft, cutX1, cutX2, cutY1, cutY2, rInner) >= 0;
+        return getSideCutoutSDF(px, py, isLeft, cutX1, cutX2, cutY1, cutY2, uX1, uX2, rInner, bChamfer) >= 0;
     }
 
     private static float getSideCutoutSDF(int px, int py, boolean isLeft, int cutX1, int cutX2, int cutY1, int cutY2,
-                                           int rInner) {
+                                           int uX1, int uX2, int rInner, int bChamfer) {
         if (isLeft) {
+            int curCutY1 = cutY1, curCutY2 = cutY2;
+            if (px <= uX1 + bChamfer) {
+                int offset = (uX1 + bChamfer) - px;
+                curCutY1 = cutY1 + offset;
+                curCutY2 = cutY2 - offset;
+            }
             if (px > cutX2 - rInner) {
                 if (py < cutY1 + rInner) {
                     float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
@@ -459,9 +601,16 @@ public final class TabletChassisPaint {
                     float dx = px - (cutX2 - rInner), dy = py - (cutY2 - rInner);
                     return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
                 }
+                return (float) (px - cutX2);
             }
-            return (float) (cutX2 - px);
+            return (float) Math.max(curCutY1 - py, py - curCutY2);
         } else {
+            int curCutY1 = cutY1, curCutY2 = cutY2;
+            if (px >= uX2 - bChamfer) {
+                int offset = px - (uX2 - bChamfer);
+                curCutY1 = cutY1 + offset;
+                curCutY2 = cutY2 - offset;
+            }
             if (px < cutX1 + rInner) {
                 if (py < cutY1 + rInner) {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
@@ -471,13 +620,52 @@ public final class TabletChassisPaint {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
                     return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
                 }
+                return (float) (cutX1 - px);
             }
-            return (float) (px - cutX1);
+            return (float) Math.max(curCutY1 - py, py - curCutY2);
+        }
+    }
+
+    private static void bakeRecessedButtonPocket(NativeImage img, int cx, int cy, int size) {
+        int px1 = cx - size / 2, py1 = cy - size / 2;
+        int px2 = px1 + size, py2 = py1 + size;
+        int pR = 6;
+
+        for (int y = py1 - 2; y <= py2 + 2; y++) {
+            for (int x = px1 - 2; x <= px2 + 2; x++) {
+                if (isInsideRoundedRect(x, y, px1 - 2, py1 - 2, px2 + 2, py2 + 2, pR + 2)
+                        && !isInsideRoundedRect(x, y, px1, py1, px2, py2, pR)) {
+                    setPixel(img, x, y, (y >= py2 || x >= px2) ? 0xFF353940 : 0xFF141518);
+                }
+            }
+        }
+
+        for (int y = py1; y < py2; y++) {
+            for (int x = px1; x < px2; x++) {
+                if (isInsideRoundedRect(x, y, px1, py1, px2, py2, pR)) {
+                    int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
+                    int col = (grain == 1) ? 0xFF101114 : ((grain == 2) ? 0xFF15161A : 0xFF121316);
+                    setPixel(img, x, y, col);
+                }
+            }
+        }
+
+        for (int y = py1; y < py1 + 2; y++) {
+            for (int x = px1 + pR; x < px2 - pR; x++) setPixel(img, x, y, 0xFF040506);
+        }
+        for (int y = py1 + pR; y < py2 - pR; y++) {
+            for (int x = px1; x < px1 + 2; x++) setPixel(img, x, y, 0xFF040506);
+        }
+        for (int y = py2 - 2; y < py2; y++) {
+            for (int x = px1 + pR; x < px2 - pR; x++) setPixel(img, x, y, 0xFF282B30);
+        }
+        for (int y = py1 + pR; y < py2 - pR; y++) {
+            for (int x = px2 - 2; x < px2; x++) setPixel(img, x, y, 0xFF282B30);
         }
     }
 
     private static void bakeAllDividerRibs(NativeImage img) {
-        int ribLen = 42;
+        int ribLen = 44;
         // Top row single ribs
         for (int i = 0; i < 9; i++) {
             int cx = 148 + 38 + i * 76;
