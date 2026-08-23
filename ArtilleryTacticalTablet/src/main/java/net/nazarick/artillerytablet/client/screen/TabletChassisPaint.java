@@ -344,10 +344,10 @@ public final class TabletChassisPaint {
             }
         }
 
-        int boundY1 = !isTop ? cutY1 - 4 : uY1;
-        int boundY2 = !isTop ? uY2 : cutY2 + 4;
+        int boundY1 = !isTop ? uY1 : uY1;
+        int boundY2 = !isTop ? uY2 : uY2;
         for (int y = boundY1; y <= boundY2; y++) {
-            for (int x = cutX1 - 4; x <= cutX2 + 4; x++) {
+            for (int x = uX1; x <= uX2; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
                 float sdf = getCutoutSDF(x, y, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer);
                 if (sdf >= 0 && sdf <= 1.5f) {
@@ -530,13 +530,8 @@ public final class TabletChassisPaint {
             }
         }
 
-        int boundX1 = isLeft ? cutX1 : cutX1 - 4;
-        int boundX2 = isLeft ? cutX2 + 4 : cutX2;
-        int boundY1 = cutY1 - 4;
-        int boundY2 = cutY2 + 4;
-
-        for (int y = boundY1; y <= boundY2; y++) {
-            for (int x = boundX1; x <= boundX2; x++) {
+        for (int y = uY1; y <= uY2; y++) {
+            for (int x = uX1; x <= uX2; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
                 float sdf = getSideCutoutSDF(x, y, isLeft, cutX1, cutX2, cutY1, cutY2, uX1, uX2, rInner, bChamfer);
                 if (sdf >= 0 && sdf <= 1.5f) {
