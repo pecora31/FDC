@@ -9,7 +9,14 @@
 * **Vát góc ngoài & Ốc Lục Giác**: 4 góc vát bậc 3 tầng ($45 \times 45\text{ px}$), ốc lục giác M4 ở tâm góc.
 * **Gờ U-Collar (Trên / Dưới)**: $120 \le X \le 860$ bao quanh dãy phím trên và dưới.
 * **Khung C-Bracket (Trái / Phải)**: $120 \le Y \le 510$ bao quanh dãy phím 2 cạnh sườn.
-* **⚠️ Vùng giữa các nút**: **HOÀN TOÀN PHẲNG TRƠN, KHÔNG CÓ VẠCH NGĂN / GỜ CHIA RÃNH NÀO**.
+* **Gờ Vạch Ngăn Cách Giữa Các Nút (Tactical Divider Ribs)**:
+  * **Các vị trí CÓ vạch ngăn**: Tất cả các cặp phím chức năng nội bộ đều có **1 gờ trụ đơn nổi** nằm chính giữa (giữa `SA-WPN`, `WPN-DEF`, `DEF-SYS`, `SYS-DRV`, `DRV-STR`, `STR-COM`, `COM-BMS`; giữa `F13`..`F20`; giữa `F2`..`F6`; giữa `F7`..`F12`).
+  * **4 vị trí TUYỆT ĐỐI KHÔNG CÓ vạch ngăn (theo ảnh mẫu chụp thực tế)**:
+    1. Giữa phím `F20` và phím `POWER` (Hàng dưới, góc phải).
+    2. Giữa phím `[◆]` (NIGHT) và phím `F13` (Hàng dưới, góc trái).
+    3. Giữa phím `[+]` (GRID) và phím `SA` (Hàng trên, góc trái).
+    4. Giữa phím `BMS` và phím `[*]` (BRIGHT) (Hàng trên, góc phải).
+    *(Kèm theo khoảng giữa `CFF` và `F2` ở cạnh trái do nằm ở rãnh bậc phân vùng của khung U-Collar/C-Bracket).*
 
 ---
 
