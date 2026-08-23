@@ -256,12 +256,12 @@ public final class TabletChassisPaint {
 
     private static void bakeRaisedUCollar(NativeImage img, boolean isTop, int bW) {
         int uX1 = 106, uX2 = 874;
-        int cutX1 = 188, cutX2 = 792;
+        int cutX1 = 124, cutX2 = 856;
         int uY1 = !isTop ? 540 : 0;
         int uY2 = !isTop ? TabletFrame.DESIGN_H : 90;
         int cutY1 = !isTop ? 558 : 0;
         int cutY2 = !isTop ? TabletFrame.DESIGN_H : 72;
-        int rInner = 9, bChamfer = 9;
+        int rInner = 9, bChamfer = 12;
 
         for (int y = (isTop ? 90 : 540); y <= (isTop ? 96 : TabletFrame.DESIGN_H - bW); y++) {
             for (int x = uX1 + bW; x <= uX2 - bW; x++) {
@@ -344,12 +344,10 @@ public final class TabletChassisPaint {
             }
         }
 
-        int boundY1 = !isTop ? uY1 : uY1;
-        int boundY2 = !isTop ? uY2 : uY2;
-        for (int y = boundY1; y <= boundY2; y++) {
+        for (int y = uY1; y <= uY2; y++) {
             for (int x = uX1; x <= uX2; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
-                float sdf = getCutoutSDF(x, y, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer);
+                float sdf = getCutoutSDF(x, y, isTop, cutX1, cutX2, cutY1, cutY2, uX1, uX2, rInner, bChamfer);
                 if (sdf >= 0 && sdf <= 1.5f) {
                     setPixel(img, x, y, applyStipple(0xFF383B41, x, y));
                 } else if (sdf >= -1.2f && sdf < 0) {
@@ -366,56 +364,43 @@ public final class TabletChassisPaint {
     private static boolean isInsideUPlateau(int px, int py, boolean isTop, int uX1, int uX2, int uY1, int uY2,
                                              int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bChamfer) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
-        return getCutoutSDF(px, py, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer) >= 0;
+        return getCutoutSDF(px, py, isTop, cutX1, cutX2, cutY1, cutY2, uX1, uX2, rInner, bChamfer) >= 0;
     }
 
     private static float getCutoutSDF(int px, int py, boolean isTop, int cutX1, int cutX2, int cutY1, int cutY2,
-                                       int rInner, int bChamfer) {
-        // uY1/uY2 not needed once inside the plateau test above; only the cutout geometry matters.
-        if (!isTop) {
-            int curCutX1 = cutX1, curCutX2 = cutX2;
-            int uY2 = TabletFrame.DESIGN_H;
-            if (py >= uY2 - bChamfer) {
-                int offset = py - (uY2 - bChamfer);
-                curCutX1 = cutX1 + offset;
-                curCutX2 = cutX2 - offset;
+                                       int uX1, int uX2, int rInner, int bChamfer) {
+        int curCutY = isTop ? cutY2 : cutY1;
+        int targetY = isTop ? cutY2 : cutY1;
+
+        // Chamfer at left and right ends (px approaching uX1 or uX2)
+        if (px <= uX1 + bChamfer) {
+            int offset = (uX1 + bChamfer) - px;
+            targetY = isTop ? cutY2 - offset : cutY1 + offset;
+        } else if (px >= uX2 - bChamfer) {
+            int offset = px - (uX2 - bChamfer);
+            targetY = isTop ? cutY2 - offset : cutY1 + offset;
+        }
+
+        if (isTop) {
+            if (px < cutX1 + rInner && py > cutY2 - rInner) {
+                float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
+                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
             }
-            if (py < cutY1 + rInner) {
-                if (px < cutX1 + rInner) {
-                    float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
-                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
-                } else if (px > cutX2 - rInner) {
-                    float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
-                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
-                } else {
-                    return (float) (cutY1 - py);
-                }
+            if (px > cutX2 - rInner && py > cutY2 - rInner) {
+                float dx = px - (cutX2 - rInner), dy = py - (cutY2 - rInner);
+                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
             }
-            if (px < curCutX1) return (float) (curCutX1 - px);
-            if (px > curCutX2) return (float) (px - curCutX2);
-            return (float) -Math.min(px - curCutX1, Math.min(curCutX2 - px, py - cutY1));
+            return (float) (targetY - py);
         } else {
-            int curCutX1 = cutX1, curCutX2 = cutX2;
-            int uY1 = 0;
-            if (py <= uY1 + bChamfer) {
-                int offset = (uY1 + bChamfer) - py;
-                curCutX1 = cutX1 + offset;
-                curCutX2 = cutX2 - offset;
+            if (px < cutX1 + rInner && py < cutY1 + rInner) {
+                float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
+                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
             }
-            if (py > cutY2 - rInner) {
-                if (px < cutX1 + rInner) {
-                    float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
-                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
-                } else if (px > cutX2 - rInner) {
-                    float dx = px - (cutX2 - rInner), dy = py - (cutY2 - rInner);
-                    return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
-                } else {
-                    return (float) (py - cutY2);
-                }
+            if (px > cutX2 - rInner && py < cutY1 + rInner) {
+                float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
+                return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
             }
-            if (px < curCutX1) return (float) (curCutX1 - px);
-            if (px > curCutX2) return (float) (px - curCutX2);
-            return (float) -Math.min(px - curCutX1, Math.min(curCutX2 - px, cutY2 - py));
+            return (float) (py - targetY);
         }
     }
 
@@ -580,13 +565,19 @@ public final class TabletChassisPaint {
 
     private static float getSideCutoutSDF(int px, int py, boolean isLeft, int cutX1, int cutX2, int cutY1, int cutY2,
                                            int uX1, int uX2, int rInner, int bChamfer) {
+        int uY1 = 106, uY2 = 524;
+        int targetX = isLeft ? cutX2 : cutX1;
+
+        // Chamfer at top and bottom ends (py approaching uY1 or uY2)
+        if (py <= uY1 + bChamfer) {
+            int offset = (uY1 + bChamfer) - py;
+            targetX = isLeft ? cutX2 - offset : cutX1 + offset;
+        } else if (py >= uY2 - bChamfer) {
+            int offset = py - (uY2 - bChamfer);
+            targetX = isLeft ? cutX2 - offset : cutX1 + offset;
+        }
+
         if (isLeft) {
-            int curCutY1 = cutY1, curCutY2 = cutY2;
-            if (px <= uX1 + bChamfer) {
-                int offset = (uX1 + bChamfer) - px;
-                curCutY1 = cutY1 + offset;
-                curCutY2 = cutY2 - offset;
-            }
             if (px > cutX2 - rInner) {
                 if (py < cutY1 + rInner) {
                     float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
@@ -596,16 +587,9 @@ public final class TabletChassisPaint {
                     float dx = px - (cutX2 - rInner), dy = py - (cutY2 - rInner);
                     return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
                 }
-                return (float) (px - cutX2);
             }
-            return (float) Math.max(curCutY1 - py, py - curCutY2);
+            return (float) (targetX - px);
         } else {
-            int curCutY1 = cutY1, curCutY2 = cutY2;
-            if (px >= uX2 - bChamfer) {
-                int offset = px - (uX2 - bChamfer);
-                curCutY1 = cutY1 + offset;
-                curCutY2 = cutY2 - offset;
-            }
             if (px < cutX1 + rInner) {
                 if (py < cutY1 + rInner) {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
@@ -615,75 +599,32 @@ public final class TabletChassisPaint {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
                     return (float) (Math.sqrt(dx * dx + dy * dy) - rInner);
                 }
-                return (float) (cutX1 - px);
             }
-            return (float) Math.max(curCutY1 - py, py - curCutY2);
-        }
-    }
-
-    private static void bakeRecessedButtonPocket(NativeImage img, int cx, int cy, int size) {
-        int px1 = cx - size / 2, py1 = cy - size / 2;
-        int px2 = px1 + size, py2 = py1 + size;
-        int pR = 6;
-
-        for (int y = py1 - 2; y <= py2 + 2; y++) {
-            for (int x = px1 - 2; x <= px2 + 2; x++) {
-                if (isInsideRoundedRect(x, y, px1 - 2, py1 - 2, px2 + 2, py2 + 2, pR + 2)
-                        && !isInsideRoundedRect(x, y, px1, py1, px2, py2, pR)) {
-                    setPixel(img, x, y, (y >= py2 || x >= px2) ? 0xFF353940 : 0xFF141518);
-                }
-            }
-        }
-
-        for (int y = py1; y < py2; y++) {
-            for (int x = px1; x < px2; x++) {
-                if (isInsideRoundedRect(x, y, px1, py1, px2, py2, pR)) {
-                    int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
-                    int col = (grain == 1) ? 0xFF101114 : ((grain == 2) ? 0xFF15161A : 0xFF121316);
-                    setPixel(img, x, y, col);
-                }
-            }
-        }
-
-        for (int y = py1; y < py1 + 2; y++) {
-            for (int x = px1 + pR; x < px2 - pR; x++) setPixel(img, x, y, 0xFF040506);
-        }
-        for (int y = py1 + pR; y < py2 - pR; y++) {
-            for (int x = px1; x < px1 + 2; x++) setPixel(img, x, y, 0xFF040506);
-        }
-        for (int y = py2 - 2; y < py2; y++) {
-            for (int x = px1 + pR; x < px2 - pR; x++) setPixel(img, x, y, 0xFF282B30);
-        }
-        for (int y = py1 + pR; y < py2 - pR; y++) {
-            for (int x = px2 - 2; x < px2; x++) setPixel(img, x, y, 0xFF282B30);
+            return (float) (px - targetX);
         }
     }
 
     private static void bakeAllDividerRibs(NativeImage img) {
         int ribLen = 42;
-        // Top row dual ribs
+        // Top row single ribs
         for (int i = 0; i < 9; i++) {
             int cx = 148 + 38 + i * 76;
-            bakeCapsuleRib(img, cx - 4, 41, ribLen, true);
-            bakeCapsuleRib(img, cx + 4, 41, ribLen, true);
+            bakeCapsuleRib(img, cx, 41, ribLen, true);
         }
-        // Bottom row dual ribs
+        // Bottom row single ribs
         for (int i = 0; i < 9; i++) {
             int cx = 148 + 38 + i * 76;
-            bakeCapsuleRib(img, cx - 4, 589, ribLen, true);
-            bakeCapsuleRib(img, cx + 4, 589, ribLen, true);
+            bakeCapsuleRib(img, cx, 589, ribLen, true);
         }
-        // Left flank dual ribs
+        // Left flank single ribs
         for (int i = 0; i < 5; i++) {
             int cy = 155 + 32 + i * 64;
-            bakeCapsuleRib(img, 39, cy - 4, ribLen, false);
-            bakeCapsuleRib(img, 39, cy + 4, ribLen, false);
+            bakeCapsuleRib(img, 39, cy, ribLen, false);
         }
-        // Right flank dual ribs
+        // Right flank single ribs
         for (int i = 0; i < 5; i++) {
             int cy = 155 + 32 + i * 64;
-            bakeCapsuleRib(img, 941, cy - 4, ribLen, false);
-            bakeCapsuleRib(img, 941, cy + 4, ribLen, false);
+            bakeCapsuleRib(img, 941, cy, ribLen, false);
         }
     }
 
