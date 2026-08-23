@@ -582,7 +582,16 @@ public final class TabletChassisPaint {
             int bx1 = uX2 - bevelW, bx2 = uX2;
             for (int x = bx1; x < bx2; x++) {
                 int d = x - bx1;
-                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2B2D32 : (d == bevelW - 2 ? 0xFF101113 : (d == bevelW - 1 ? 0xFF0C0D0F : 0xFF181A1D)));
+                int col = switch (d) {
+                    case 0 -> 0xFF2C2F35; // 1px refined crest line defining the transition
+                    case 1 -> 0xFF202226; // gentle start of the downward slope
+                    case 2 -> 0xFF1B1D20;
+                    case 3 -> 0xFF16181B;
+                    case 4 -> 0xFF121316;
+                    case 5 -> 0xFF0E0F12;
+                    case 6 -> 0xFF0A0B0D;
+                    default -> 0xFF07080A; // base seam meeting the screen well
+                };
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
@@ -593,7 +602,16 @@ public final class TabletChassisPaint {
             int bx1 = uX1, bx2 = uX1 + bevelW;
             for (int x = bx1; x < bx2; x++) {
                 int d = (bx2 - 1) - x;
-                int col = (d == 0) ? 0xFF36393F : ((d == 1) ? 0xFF2B2D32 : (d == bevelW - 2 ? 0xFF101113 : (d == bevelW - 1 ? 0xFF0C0D0F : 0xFF181A1D)));
+                int col = switch (d) {
+                    case 0 -> 0xFF2C2F35; // 1px refined crest line defining the transition
+                    case 1 -> 0xFF202226; // gentle start of the downward slope
+                    case 2 -> 0xFF1B1D20;
+                    case 3 -> 0xFF16181B;
+                    case 4 -> 0xFF121316;
+                    case 5 -> 0xFF0E0F12;
+                    case 6 -> 0xFF0A0B0D;
+                    default -> 0xFF07080A; // base seam meeting the screen well
+                };
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
