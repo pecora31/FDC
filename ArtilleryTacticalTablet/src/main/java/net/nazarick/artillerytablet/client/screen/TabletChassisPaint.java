@@ -1117,7 +1117,7 @@ final class TabletChassisPaint {
         int half = keySize / 2;
 
         // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 10 LEDs at LED_ROW_TOP_Y = 76)
-        String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", "BRIGHT"};
+        String[] topLabels = {"GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT"};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
@@ -1126,7 +1126,7 @@ final class TabletChassisPaint {
         }
 
         // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76)
-        String[] leftLabels = {"CFF", "ADJ", "MOD", "ARC", "F5", "F6"};
+        String[] leftLabels = {"CFF", "F2", "F3", "F4", "F5", "F6"};
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
