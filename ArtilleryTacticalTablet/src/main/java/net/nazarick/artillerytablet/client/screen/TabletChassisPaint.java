@@ -590,7 +590,7 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 4. Uniform flat planar bevel facing screen well
+        // 4. Uniform flat planar bevel facing screen well with 45-degree diagonal corner miters
         int bevelW = 8;
         if (isLeft) {
             int bx1 = uX2 - bevelW, bx2 = uX2;
@@ -605,6 +605,26 @@ public final class TabletChassisPaint {
                     }
                 }
             }
+            // 45-degree diagonal miter at top leg (y=105..113) and bottom leg (y=517..525)
+            for (int d = 0; d < bevelW; d++) {
+                int x = bx1 + d;
+                // Top diagonal miter seam
+                int yTop = uY1 + (bevelW - 1 - d);
+                for (int ty = uY1; ty <= yTop; ty++) {
+                    if (isInsideSidePlateau(x, ty, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        int miterCol = (ty == yTop) ? 0xFF383B42 : (ty == uY1 ? 0xFF282A2F : 0xFF1A1C20);
+                        setPixel(img, x, ty, applyStipple(miterCol, x, ty));
+                    }
+                }
+                // Bottom diagonal miter seam
+                int yBot = (uY2 - 1) - (bevelW - 1 - d);
+                for (int by = yBot; by < uY2; by++) {
+                    if (isInsideSidePlateau(x, by, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        int miterCol = (by == yBot) ? 0xFF060709 : (by == uY2 - 1 ? 0xFF0A0B0E : 0xFF121316);
+                        setPixel(img, x, by, applyStipple(miterCol, x, by));
+                    }
+                }
+            }
         } else {
             int bx1 = uX1, bx2 = uX1 + bevelW;
             for (int x = bx1; x < bx2; x++) {
@@ -615,6 +635,26 @@ public final class TabletChassisPaint {
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
+            }
+            // 45-degree diagonal miter at top leg and bottom leg for right C-bracket
+            for (int d = 0; d < bevelW; d++) {
+                int x = (bx2 - 1) - d;
+                // Top diagonal miter seam
+                int yTop = uY1 + (bevelW - 1 - d);
+                for (int ty = uY1; ty <= yTop; ty++) {
+                    if (isInsideSidePlateau(x, ty, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        int miterCol = (ty == yTop) ? 0xFF383B42 : (ty == uY1 ? 0xFF282A2F : 0xFF1A1C20);
+                        setPixel(img, x, ty, applyStipple(miterCol, x, ty));
+                    }
+                }
+                // Bottom diagonal miter seam
+                int yBot = (uY2 - 1) - (bevelW - 1 - d);
+                for (int by = yBot; by < uY2; by++) {
+                    if (isInsideSidePlateau(x, by, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                        int miterCol = (by == yBot) ? 0xFF060709 : (by == uY2 - 1 ? 0xFF0A0B0E : 0xFF121316);
+                        setPixel(img, x, by, applyStipple(miterCol, x, by));
                     }
                 }
             }
@@ -1281,7 +1321,7 @@ public final class TabletChassisPaint {
 
     private static void bakePowerButtonWell(NativeImage img, int cx, int cy) {
         int keyW = 44, keyH = 44, keyR = 7;
-        int rimThick = 6;
+        int rimThick = 4;
         int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
         int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
         int ox2 = ox1 + outW, oy2 = oy1 + outH;
@@ -1298,13 +1338,13 @@ public final class TabletChassisPaint {
 
                     int col;
                     if (inTopLeft) {
-                        // Top & Left of sunken cavity: Multi-layer drop shadow
-                        col = (dxFromInner <= 2) ? 0xFF040507
-                                : ((dxFromInner <= 4) ? 0xFF090A0D : 0xFF101114);
+                        // Top & Left of sunken cavity: Drop shadow
+                        col = (dxFromInner <= 1) ? 0xFF040507
+                                : ((dxFromInner <= 2) ? 0xFF090A0D : 0xFF101114);
                     } else {
-                        // Bottom & Right of sunken cavity: Sloped surface catching light
-                        col = (dxFromInner <= 2) ? 0xFF1C1E23
-                                : ((dxFromInner <= 4) ? 0xFF282B32 : 0xFF32353D);
+                        // Bottom & Right of sunken cavity: Sloped reflective face
+                        col = (dxFromInner <= 1) ? 0xFF1E2025
+                                : ((dxFromInner <= 2) ? 0xFF2A2D34 : 0xFF34373F);
                     }
                     setPixel(img, x, y, applyStipple(col, x, y));
                 }
