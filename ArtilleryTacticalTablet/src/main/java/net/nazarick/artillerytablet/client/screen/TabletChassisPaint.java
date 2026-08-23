@@ -107,10 +107,7 @@ public final class TabletChassisPaint {
         bakeSideCBracket(img, true, bW);
         bakeSideCBracket(img, false, bW);
 
-        // 9. Lit capsule divider ribs
-        bakeAllDividerRibs(img);
-
-        // 10. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
+        // 8. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
         bakeDynamicKeySprites(img);
 
         // 11. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
