@@ -44,7 +44,7 @@ public final class TabletChassisPaint {
 
         int w = TabletFrame.DESIGN_W;
         int h = TabletFrame.DESIGN_H;
-        int r = 26; // Increased curvature for outer L dưới
+        int r = 34; // Further increased curvature for outer L dưới
         int bW = 9;
         int cornerW = 56; // L trên shifted deeper into chassis
         int cornerH = 56;
@@ -224,16 +224,16 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 6. Deep CNC-milled counterbore screw hole
-        int cx = isLeft ? 26 : (w - 27);
-        int cy = isTop ? 26 : (h - 27);
-        int boltR = 5;
+        // 6. Deep CNC-milled counterbore screw hole (shifted towards inner corner of L-tren)
+        int cx = isLeft ? 30 : (w - 31);
+        int cy = isTop ? 30 : (h - 31);
+        int boltR = 7;
 
-        fillCircle(img, cx, cy, boltR + 3, 0xFF1A1C20); // Outer counterbore rim
-        fillCircle(img, cx, cy, boltR + 2, 0xFF0E0F12);
+        fillCircle(img, cx, cy, boltR + 4, 0xFF1A1C20); // Outer counterbore rim
+        fillCircle(img, cx, cy, boltR + 3, 0xFF0E0F12);
         fillCircle(img, cx, cy, boltR + 1, 0xFF030304); // Deep black cavity opening
         fillCircle(img, cx, cy, boltR - 1, 0xFF010102); // Hole bottom
-        fillCircle(img, cx, cy, Math.max(1, boltR - 3), 0xFF08090C); // Subtle center socket pin
+        fillCircle(img, cx, cy, Math.max(1, boltR - 4), 0xFF08090C); // Center socket pin
     }
 
     private static void bakeScreenAndTacticalGrid(NativeImage img) {
