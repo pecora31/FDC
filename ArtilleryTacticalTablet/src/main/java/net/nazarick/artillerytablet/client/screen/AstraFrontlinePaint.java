@@ -58,12 +58,12 @@ public final class AstraFrontlinePaint {
     // 1. TACTICAL MAP BACKGROUND
     // =========================================================================
     private static void drawTacticalMap(NativeImage img, int sx, int sy, int sw, int sh) {
-        // Deep tactical OLED dark navy background
+        // Deep tactical OLED dark charcoal background
         for (int y = sy; y < sy + sh; y++) {
             for (int x = sx; x < sx + sw; x++) {
                 if (!isInsideRoundedRect(x, y, sx, sy, sx + sw, sy + sh, SCR_R)) continue;
 
-                int col = 0xFF080D14;
+                int col = 0xFF08090C;
                 int cx = x - sx;
                 int cy = y - sy;
 
@@ -73,18 +73,18 @@ public final class AstraFrontlinePaint {
                         + Math.cos((cx * 0.025 - cy * 0.01)) * 30;
                 int contourStep = ((int) Math.abs(elevation)) % 24;
                 if (contourStep == 0 || contourStep == 1) {
-                    col = 0xFF0F1824; // Contour line
+                    col = 0xFF14171E; // Contour line
                 } else if (contourStep == 12) {
-                    col = 0xFF0B121A; // Secondary contour
+                    col = 0xFF0E1015; // Secondary contour
                 }
 
                 // Grid lines (MGRS 1km grid)
                 if (cx % 80 == 0 || cy % 75 == 0) {
-                    col = 0xFF142030;
+                    col = 0xFF181C24;
                 }
                 // Grid intersection crosshairs
                 if (cx % 80 == 0 && cy % 75 == 0) {
-                    col = 0xFF2B4466;
+                    col = 0xFF3E4856;
                 }
 
                 setPixel(img, x, y, col);
@@ -95,7 +95,7 @@ public final class AstraFrontlinePaint {
         for (int y = sy + 32; y < sy + sh - 30; y++) {
             int rx = sx + 260 + (int) (Math.sin((y - sy) * 0.025) * 45 + Math.cos((y - sy) * 0.01) * 25);
             for (int dx = -4; dx <= 4; dx++) {
-                int col = (Math.abs(dx) <= 1) ? 0xFF1E4060 : 0xFF12263A;
+                int col = (Math.abs(dx) <= 1) ? 0xFF222834 : 0xFF141820;
                 setPixel(img, rx + dx, y, col);
             }
         }
@@ -105,19 +105,19 @@ public final class AstraFrontlinePaint {
             int ry = sy + 250 + (int) (Math.sin((x - sx) * 0.01) * 50);
             if (ry >= sy + 32 && ry < sy + sh - 30) {
                 for (int dy = -1; dy <= 1; dy++) {
-                    setPixel(img, x, ry + dy, (dy == 0) ? 0xFF4E5460 : 0xFF282C34);
+                    setPixel(img, x, ry + dy, (dy == 0) ? 0xFF5A606E : 0xFF282C34);
                 }
             }
         }
 
-        // Grid coordinate labels along edges
+        // Grid coordinate labels along edges (Crisp Slate/White)
         for (int i = 1; i < sw / 80; i++) {
             int gx = sx + i * 80;
-            drawSmallText(img, "4" + (2 + i) + "E", gx + 4, sy + 36, 0xFF4A6B8A);
+            drawSmallText(img, "4" + (2 + i) + "E", gx + 4, sy + 36, 0xFF7A8699);
         }
         for (int i = 1; i < sh / 75; i++) {
             int gy = sy + i * 75;
-            drawSmallText(img, "8" + (4 + i) + "N", sx + 58, gy - 10, 0xFF4A6B8A);
+            drawSmallText(img, "8" + (4 + i) + "N", sx + 58, gy - 10, 0xFF7A8699);
         }
     }
 
@@ -125,7 +125,7 @@ public final class AstraFrontlinePaint {
     // 2. NATO BLUE FORCE & RED FORCE TRACKING (MIL-STD-2525D)
     // =========================================================================
     private static void drawTacticalUnitsAndOverlays(NativeImage img, int sx, int sy, int sw, int sh) {
-        // Friendly Units (NATO Blue - Rectangle frame)
+        // Friendly Units (Preserved standard NATO Blue - Rectangle frame)
         // 1. Headquarters / CP
         drawNatoFriendly(img, sx + 180, sy + 200, "HQ", "TF-ASTRA CP");
 
@@ -140,9 +140,9 @@ public final class AstraFrontlinePaint {
 
         // 5. Forward Observer Team (FO) with Line-of-Sight Cone
         drawNatoFriendly(img, sx + 390, sy + 120, "FO", "OBSERVER 1-1");
-        drawSensorCone(img, sx + 390, sy + 120, 52.0f, 110, 0x3300D2FF);
+        drawSensorCone(img, sx + 390, sy + 120, 52.0f, 110, 0x24FFFFFF);
 
-        // Hostile Units (NATO Red - Diamond frame)
+        // Hostile Units (Preserved standard NATO Red - Diamond frame)
         // 1. Enemy Artillery Battery (Target Alpha)
         drawNatoHostile(img, sx + 620, sy + 120, "FA", "TGT-001 [ENEMY BTY]");
         drawThreatRing(img, sx + 620, sy + 120, 65, 0x55EF4444);
@@ -173,7 +173,7 @@ public final class AstraFrontlinePaint {
             }
         }
         drawSmallText(img, sym, bx + 6, by + 6, textCol);
-        drawSmallText(img, label, bx - 12, by + h + 4, 0xFF93C5FD);
+        drawSmallText(img, label, bx - 12, by + h + 4, 0xFFCBD5E1);
     }
 
     private static void drawNatoHostile(NativeImage img, int x, int y, String sym, String label) {
@@ -263,11 +263,11 @@ public final class AstraFrontlinePaint {
             setPixel(img, ex, ey, 0xFFFF0044);
         }
 
-        // Tactical Engagement Info Box
+        // Tactical Engagement Info Box (Crisp Titanium & Amber)
         int boxX = sx + 380, boxY = sy + 225;
-        drawGlassPanel(img, boxX, boxY, 170, 68, 0xDD0B121C, 0xFFF59E0B);
+        drawGlassPanel(img, boxX, boxY, 170, 68, 0xDD0E1015, 0xFF475569);
         drawSmallText(img, "FIRE MISSION: ACTIVE", boxX + 8, boxY + 8, 0xFFFBBF24);
-        drawSmallText(img, "AZ: 052.4°  EL: 48.2°", boxX + 8, boxY + 22, 0xFFE2E8F0);
+        drawSmallText(img, "AZ: 052.4°  EL: 48.2°", boxX + 8, boxY + 22, 0xFFFFFFFF);
         drawSmallText(img, "TOF: 28.4s  MAXORD: FL140", boxX + 8, boxY + 36, 0xFFCBD5E1);
         drawSmallText(img, "SPLASH IN: 00:12", boxX + 8, boxY + 50, 0xFFEF4444);
     }
@@ -276,15 +276,15 @@ public final class AstraFrontlinePaint {
     // 4. PICTURE-IN-PICTURE (PIP) UAV THERMAL FLIR CAM
     // =========================================================================
     private static void drawUavThermalPip(NativeImage img, int px, int py, int pw, int ph) {
-        drawGlassPanel(img, px, py, pw, ph, 0xEE05080E, 0xFF0284C7);
+        drawGlassPanel(img, px, py, pw, ph, 0xEE080A0E, 0xFF475569);
 
         // Header of PIP
         for (int x = px; x < px + pw; x++) {
             for (int y = py; y < py + 16; y++) {
-                setPixel(img, x, y, 0xFF0D1B2A);
+                setPixel(img, x, y, 0xFF181C24);
             }
         }
-        drawSmallText(img, "UAV RECON [MQ-9 FLIR IR]", px + 8, py + 4, 0xFF38BDF8);
+        drawSmallText(img, "UAV RECON [MQ-9 FLIR IR]", px + 8, py + 4, 0xFFF8FAFC);
         drawSmallText(img, "REC [●]", px + pw - 50, py + 4, 0xFFEF4444);
 
         // Thermal Viewfinder Canvas
@@ -293,7 +293,7 @@ public final class AstraFrontlinePaint {
         for (int y = camY1; y < camY2; y++) {
             for (int x = camX1; x < camX2; x++) {
                 int noise = ((x * 19 + y * 23) ^ (x * 7)) % 8;
-                int col = 0xFF0A0F16 + (noise * 0x010101);
+                int col = 0xFF080A0E + (noise * 0x010101);
                 setPixel(img, x, y, col);
             }
         }
@@ -309,10 +309,10 @@ public final class AstraFrontlinePaint {
             }
         }
 
-        // Crosshair reticle in thermal cam
+        // Crosshair reticle in thermal cam (Crisp White)
         int cx = px + pw / 2, cy = py + ph / 2 + 6;
-        for (int x = cx - 14; x <= cx + 14; x++) setPixel(img, x, cy, 0xAA38BDF8);
-        for (int y = cy - 14; y <= cy + 14; y++) setPixel(img, cx, y, 0xAA38BDF8);
+        for (int x = cx - 14; x <= cx + 14; x++) setPixel(img, x, cy, 0xCCFFFFFF);
+        for (int y = cy - 14; y <= cy + 14; y++) setPixel(img, cx, y, 0xCCFFFFFF);
         drawSmallText(img, "LASER: LOCKED (TGT-001)", px + 8, py + ph - 14, 0xFF10B981);
     }
 
@@ -320,7 +320,7 @@ public final class AstraFrontlinePaint {
     // 5. LEFT TACTICAL TOOL DOCK
     // =========================================================================
     private static void drawLeftToolDock(NativeImage img, int dx, int dy, int dw, int dh) {
-        drawGlassPanel(img, dx, dy, dw, dh, 0xCC090E17, 0xFF1E293B);
+        drawGlassPanel(img, dx, dy, dw, dh, 0xDD0A0C10, 0xFF334155);
 
         String[] toolIcons = { "M", "C", "T", "L", "D", "N", "S" };
         String[] toolNames = { "MAP", "CFF", "TGT", "LOS", "DRN", "NAV", "SET" };
@@ -328,12 +328,14 @@ public final class AstraFrontlinePaint {
         for (int i = 0; i < 7; i++) {
             int by = dy + 10 + i * 48;
             boolean active = (i == 1); // CFF Active
-            int btnCol = active ? 0xFF2563EB : 0xFF131C28;
-            int border = active ? 0xFF60A5FA : 0xFF253347;
+            int btnCol = active ? 0xFFFFFFFF : 0xFF14171E;
+            int border = active ? 0xFFFFFFFF : 0xFF334155;
+            int textCol1 = active ? 0xFF0A0C10 : 0xFFFFFFFF;
+            int textCol2 = active ? 0xFF1E293B : 0xFF94A3B8;
 
             drawGlassPanel(img, dx + 4, by, dw - 8, 40, btnCol, border);
-            drawSmallText(img, toolIcons[i], dx + 16, by + 8, active ? 0xFFFFFFFF : 0xFF94A3B8);
-            drawSmallText(img, toolNames[i], dx + 8, by + 24, active ? 0xFF93C5FD : 0xFF64748B);
+            drawSmallText(img, toolIcons[i], dx + 16, by + 8, textCol1);
+            drawSmallText(img, toolNames[i], dx + 8, by + 24, textCol2);
         }
     }
 
@@ -344,20 +346,20 @@ public final class AstraFrontlinePaint {
         for (int y = sy; y < sy + sh; y++) {
             for (int x = sx; x < sx + sw; x++) {
                 if (!isInsideRoundedRect(x, y, sx, sy, sx + sw, sy + sh + 20, SCR_R)) continue;
-                int col = (y == sy + sh - 1) ? 0xFF0284C7 : 0xFF0B121C;
+                int col = (y == sy + sh - 1) ? 0xFF475569 : 0xFF0B0D12;
                 setPixel(img, x, y, col);
             }
         }
 
-        // Left Branding
+        // Left Branding (Crimson + Pure Titanium White)
         drawSmallText(img, "ASTRA", sx + 14, sy + 11, 0xFFEF4444);
-        drawSmallText(img, "FRONTLINE C2", sx + 54, sy + 11, 0xFF00D2FF);
+        drawSmallText(img, "FRONTLINE C2", sx + 54, sy + 11, 0xFFFFFFFF);
 
-        // System telemetry
-        drawSmallText(img, "[TF-1/77 FA]", sx + 160, sy + 11, 0xFF38BDF8);
+        // System telemetry (Crisp White / Silver / Green)
+        drawSmallText(img, "[TF-1/77 FA]", sx + 160, sy + 11, 0xFFCBD5E1);
         drawSmallText(img, "MGRS: 38SMB 42918 84920", sx + 270, sy + 11, 0xFFCBD5E1);
         drawSmallText(img, "GPS: 3D-FIX (12 SAT)", sx + 460, sy + 11, 0xFF10B981);
-        drawSmallText(img, "TIME: 12:07:18 UTC", sx + 620, sy + 11, 0xFFE2E8F0);
+        drawSmallText(img, "TIME: 12:12:00 UTC", sx + 620, sy + 11, 0xFFFFFFFF);
         drawSmallText(img, "NET: SECURE", sx + sw - 95, sy + 11, 0xFF10B981);
     }
 
@@ -368,21 +370,21 @@ public final class AstraFrontlinePaint {
         for (int y = sy; y < sy + sh; y++) {
             for (int x = sx; x < sx + sw; x++) {
                 if (!isInsideRoundedRect(x, y, sx, sy - 20, sx + sw, sy + sh, SCR_R)) continue;
-                int col = (y == sy) ? 0xFF1E293B : 0xFF080D14;
+                int col = (y == sy) ? 0xFF334155 : 0xFF08090C;
                 setPixel(img, x, y, col);
             }
         }
 
         // Function Key Quick Indicators matching tablet chassis keys
         drawSmallText(img, "F1:CFF", sx + 14, sy + 10, 0xFFF59E0B);
-        drawSmallText(img, "F2:BTY", sx + 72, sy + 10, 0xFF94A3B8);
-        drawSmallText(img, "F3:TGT", sx + 132, sy + 10, 0xFF94A3B8);
-        drawSmallText(img, "F4:UAV", sx + 192, sy + 10, 0xFF94A3B8);
-        drawSmallText(img, "F5:AMMO", sx + 252, sy + 10, 0xFF94A3B8);
+        drawSmallText(img, "F2:BTY", sx + 72, sy + 10, 0xFFCBD5E1);
+        drawSmallText(img, "F3:TGT", sx + 132, sy + 10, 0xFFCBD5E1);
+        drawSmallText(img, "F4:UAV", sx + 192, sy + 10, 0xFFCBD5E1);
+        drawSmallText(img, "F5:AMMO", sx + 252, sy + 10, 0xFFCBD5E1);
 
         // Battery Status
         drawSmallText(img, "BATTERY STATUS: [READY 6/6]", sx + 345, sy + 10, 0xFF10B981);
-        drawSmallText(img, "HE: 142 | PGK: 38 | SMOKE: 12", sx + 540, sy + 10, 0xFFE2E8F0);
+        drawSmallText(img, "HE: 142 | PGK: 38 | SMOKE: 12", sx + 540, sy + 10, 0xFFFFFFFF);
         drawSmallText(img, "PWR: 98% 28V", sx + sw - 100, sy + 10, 0xFF10B981);
     }
 
