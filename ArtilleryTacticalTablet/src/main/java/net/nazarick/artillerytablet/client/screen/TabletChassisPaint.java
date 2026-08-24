@@ -522,24 +522,25 @@ public final class TabletChassisPaint {
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
         int rInner = 14;
-        int x1 = bW; // 9px, exactly aligns with tablet outer chassis bevel
+        int x1 = bW; // 9px
 
-        // Shadow under C-bracket
-        for (int y = uY1 - 4; y <= uY2 + 5; y++) {
-            for (int x = uX1; x <= uX2; x++) {
-                if (isLeft && x >= TabletFrame.DESIGN_W - bW) continue;
-                if (!isLeft && x <= bW) continue;
-                if (isInsideSidePlateau(x - 3, y - 3, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)
-                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                    setPixel(img, x, y, 0x33010102);
-                } else if (isInsideSidePlateau(x - 1, y - 1, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)
-                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                    setPixel(img, x, y, 0x66020203);
+        // 0. Soft directional ambient occlusion shadow under C-bracket
+        for (int dy = 1; dy <= 4; dy++) {
+            int dx = dy;
+            int alpha = (dy == 1) ? 0x66 : ((dy == 2) ? 0x44 : ((dy == 3) ? 0x26 : 0x12));
+            int shadowCol = (alpha << 24) | 0x010102;
+            for (int y = uY1 - 2; y <= uY2 + 6; y++) {
+                for (int x = uX1 - 2; x <= uX2 + 6; x++) {
+                    if (x < 0 || x >= TabletFrame.DESIGN_W || y < 0 || y >= TabletFrame.DESIGN_H) continue;
+                    if (isInsideSidePlateau(x - dx, y - dy, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)
+                            && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
+                        setPixel(img, x, y, shadowCol);
+                    }
                 }
             }
         }
 
-        // 1. Base plateau surface
+        // 1. Base plateau surface with fine tactical stipple grain
         for (int y = uY1; y < uY2; y++) {
             for (int x = uX1; x < uX2; x++) {
                 if (isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
@@ -550,9 +551,9 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Bevel Shading: Straight top/bottom horizontal edges, single continuous outer flank line aligned with tablet outer border at x1 = bW = 9
+        // 2. Bevel Shading with ultra-smooth mechanical gradients
         if (isLeft) {
-            // Outer flank bevel (X in [0, 9])
+            // Smooth outer flank slope (X in [0, 9])
             for (int x = uX1; x < uX1 + x1; x++) {
                 int distFromOuter = x - uX1;
                 for (int y = uY1; y < uY2; y++) {
@@ -565,7 +566,12 @@ public final class TabletChassisPaint {
                         int d = (uY2 - 1) - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
-                        col = (distFromOuter == 0) ? 0xFF2A2C30 : ((distFromOuter == 1) ? 0xFF242629 : ((distFromOuter >= x1 - 2) ? 0xFF18191C : 0xFF202226));
+                        // Smooth transition across flank
+                        float t = (float) distFromOuter / (x1 - 1);
+                        int rC = (int) (0x28 + t * (0x20 - 0x28));
+                        int gC = (int) (0x2A + t * (0x22 - 0x2A));
+                        int bC = (int) (0x2E + t * (0x26 - 0x2E));
+                        col = 0xFF000000 | (rC << 16) | (gC << 8) | bC;
                     }
                     setPixel(img, x, y, applyStipple(col, x, y));
                 }
@@ -576,21 +582,21 @@ public final class TabletChassisPaint {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                        int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
+                        int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : ((d == 2) ? 0xFF26282D : 0xFF222428));
                         setPixel(img, x, yTop, applyStipple(col, x, yTop));
                     }
                     int yBot = (uY2 - 1) - d;
                     if (isInsideSidePlateau(x, yBot, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                        int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
+                        int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : ((d == 2) ? 0xFF141518 : 0xFF1A1C1F));
                         setPixel(img, x, yBot, applyStipple(col, x, yBot));
                     }
                 }
             }
 
-            // Single Continuous Vertical Line at X = 9 from Y = 105 to Y = 525 (aligned with tablet outer bezel line)
-            for (int y = uY1; y < uY2; y++) {
+            // Smooth subtle ridge highlight at X = 9
+            for (int y = uY1 + 4; y < uY2 - 4; y++) {
                 if (isInsideSidePlateau(x1, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                    setPixel(img, x1, y, applyStipple(0xFF141518, x1, y));
+                    setPixel(img, x1, y, applyStipple(0xFF26282D, x1, y));
                 }
             }
         } else {
@@ -608,7 +614,11 @@ public final class TabletChassisPaint {
                         int d = (uY2 - 1) - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
-                        col = (distFromOuter == 0) ? 0xFF08080A : ((distFromOuter == 1) ? 0xFF0B0C0E : ((distFromOuter >= x1 - 2) ? 0xFF151618 : 0xFF0F1012));
+                        float t = (float) distFromOuter / (x1 - 1);
+                        int rC = (int) (0x08 + t * (0x14 - 0x08));
+                        int gC = (int) (0x09 + t * (0x16 - 0x09));
+                        int bC = (int) (0x0B + t * (0x19 - 0x0B));
+                        col = 0xFF000000 | (rC << 16) | (gC << 8) | bC;
                     }
                     setPixel(img, x, y, applyStipple(col, x, y));
                 }
@@ -619,28 +629,28 @@ public final class TabletChassisPaint {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                        int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
+                        int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : ((d == 2) ? 0xFF26282D : 0xFF222428));
                         setPixel(img, x, yTop, applyStipple(col, x, yTop));
                     }
                     int yBot = (uY2 - 1) - d;
                     if (isInsideSidePlateau(x, yBot, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                        int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
+                        int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : ((d == 2) ? 0xFF141518 : 0xFF1A1C1F));
                         setPixel(img, x, yBot, applyStipple(col, x, yBot));
                     }
                 }
             }
 
-            // Single Continuous Vertical Line at X = 971 (Right outer bezel line)
-            for (int y = uY1; y < uY2; y++) {
+            // Smooth subtle ridge shadow at X = 971
+            for (int y = uY1 + 4; y < uY2 - 4; y++) {
                 if (isInsideSidePlateau(rx1, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
-                    setPixel(img, rx1, y, applyStipple(0xFF141518, rx1, y));
+                    setPixel(img, rx1, y, applyStipple(0xFF101114, rx1, y));
                 }
             }
         }
 
-        // 3. Inner cutout contour (with 45-degree diagonal flare at outer ends X in [0, 9] and R=14 fillets at inner corner X=72)
-        int boundX1 = isLeft ? 0 : cutX1 - 4;
-        int boundX2 = isLeft ? cutX2 + 4 : TabletFrame.DESIGN_W;
+        // 3. Smooth Inner cutout contour with refined anti-aliasing & soft transitions
+        int boundX1 = isLeft ? 0 : cutX1 - 5;
+        int boundX2 = isLeft ? cutX2 + 5 : TabletFrame.DESIGN_W;
         int boundY1 = cutY1 - 24;
         int boundY2 = cutY2 + 24;
 
@@ -648,14 +658,16 @@ public final class TabletChassisPaint {
             for (int x = boundX1; x <= boundX2; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
                 float sdf = getSideCutoutSDF(x, y, isLeft, cutX1, cutX2, cutY1, cutY2, rInner, bW);
-                if (sdf >= 0 && sdf <= 1.5f) {
-                    setPixel(img, x, y, applyStipple(0xFF383B41, x, y));
-                } else if (sdf >= -1.2f && sdf < 0) {
+                if (sdf >= 0 && sdf <= 1.2f) {
+                    setPixel(img, x, y, applyStipple(0xFF3A3D44, x, y));
+                } else if (sdf > 1.2f && sdf <= 2.2f) {
+                    setPixel(img, x, y, applyStipple(0xFF282A2F, x, y));
+                } else if (sdf >= -1.0f && sdf < 0) {
                     setPixel(img, x, y, 0xFF040506);
-                } else if (sdf >= -3.5f && sdf < -1.2f) {
-                    setPixel(img, x, y, applyStipple(0xFF0A0B0D, x, y));
-                } else if (sdf >= -5.0f && sdf < -3.5f) {
-                    setPixel(img, x, y, applyStipple(0xFF111214, x, y));
+                } else if (sdf >= -2.5f && sdf < -1.0f) {
+                    setPixel(img, x, y, applyStipple(0xFF090A0C, x, y));
+                } else if (sdf >= -4.5f && sdf < -2.5f) {
+                    setPixel(img, x, y, applyStipple(0xFF101113, x, y));
                 }
             }
         }
