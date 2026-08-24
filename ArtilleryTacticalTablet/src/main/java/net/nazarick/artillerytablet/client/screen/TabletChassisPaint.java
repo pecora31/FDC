@@ -522,7 +522,7 @@ public final class TabletChassisPaint {
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
         int rInner = 14;
-        int chamferDiag = 20;
+        int flareW = 20;
 
         // Shadow under C-bracket
         for (int y = uY1 - 4; y <= uY2 + 5; y++) {
@@ -550,23 +550,20 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Bevel Shading matching the red outline profile
+        // 2. Bevel Shading: Straight top/bottom horizontal edges, vertical outer flank
         int bFlankW = 18;
         if (isLeft) {
-            // Left outer flank bevel
+            // Left outer flank bevel (Straight vertical X in [0, 18])
             for (int x = uX1; x < uX1 + bFlankW; x++) {
                 int distFromOuter = x - uX1;
-                int topY = uY1 + (chamferDiag - distFromOuter);
-                int botY = (uY2 - 1) - (chamferDiag - distFromOuter);
-
-                for (int y = topY; y <= botY; y++) {
+                for (int y = uY1; y < uY2; y++) {
                     if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) continue;
                     int col;
-                    if (y < topY + 4) {
-                        int d = y - topY;
+                    if (y < uY1 + 4) {
+                        int d = y - uY1;
                         col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
-                    } else if (y > botY - 4) {
-                        int d = botY - y;
+                    } else if (y >= uY2 - 4) {
+                        int d = (uY2 - 1) - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
                         col = (distFromOuter == 0) ? 0xFF2A2C30 : ((distFromOuter == 1) ? 0xFF242629 : ((distFromOuter >= bFlankW - 2) ? 0xFF18191C : 0xFF202226));
@@ -575,8 +572,8 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Horizontal Bevels
-            for (int x = uX1 + chamferDiag; x < uX2; x++) {
+            // Top & Bottom Straight Horizontal Bevels (X in [18, 90])
+            for (int x = uX1 + bFlankW; x < uX2; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
@@ -591,20 +588,17 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Right outer flank bevel
+            // Right outer flank bevel (Straight vertical X in [962, 980])
             for (int x = uX2 - bFlankW; x < uX2; x++) {
                 int distFromOuter = (uX2 - 1) - x;
-                int topY = uY1 + (chamferDiag - distFromOuter);
-                int botY = (uY2 - 1) - (chamferDiag - distFromOuter);
-
-                for (int y = topY; y <= botY; y++) {
+                for (int y = uY1; y < uY2; y++) {
                     if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) continue;
                     int col;
-                    if (y < topY + 4) {
-                        int d = y - topY;
+                    if (y < uY1 + 4) {
+                        int d = y - uY1;
                         col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
-                    } else if (y > botY - 4) {
-                        int d = botY - y;
+                    } else if (y >= uY2 - 4) {
+                        int d = (uY2 - 1) - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
                         col = (distFromOuter == 0) ? 0xFF08080A : ((distFromOuter == 1) ? 0xFF0B0C0E : ((distFromOuter >= bFlankW - 2) ? 0xFF151618 : 0xFF0F1012));
@@ -613,8 +607,8 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Horizontal Bevels
-            for (int x = uX1; x < uX2 - chamferDiag; x++) {
+            // Top & Bottom Straight Horizontal Bevels (X in [890, 962])
+            for (int x = uX1; x < uX2 - bFlankW; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
@@ -630,11 +624,11 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Inner fillet wall transition around the U-cutout (bo cong 2 đầu R=14)
-        int boundX1 = isLeft ? cutX1 : cutX1 - 4;
-        int boundX2 = isLeft ? cutX2 + 4 : cutX2;
-        int boundY1 = cutY1 - 4;
-        int boundY2 = cutY2 + 4;
+        // 3. Inner cutout contour (with 45-degree diagonal flare at outer ends X in [0, 20] and R=14 fillets at inner corner X=72)
+        int boundX1 = isLeft ? 0 : cutX1 - 4;
+        int boundX2 = isLeft ? cutX2 + 4 : TabletFrame.DESIGN_W;
+        int boundY1 = cutY1 - 24;
+        int boundY2 = cutY2 + 24;
 
         for (int y = boundY1; y <= boundY2; y++) {
             for (int x = boundX1; x <= boundX2; x++) {
@@ -686,24 +680,17 @@ public final class TabletChassisPaint {
     private static boolean isInsideSidePlateau(int px, int py, boolean isLeft, int uX1, int uX2, int uY1, int uY2,
                                                 int cutX1, int cutX2, int cutY1, int cutY2, int rInner) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
-        int chamferDiag = 20;
-        if (isLeft) {
-            if (px < uX1 + chamferDiag) {
-                int offset = (uX1 + chamferDiag) - px;
-                if (py < uY1 + offset || py > (uY2 - 1) - offset) return false;
-            }
-        } else {
-            if (px >= uX2 - chamferDiag) {
-                int offset = px - (uX2 - chamferDiag);
-                if (py < uY1 + offset || py > (uY2 - 1) - offset) return false;
-            }
-        }
         return getSideCutoutSDF(px, py, isLeft, cutX1, cutX2, cutY1, cutY2, rInner) >= 0;
     }
 
     private static float getSideCutoutSDF(int px, int py, boolean isLeft, int cutX1, int cutX2, int cutY1, int cutY2,
                                            int rInner) {
+        int flareW = 20;
         if (isLeft) {
+            // Cutout ceiling & floor with 45-degree diagonal flare at outer end X in [0, 20]
+            int curCutY1 = (px < flareW) ? (cutY1 + (flareW - px)) : cutY1;
+            int curCutY2 = (px < flareW) ? (cutY2 - (flareW - px)) : cutY2;
+
             if (px > cutX2 - rInner) {
                 if (py < cutY1 + rInner) {
                     float dx = px - (cutX2 - rInner), dy = py - (cutY1 + rInner);
@@ -715,8 +702,13 @@ public final class TabletChassisPaint {
                 }
                 return (float) (px - cutX2);
             }
-            return (float) Math.max(cutY1 - py, py - cutY2);
+            return (float) Math.max(curCutY1 - py, py - curCutY2);
         } else {
+            // Right Side cutout ceiling & floor with 45-degree diagonal flare at outer end X in [960, 980]
+            int distFromRight = TabletFrame.DESIGN_W - 1 - px;
+            int curCutY1 = (distFromRight < flareW) ? (cutY1 + (flareW - distFromRight)) : cutY1;
+            int curCutY2 = (distFromRight < flareW) ? (cutY2 - (flareW - distFromRight)) : cutY2;
+
             if (px < cutX1 + rInner) {
                 if (py < cutY1 + rInner) {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
@@ -728,7 +720,7 @@ public final class TabletChassisPaint {
                 }
                 return (float) (cutX1 - px);
             }
-            return (float) Math.max(cutY1 - py, py - cutY2);
+            return (float) Math.max(curCutY1 - py, py - curCutY2);
         }
     }
 
