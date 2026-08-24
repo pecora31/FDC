@@ -794,24 +794,23 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeAllDividerRibs(NativeImage img) {
-        int ribLen = 42;
+        int ribLen = 48;
         // Top row single ribs between inner key pairs (SA-WPN-DEF-SYS-DRV-STR-COM-BMS)
         for (int i = 1; i <= 7; i++) {
             int cx = 148 + 38 + i * 76;
             bakeCapsuleRib(img, cx, 41, ribLen, true);
         }
-        // Bottom row single ribs between inner key pairs
-        // (F13-F14-F15-F16-F17-F18-F19-F20)
+        // Bottom row single ribs between inner key pairs (F13-F14-F15-F16-F17-F18-F19-F20)
         for (int i = 1; i <= 7; i++) {
             int cx = 148 + 38 + i * 76;
             bakeCapsuleRib(img, cx, 589, ribLen, true);
         }
-        // Left flank single ribs between inner key pairs (F2-F3-F4-F5-F6)
-        for (int i = 1; i <= 4; i++) {
+        // Left flank single ribs between all key pairs (CFF-F2-F3-F4-F5-F6)
+        for (int i = 0; i <= 4; i++) {
             int cy = 155 + 32 + i * 64;
             bakeCapsuleRib(img, 39, cy, ribLen, false);
         }
-        // Right flank single ribs between (F7-F8-F9-F10-F11-F12)
+        // Right flank single ribs between all key pairs (F7-F8-F9-F10-F11-F12)
         for (int i = 0; i <= 4; i++) {
             int cy = 155 + 32 + i * 64;
             bakeCapsuleRib(img, 941, cy, ribLen, false);
