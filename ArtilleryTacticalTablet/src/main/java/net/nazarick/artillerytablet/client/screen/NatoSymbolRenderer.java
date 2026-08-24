@@ -28,25 +28,49 @@ public final class NatoSymbolRenderer {
         }
     }
 
-    // Standard NATO Unit Types
+    // Standard NATO Combat & Service Branches
     public enum UnitType {
+        // Ground Combat
         INFANTRY,               // Cross (X)
-        ARMOR,                  // Oval (Track)
-        FIELD_ARTILLERY,        // Solid Cannonball Dot (●)
-        SP_ARTILLERY,           // Self-Propelled Artillery (Oval + Dot)
-        ROCKET_ARTILLERY,       // MLRS / HIMARS (Arrow + Dot)
-        MORTAR,                 // Mortar tube
+        MOTORIZED_INFANTRY,     // Cross (X) with wheels (O O)
         MECH_INFANTRY,          // Mechanized Infantry (Oval + Cross)
-        AIR_DEFENSE,            // Dome Arc (⌢)
-        AVIATION_ROTARY,        // Attack Helicopter (Bowtie ⋈)
-        RECONNAISSANCE,         // Cavalry Slash (/)
-        ENGINEER,               // Bridge / Castle (⊓)
-        SIGNAL,                 // Lightning Bolt (⚡)
-        LOGISTICS,              // Cross bar (⊞)
-        MEDICAL,                // Geneva Cross (+)
+        ARMOR,                  // Oval Track (⬭)
+        RECONNAISSANCE,         // Cavalry Recon Slash (/)
+        ARMORED_RECON,          // Armored Recon (Oval + Slash)
         ANTI_TANK,              // Inverted V (∧)
-        OBSERVATION_POST,       // FO / Observer (Triangle + Eye)
-        HEADQUARTERS            // HQ staff on frame
+        ARMORED_ANTI_TANK,      // Tank Destroyer (Oval + ∧)
+        SPECIAL_FORCES,         // Special Forces (SF / Dagger)
+        SNIPER,                 // Sniper / Marksman
+
+        // Artillery & Fire Support
+        FIELD_ARTILLERY,        // Cannonball Dot (●)
+        SP_ARTILLERY,           // Self-Propelled Howitzer (Oval + Dot)
+        ROCKET_ARTILLERY,       // MLRS / HIMARS (Dot + Upward Arrow)
+        MORTAR,                 // Mortar tube (Dot + vertical bar)
+        SP_MORTAR,              // Armored Mortar (Oval + Mortar)
+        OBSERVATION_POST,       // Forward Observer (Triangle + Eye)
+        RADAR_ARTILLERY,        // Counter-Battery Radar
+
+        // Air & Air Defense
+        AIR_DEFENSE,            // Air Defense Dome Arc (⌢)
+        AIR_DEFENSE_MISSILE,    // SAM (Dome + Arrow)
+        AVIATION_ROTARY,        // Attack Helicopter (Bowtie ⋈)
+        AVIATION_FIXED_WING,    // Combat Jet
+        UAV,                    // Unmanned Aerial Vehicle (Drone)
+
+        // Combat Support & Service Support
+        HEADQUARTERS,           // Command Post (HQ staff flagpole)
+        ENGINEER,               // Sapper Bridge (⊓)
+        ARMORED_ENGINEER,       // Breaching ABV (Oval + ⊓)
+        SIGNAL,                 // Communications Lightning Bolt (⚡)
+        ELECTRONIC_WARFARE,     // Electronic Warfare / Cyber (EW)
+        CBRN,                   // Chemical / Biological / Rad / Nuclear
+        LOGISTICS,              // General Supply (Cross bar ⊞)
+        AMMO_SUPPLY,            // Ammunition Supply Point (ASP)
+        FUEL_SUPPLY,            // POL Fuel Depot
+        MAINTENANCE,            // Recovery / Repair
+        MEDICAL,                // Geneva Medical Cross (+)
+        MILITARY_POLICE         // Military Police (MP)
     }
 
     // Standard NATO Echelon Sizes
@@ -60,7 +84,10 @@ public final class NatoSymbolRenderer {
         REGIMENT("|||"),
         BRIGADE("X"),
         DIVISION("XX"),
-        CORPS("XXX");
+        CORPS("XXX"),
+        ARMY("XXXX"),
+        ARMY_GROUP("XXXXX"),
+        THEATER("XXXXXX");
 
         public final String symbol;
         Echelon(String symbol) { this.symbol = symbol; }
@@ -98,12 +125,12 @@ public final class NatoSymbolRenderer {
             drawSmallText(img, echelon.symbol, cx - (echelon.symbol.length() * 3), echY, aff.borderColor);
         }
 
-        // 4. Draw Unit Designation (Unique callsign on right or bottom)
+        // 4. Draw Unit Designation (Unique callsign on bottom)
         if (unitDesignation != null && !unitDesignation.isEmpty()) {
             drawSmallText(img, unitDesignation, cx - (unitDesignation.length() * 3), y2 + 4, 0xFFCBD5E1);
         }
 
-        // 5. Higher Formation (Left side of echelon)
+        // 5. Higher Formation (Right side of frame)
         if (higherFormation != null && !higherFormation.isEmpty()) {
             drawSmallText(img, higherFormation, x2 + 5, cy - 3, 0xFF94A3B8);
         }
@@ -153,7 +180,6 @@ public final class NatoSymbolRenderer {
     }
 
     private static void drawUnknownFrame(NativeImage img, int cx, int cy, int r, int fillCol, int borderCol) {
-        // Quatrefoil / Clover leaf
         int r2 = r * r;
         for (int dy = -r; dy <= r; dy++) {
             for (int dx = -r; dx <= r; dx++) {
@@ -178,38 +204,88 @@ public final class NatoSymbolRenderer {
 
         switch (type) {
             case INFANTRY -> {
-                // Cross (X)
                 drawLine(img, cx - halfW, cy - halfH, cx + halfW, cy + halfH, iconCol);
                 drawLine(img, cx + halfW, cy - halfH, cx - halfW, cy + halfH, iconCol);
             }
+            case MOTORIZED_INFANTRY -> {
+                drawLine(img, cx - halfW, cy - halfH + 2, cx + halfW, cy + halfH - 2, iconCol);
+                drawLine(img, cx + halfW, cy - halfH + 2, cx - halfW, cy + halfH - 2, iconCol);
+                fillCircle(img, cx - halfW / 2, cy + halfH, 2, iconCol);
+                fillCircle(img, cx + halfW / 2, cy + halfH, 2, iconCol);
+            }
             case ARMOR -> {
-                // Oval Track Capsule
                 drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
             }
+            case MECH_INFANTRY -> {
+                drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
+                drawLine(img, cx - halfW + 3, cy - halfH + 2, cx + halfW - 3, cy + halfH - 2, iconCol);
+                drawLine(img, cx + halfW - 3, cy - halfH + 2, cx - halfW + 3, cy + halfH - 2, iconCol);
+            }
+            case RECONNAISSANCE -> {
+                drawLine(img, cx - halfW, cy + halfH, cx + halfW, cy - halfH, iconCol);
+            }
+            case ARMORED_RECON -> {
+                drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
+                drawLine(img, cx - halfW + 2, cy + halfH - 2, cx + halfW - 2, cy - halfH + 2, iconCol);
+            }
+            case ANTI_TANK -> {
+                drawLine(img, cx - halfW, cy + halfH, cx, cy - halfH, iconCol);
+                drawLine(img, cx, cy - halfH, cx + halfW, cy + halfH, iconCol);
+            }
+            case ARMORED_ANTI_TANK -> {
+                drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
+                drawLine(img, cx - halfW / 2, cy + halfH - 2, cx, cy - halfH + 2, iconCol);
+                drawLine(img, cx, cy - halfH + 2, cx + halfW / 2, cy + halfH - 2, iconCol);
+            }
+            case SPECIAL_FORCES -> {
+                drawSmallText(img, "SF", cx - 5, cy - 3, iconCol);
+            }
+            case SNIPER -> {
+                drawLine(img, cx - halfW + 2, cy, cx + halfW - 2, cy, iconCol);
+                drawLine(img, cx, cy - halfH, cx, cy + halfH, iconCol);
+                fillCircle(img, cx, cy, 2, iconCol);
+            }
+
+            // Artillery & Fire Support
             case FIELD_ARTILLERY -> {
-                // Cannonball Dot
                 fillCircle(img, cx, cy, (int)(halfH * 0.65f), iconCol);
             }
             case SP_ARTILLERY -> {
-                // Self-Propelled Artillery (Armor Oval + Cannonball Dot)
                 drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
                 fillCircle(img, cx, cy, (int)(halfH * 0.45f), iconCol);
             }
             case ROCKET_ARTILLERY -> {
-                // Rocket / MLRS (Dot with 3 vertical arrows)
                 fillCircle(img, cx, cy + 2, (int)(halfH * 0.45f), iconCol);
                 drawLine(img, cx, cy - halfH, cx, cy - 1, iconCol);
                 drawLine(img, cx - 1, cy - halfH + 2, cx, cy - halfH, iconCol);
                 drawLine(img, cx + 1, cy - halfH + 2, cx, cy - halfH, iconCol);
             }
-            case MECH_INFANTRY -> {
-                // Mechanized Infantry (Oval + Infantry Cross)
-                drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
-                drawLine(img, cx - halfW + 3, cy - halfH + 2, cx + halfW - 3, cy + halfH - 2, iconCol);
-                drawLine(img, cx + halfW - 3, cy - halfH + 2, cx - halfW + 3, cy + halfH - 2, iconCol);
+            case MORTAR -> {
+                fillCircle(img, cx, cy + 3, (int)(halfH * 0.40f), iconCol);
+                drawLine(img, cx, cy - halfH, cx, cy + 1, iconCol);
+                drawLine(img, cx - 3, cy - halfH, cx + 3, cy - halfH, iconCol);
             }
+            case SP_MORTAR -> {
+                drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
+                fillCircle(img, cx, cy + 2, 2, iconCol);
+                drawLine(img, cx, cy - halfH + 2, cx, cy + 1, iconCol);
+            }
+            case OBSERVATION_POST -> {
+                drawLine(img, cx - halfW, cy + halfH, cx + halfW, cy + halfH, iconCol);
+                drawLine(img, cx - halfW, cy + halfH, cx, cy - halfH, iconCol);
+                drawLine(img, cx, cy - halfH, cx + halfW, cy + halfH, iconCol);
+                fillCircle(img, cx, cy + 2, 2, iconCol);
+            }
+            case RADAR_ARTILLERY -> {
+                fillCircle(img, cx, cy + 2, 3, iconCol);
+                for (int deg = 180; deg <= 360; deg += 15) {
+                    double rad = Math.toRadians(deg);
+                    setPixel(img, cx + (int)(Math.cos(rad) * 6), cy - 2 + (int)(Math.sin(rad) * 5), iconCol);
+                }
+            }
+
+            // Air & Air Defense
             case AIR_DEFENSE -> {
-                // Air Defense Dome Arc (⌢)
                 for (int deg = 180; deg <= 360; deg += 6) {
                     double rad = Math.toRadians(deg);
                     int px = cx + (int) (Math.cos(rad) * halfW);
@@ -218,33 +294,82 @@ public final class NatoSymbolRenderer {
                     setPixel(img, px, py - 1, iconCol);
                 }
             }
+            case AIR_DEFENSE_MISSILE -> {
+                for (int deg = 180; deg <= 360; deg += 6) {
+                    double rad = Math.toRadians(deg);
+                    int px = cx + (int) (Math.cos(rad) * halfW);
+                    int py = cy + (int) (Math.sin(rad) * halfH) + halfH / 2;
+                    setPixel(img, px, py, iconCol);
+                }
+                drawLine(img, cx, cy - halfH, cx, cy + halfH / 2, iconCol);
+                drawLine(img, cx - 2, cy - halfH + 2, cx, cy - halfH, iconCol);
+                drawLine(img, cx + 2, cy - halfH + 2, cx, cy - halfH, iconCol);
+            }
             case AVIATION_ROTARY -> {
-                // Rotary Bow-tie (⋈)
                 drawLine(img, cx - halfW, cy - halfH, cx + halfW, cy + halfH, iconCol);
                 drawLine(img, cx - halfW, cy + halfH, cx + halfW, cy - halfH, iconCol);
                 drawLine(img, cx - halfW, cy - halfH, cx - halfW, cy + halfH, iconCol);
                 drawLine(img, cx + halfW, cy - halfH, cx + halfW, cy + halfH, iconCol);
             }
-            case RECONNAISSANCE -> {
-                // Cavalry Recon Slash (/)
-                drawLine(img, cx - halfW, cy + halfH, cx + halfW, cy - halfH, iconCol);
+            case AVIATION_FIXED_WING -> {
+                drawLine(img, cx - halfW, cy, cx + halfW, cy, iconCol);
+                drawLine(img, cx, cy - halfH, cx, cy + halfH, iconCol);
+                drawLine(img, cx - halfW / 2, cy + halfH, cx + halfW / 2, cy + halfH, iconCol);
+            }
+            case UAV -> {
+                drawLine(img, cx, cy - halfH, cx - halfW, cy + halfH, iconCol);
+                drawLine(img, cx, cy - halfH, cx + halfW, cy + halfH, iconCol);
+                drawLine(img, cx - halfW, cy + halfH, cx, cy + halfH / 2, iconCol);
+                drawLine(img, cx + halfW, cy + halfH, cx, cy + halfH / 2, iconCol);
+            }
+
+            // Combat Support & Logistics
+            case HEADQUARTERS -> {
+                drawLine(img, cx - halfW, cy + halfH, cx - halfW, cy + halfH + 8, borderCol);
+                fillCircle(img, cx, cy, 3, iconCol);
             }
             case ENGINEER -> {
-                // Engineer Bridge / Sapper arch (⊓)
                 drawLine(img, cx - halfW, cy + halfH, cx - halfW, cy - halfH, iconCol);
                 drawLine(img, cx - halfW, cy - halfH, cx + halfW, cy - halfH, iconCol);
                 drawLine(img, cx + halfW, cy - halfH, cx + halfW, cy + halfH, iconCol);
                 drawLine(img, cx - halfW / 2, cy - halfH, cx - halfW / 2, cy + halfH, iconCol);
                 drawLine(img, cx + halfW / 2, cy - halfH, cx + halfW / 2, cy + halfH, iconCol);
             }
+            case ARMORED_ENGINEER -> {
+                drawOvalTrack(img, cx, cy, halfW, halfH, iconCol);
+                drawLine(img, cx - halfW / 2, cy + halfH - 2, cx - halfW / 2, cy - halfH + 2, iconCol);
+                drawLine(img, cx + halfW / 2, cy + halfH - 2, cx + halfW / 2, cy - halfH + 2, iconCol);
+            }
             case SIGNAL -> {
-                // Lightning Bolt (⚡)
                 drawLine(img, cx + 3, cy - halfH, cx - 2, cy, iconCol);
                 drawLine(img, cx - 2, cy, cx + 2, cy, iconCol);
                 drawLine(img, cx + 2, cy, cx - 3, cy + halfH, iconCol);
             }
+            case ELECTRONIC_WARFARE -> {
+                drawSmallText(img, "EW", cx - 5, cy - 3, iconCol);
+            }
+            case CBRN -> {
+                drawSmallText(img, "NBC", cx - 8, cy - 3, iconCol);
+            }
+            case LOGISTICS -> {
+                drawLine(img, cx - halfW, cy, cx + halfW, cy, iconCol);
+                drawLine(img, cx, cy - halfH, cx, cy + halfH, iconCol);
+            }
+            case AMMO_SUPPLY -> {
+                drawLine(img, cx - 2, cy - halfH, cx + 2, cy - halfH, iconCol);
+                drawLine(img, cx - 3, cy - halfH + 3, cx - 3, cy + halfH, iconCol);
+                drawLine(img, cx + 3, cy - halfH + 3, cx + 3, cy + halfH, iconCol);
+                drawLine(img, cx - 3, cy + halfH, cx + 3, cy + halfH, iconCol);
+            }
+            case FUEL_SUPPLY -> {
+                drawSmallText(img, "POL", cx - 8, cy - 3, iconCol);
+            }
+            case MAINTENANCE -> {
+                drawLine(img, cx - halfW, cy + halfH, cx + halfW, cy - halfH, iconCol);
+                drawLine(img, cx - halfW, cy + halfH - 3, cx - halfW + 3, cy + halfH, iconCol);
+                drawLine(img, cx + halfW - 3, cy - halfH, cx + halfW, cy - halfH + 3, iconCol);
+            }
             case MEDICAL -> {
-                // Geneva Cross (+)
                 for (int y = cy - halfH; y <= cy + halfH; y++) {
                     setPixel(img, cx - 1, y, iconCol);
                     setPixel(img, cx, y, iconCol);
@@ -256,25 +381,10 @@ public final class NatoSymbolRenderer {
                     setPixel(img, x, cy + 1, iconCol);
                 }
             }
-            case ANTI_TANK -> {
-                // Anti-Tank (Inverted V: ∧)
-                drawLine(img, cx - halfW, cy + halfH, cx, cy - halfH, iconCol);
-                drawLine(img, cx, cy - halfH, cx + halfW, cy + halfH, iconCol);
-            }
-            case OBSERVATION_POST -> {
-                // Triangle with Eye (△ + ●)
-                drawLine(img, cx - halfW, cy + halfH, cx + halfW, cy + halfH, iconCol);
-                drawLine(img, cx - halfW, cy + halfH, cx, cy - halfH, iconCol);
-                drawLine(img, cx, cy - halfH, cx + halfW, cy + halfH, iconCol);
-                fillCircle(img, cx, cy + 2, 2, iconCol);
-            }
-            case HEADQUARTERS -> {
-                // HQ Flag / Staff extending down
-                drawLine(img, cx - halfW, cy + halfH, cx - halfW, cy + halfH + 8, borderCol);
-                fillCircle(img, cx, cy, 3, iconCol);
+            case MILITARY_POLICE -> {
+                drawSmallText(img, "MP", cx - 5, cy - 3, iconCol);
             }
             default -> {
-                // Generic Unit Dot
                 fillCircle(img, cx, cy, 3, iconCol);
             }
         }
@@ -283,12 +393,10 @@ public final class NatoSymbolRenderer {
     private static void drawOvalTrack(NativeImage img, int cx, int cy, int hw, int hh, int col) {
         int r = hh;
         int straightW = hw - r;
-        // Top and bottom horizontal segments
         for (int x = cx - straightW; x <= cx + straightW; x++) {
             setPixel(img, x, cy - hh, col);
             setPixel(img, x, cy + hh, col);
         }
-        // Left & Right semicircle caps
         for (int deg = 90; deg <= 270; deg += 10) {
             double rad = Math.toRadians(deg);
             setPixel(img, (int) (cx - straightW + Math.cos(rad) * r), (int) (cy + Math.sin(rad) * r), col);
@@ -302,7 +410,7 @@ public final class NatoSymbolRenderer {
     // =========================================================================
     // PRIMITIVE UTILITIES
     // =========================================================================
-    private static void drawLine(NativeImage img, int x0, int y0, int x1, int y1, int col) {
+    public static void drawLine(NativeImage img, int x0, int y0, int x1, int y1, int col) {
         int dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
         int dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
         int err = dx + dy, e2;
@@ -315,7 +423,7 @@ public final class NatoSymbolRenderer {
         }
     }
 
-    private static void fillCircle(NativeImage img, int cx, int cy, int r, int col) {
+    public static void fillCircle(NativeImage img, int cx, int cy, int r, int col) {
         for (int dy = -r; dy <= r; dy++) {
             for (int dx = -r; dx <= r; dx++) {
                 if (dx * dx + dy * dy <= r * r) {
@@ -351,7 +459,7 @@ public final class NatoSymbolRenderer {
         return !isInsideRounded(x, y, x1 + thick, y1 + thick, x2 - thick, y2 - thick, Math.max(0, r - thick));
     }
 
-    private static void drawSmallText(NativeImage img, String text, int x, int y, int col) {
+    public static void drawSmallText(NativeImage img, String text, int x, int y, int col) {
         String upper = text.toUpperCase();
         int curX = x;
         for (int i = 0; i < upper.length(); i++) {
@@ -369,8 +477,8 @@ public final class NatoSymbolRenderer {
         }
     }
 
-    private static void setPixel(NativeImage img, int x, int y, int col) {
-        if (x < 0 || x >= TabletFrame.DESIGN_W || y < 0 || y >= TabletFrame.DESIGN_H) return;
+    public static void setPixel(NativeImage img, int x, int y, int col) {
+        if (x < 0 || x >= img.getWidth() || y < 0 || y >= img.getHeight()) return;
         int a = (col >> 24) & 0xFF;
         int r = (col >> 16) & 0xFF;
         int g = (col >> 8) & 0xFF;
