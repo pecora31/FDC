@@ -153,8 +153,8 @@ final class CaseView {
         String[] topSubs = {null, null, null, null, null, null, null, null, "-", "+"};
         String[] bottomLabels =
                 {"FLT", "F9", "F10", "F11", "F12", "F13", "F14", "F15", "F16", "PWR"};
-        String[] leftLabels = {"CFF", "ADJ", "MODE", "ARC", "F1", "F2"};
-        String[] rightLabels = {"F3", "F4", "F5", "F6", "F7", "F8"};
+        String[] leftLabels = {"F1", "F2", "F3", "F4", "F5", "F6"};
+        String[] rightLabels = {"F7", "F8", "F9", "F10", "F11", "F12"};
 
         for (int i = 0; i < rowKeys; i++) {
             // The same wide-bookend rule TabletScreen applies: grid and the last brightness key on
@@ -175,7 +175,7 @@ final class CaseView {
         for (int i = 0; i < colKeys; i++) {
             stand(ctor, hard, lamp, render, proxy, (int) keyX.invoke(frame, false),
                     (int) keyY.invoke(frame, i), keyW, keyH,
-                    (int[]) ledFor.invoke(frame, 2, i, false), i == 0, leftLabels[i], null, i == 0);
+                    (int[]) ledFor.invoke(frame, 2, i, false), false, leftLabels[i], null, false);
             stand(ctor, hard, lamp, render, proxy, (int) keyX.invoke(frame, true),
                     (int) keyY.invoke(frame, i), keyW, keyH,
                     (int[]) ledFor.invoke(frame, 3, i, false), false, rightLabels[i], null, false);

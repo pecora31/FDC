@@ -977,18 +977,17 @@ public final class TabletChassisPaint {
 
     private static void bakeDynamicKeySprites(NativeImage img) {
         int r = 7;
-        // PBT Idle (Khớp 100% ảnh mẫu: Viền nổi cao, lòng chìm sâu, tông xám tro quân
-        // sự)
+        // PBT Idle (Tông xám tro quân sự chuẩn ảnh thực tế Leonardo DRS, sáng hơn và rõ khối)
         bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
-                0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E, false);
+                0x77060709, 0xFF181A20, 0xFF323640, 0xFF6A7486, 0xFF5B6474, 0xFF444B58, 0xFF242730, 0xFF5B6474, false);
         // PBT Hover
         bakeKeySprite(img, SPRITE_KEY_PBT_HOVER_X, SPRITE_KEY_PBT_HOVER_Y, 44, 44, r,
-                0x77060709, 0xFF14161C, 0xFF323640, 0xFF666E7E, 0xFF586070, 0xFF404652, 0xFF22262E, 0xFF565E6E, false);
+                0x77060709, 0xFF181A20, 0xFF3A3E4A, 0xFF7A869A, 0xFF6A7486, 0xFF505866, 0xFF2C303A, 0xFF6A7486, false);
         // PBT Pressed
         bakeKeySprite(img, SPRITE_KEY_PBT_PRESSED_X, SPRITE_KEY_PBT_PRESSED_Y, 44, 44, r,
-                0x77060709, 0xFF14161C, 0xFF20232A, 0xFF363B45, 0xFF30353E, 0xFF2A2E36, 0xFF16181E, 0xFF3E4450, true);
+                0x77060709, 0xFF181A20, 0xFF282C34, 0xFF444B58, 0xFF3C424E, 0xFF343944, 0xFF1E2128, 0xFF4C5464, true);
 
-        // Red Idle
+        // Red Idle (Dành riêng cho phím POWER đỏ)
         bakeKeySprite(img, SPRITE_KEY_RED_IDLE_X, SPRITE_KEY_RED_IDLE_Y, 44, 44, r,
                 0x77060709, 0xFF220606, 0xFF5E1212, 0xFFB02828, 0xFF9E2222, 0xFF7A1818, 0xFF3C0808, 0xFFA62424, false);
         // Red Hover
@@ -1073,14 +1072,10 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 5b. Inner top & left drop shadow (Bóng đổ từ gờ viền cao xuống lòng phím
-        // chìm)
+        // 5b. Inner top & left drop shadow (Bóng đổ từ gờ viền cao xuống lòng phím chìm)
         for (int x = 0; x < dishW; x++) {
             if (isInsideRounded(x, 0, dishW, dishH, innerRadius)) {
                 setPixel(img, dishX + x, dishY, dishShadow);
-            }
-            if (isInsideRounded(x, 1, dishW, dishH, innerRadius)) {
-                setPixel(img, dishX + x, dishY + 1, (dishShadow & 0x00FFFFFF) | 0x88000000);
             }
         }
         for (int y = 0; y < dishH; y++) {
@@ -1089,8 +1084,7 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 5c. Inner bottom & right highlight reflection (Ánh sáng hắt ở mép trong dưới
-        // của gờ)
+        // 5c. Inner bottom & right reflective highlight rim
         for (int x = 0; x < dishW; x++) {
             if (isInsideRounded(x, dishH - 1, dishW, dishH, innerRadius)) {
                 setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
@@ -1103,178 +1097,76 @@ public final class TabletChassisPaint {
         }
     }
 
-    private static boolean isInsideRounded(int px, int py, int w, int h, int r) {
-        if (px < 0 || px >= w || py < 0 || py >= h)
+    private static boolean isInsideRounded(int x, int y, int w, int h, int r) {
+        if (x < 0 || y < 0 || x >= w || y >= h)
             return false;
-        if (r <= 0)
-            return true;
-        if (px < r && py < r) {
-            int dx = r - px - 1, dy = r - py - 1;
-            return dx * dx + dy * dy <= r * r;
-        }
-        if (px >= w - r && py < r) {
-            int dx = px - (w - r), dy = r - py - 1;
-            return dx * dx + dy * dy <= r * r;
-        }
-        if (px < r && py >= h - r) {
-            int dx = r - px - 1, dy = py - (h - r);
-            return dx * dx + dy * dy <= r * r;
-        }
-        if (px >= w - r && py >= h - r) {
-            int dx = px - (w - r), dy = py - (h - r);
+        int cx = (x < r) ? r : ((x >= w - r) ? w - 1 - r : -1);
+        int cy = (y < r) ? r : ((y >= h - r) ? h - 1 - r : -1);
+        if (cx >= 0 && cy >= 0) {
+            int dx = x - cx;
+            int dy = y - cy;
             return dx * dx + dy * dy <= r * r;
         }
         return true;
     }
 
-    private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
-        boolean isVert = (h > w);
+    private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int color) {
+        int r = (w <= 4 || h <= 4) ? 1 : 2;
+        int unlitBase = 0xFF181B20;
+        int unlitRim = 0xFF2A2D34;
+        int unlitSocket = 0xFF0A0C0E;
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (isInsideRounded(x, y, w, h, r)) {
+                    setPixel(img, lx + x, ly + y, unlitSocket);
+                }
+            }
+        }
+
+        for (int y = 1; y < h - 1; y++) {
+            for (int x = 1; x < w - 1; x++) {
+                if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, r)) {
+                    int col = (y == 1) ? unlitRim : unlitBase;
+                    setPixel(img, lx + x, ly + y, col);
+                }
+            }
+        }
+
         if (lit) {
-            int rgb = litCol & 0x00FFFFFF;
+            int rC = (color >>> 16) & 0xFF;
+            int gC = (color >>> 8) & 0xFF;
+            int bC = color & 0xFF;
 
-            // 1. Elongated Capsule Phosphor Halo (Quầng hào quang tỏa đều theo thân ống dẫn
-            // quang)
-            for (int dy = -3; dy <= h + 2; dy++) {
-                for (int dx = -3; dx <= w + 2; dx++) {
-                    int distSq = 0;
-                    if (dx < 0)
-                        distSq += dx * dx;
-                    else if (dx >= w)
-                        distSq += (dx - w + 1) * (dx - w + 1);
-                    if (dy < 0)
-                        distSq += dy * dy;
-                    else if (dy >= h)
-                        distSq += (dy - h + 1) * (dy - h + 1);
-
-                    int alpha = 0;
-                    if (distSq == 0)
-                        alpha = 0; // Handled by body
-                    else if (distSq <= 2)
-                        alpha = 0x60;
-                    else if (distSq <= 5)
-                        alpha = 0x30;
-                    else if (distSq <= 9)
-                        alpha = 0x14;
-
-                    if (alpha > 0) {
-                        setPixel(img, lx + dx, ly + dy, (alpha << 24) | rgb);
+            for (int dy = -4; dy < h + 4; dy++) {
+                for (int dx = -4; dx < w + 4; dx++) {
+                    float cX = (w - 1) / 2.0f;
+                    float cY = (h - 1) / 2.0f;
+                    float dist = (float) Math.sqrt((dx - cX) * (dx - cX) + (dy - cY) * (dy - cY));
+                    if (dist < 6.0f) {
+                        float intensity = (1.0f - dist / 6.0f);
+                        int alpha = (int) (intensity * intensity * 110);
+                        int glowCol = (alpha << 24) | (rC << 16) | (gC << 8) | bC;
+                        setPixel(img, lx + dx, ly + dy, glowCol);
                     }
                 }
             }
 
-            // 2. Optical slot bevel base (vỏ rãnh chìm có hắt sáng quang học)
-            for (int y = -1; y <= h; y++) {
-                for (int x = -1; x <= w; x++) {
-                    if (x == -1 || x == w || y == -1 || y == h) {
-                        setPixel(img, lx + x, ly + y, 0x99000000 | rgb);
+            for (int y = 1; y < h - 1; y++) {
+                for (int x = 1; x < w - 1; x++) {
+                    if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, r)) {
+                        setPixel(img, lx + x, ly + y, color);
                     }
                 }
             }
-
-            // 3. High-saturation luminous light-guide capsule body
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF000000 | rgb);
-                }
-            }
-
-            // 4. Axial Optical Core Filament (Lõi quang học sáng trắng chạy dọc theo trục
-            // ống dẫn)
-            if (isVert) {
-                int coreX = lx + w / 2 - 1;
-                for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, coreX, ly + y, 0xFFFFFFFF);
-                    setPixel(img, coreX + 1, ly + y, 0xFFE0FFF0);
-                }
-                // Curved lens internal refraction highlight at curved bottom
-                setPixel(img, lx + w - 1, ly + h - 2, 0xFFFFFFFF);
-            } else {
-                int coreY = ly + h / 2 - 1;
-                for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, coreY, 0xFFFFFFFF);
-                    setPixel(img, lx + x, coreY + 1, 0xFFE0FFF0);
-                }
-                setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
-            }
-        } else {
-            // Unlit Optical Light-Pipe Capsule (Khớp 100% que dẫn sáng thấu kính cong trong
-            // ảnh mẫu)
-            // 1. Recessed dark slot
-            for (int y = -1; y <= h; y++) {
-                for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF0C0E12);
-                }
-            }
-
-            // 2. Smoked polycarbonate translucent body
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF222630);
-                }
-            }
-
-            // 3. Curved specular highlight reflection (Vệt phản quang trắng bạc uốn cong
-            // đặc trưng trên que dẫn sáng)
-            if (isVert) {
-                // Vertical light pipe (Top/Bottom buttons)
-                for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, lx + w - 1, ly + y, 0xFF7A889E);
-                }
-                // Bright reflection tick on the curved bottom edge
-                setPixel(img, lx + w - 1, ly + h - 2, 0xFFD8E2F0);
-                setPixel(img, lx + w - 2, ly + h - 1, 0xFFB4C2D6);
-                // Top refraction shadow
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF14171E);
-                }
-            } else {
-                // Horizontal light pipe (Flank buttons)
-                for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, ly + h - 1, 0xFF7A889E);
-                }
-                setPixel(img, lx + w - 2, ly + h - 1, 0xFFD8E2F0);
-                setPixel(img, lx + w - 1, ly + h - 2, 0xFFB4C2D6);
-                for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF14171E);
-                }
-            }
+            int coreCol = 0xFFFFFFFF;
+            setPixel(img, lx + w / 2, ly + h / 2, coreCol);
         }
     }
 
-    public static void blitButton(GuiGraphics g, int destX, int destY, int destW, int destH,
-            boolean isRed, boolean isHovered, boolean isPressed,
-            ResourceLocation texture) {
-        int u, v;
-        if (isRed) {
-            if (isPressed) {
-                u = SPRITE_KEY_RED_PRESSED_X;
-                v = SPRITE_KEY_RED_PRESSED_Y;
-            } else if (isHovered) {
-                u = SPRITE_KEY_RED_HOVER_X;
-                v = SPRITE_KEY_RED_HOVER_Y;
-            } else {
-                u = SPRITE_KEY_RED_IDLE_X;
-                v = SPRITE_KEY_RED_IDLE_Y;
-            }
-        } else {
-            if (isPressed) {
-                u = SPRITE_KEY_PBT_PRESSED_X;
-                v = SPRITE_KEY_PBT_PRESSED_Y;
-            } else if (isHovered) {
-                u = SPRITE_KEY_PBT_HOVER_X;
-                v = SPRITE_KEY_PBT_HOVER_Y;
-            } else {
-                u = SPRITE_KEY_PBT_IDLE_X;
-                v = SPRITE_KEY_PBT_IDLE_Y;
-            }
-        }
-        g.blit(texture, destX, destY, destW, destH, u, v, SPRITE_KEY_W, SPRITE_KEY_H, TabletFrame.DESIGN_W,
-                TabletFrame.DESIGN_H);
-    }
-
-    public static void blitLed(GuiGraphics g, int destX, int destY, int destW, int destH,
-            boolean isLit, int colorType, boolean isVertical,
-            ResourceLocation texture) {
+    public static void renderDynamicLed(GuiGraphics g, ResourceLocation texture,
+            int destX, int destY, int destW, int destH,
+            boolean isVertical, boolean isLit, int colorType) {
         int u, v, srcW, srcH;
         if (!isLit) {
             if (isVertical) {
@@ -1329,6 +1221,43 @@ public final class TabletChassisPaint {
             }
         }
         g.blit(texture, destX, destY, destW, destH, u, v, srcW, srcH, TabletFrame.DESIGN_W, TabletFrame.DESIGN_H);
+    }
+
+    public static void blitButton(GuiGraphics g, int destX, int destY, int destW, int destH,
+            boolean isRed, boolean isHovered, boolean isPressed,
+            ResourceLocation texture) {
+        int u, v;
+        if (isRed) {
+            if (isPressed) {
+                u = SPRITE_KEY_RED_PRESSED_X;
+                v = SPRITE_KEY_RED_PRESSED_Y;
+            } else if (isHovered) {
+                u = SPRITE_KEY_RED_HOVER_X;
+                v = SPRITE_KEY_RED_HOVER_Y;
+            } else {
+                u = SPRITE_KEY_RED_IDLE_X;
+                v = SPRITE_KEY_RED_IDLE_Y;
+            }
+        } else {
+            if (isPressed) {
+                u = SPRITE_KEY_PBT_PRESSED_X;
+                v = SPRITE_KEY_PBT_PRESSED_Y;
+            } else if (isHovered) {
+                u = SPRITE_KEY_PBT_HOVER_X;
+                v = SPRITE_KEY_PBT_HOVER_Y;
+            } else {
+                u = SPRITE_KEY_PBT_IDLE_X;
+                v = SPRITE_KEY_PBT_IDLE_Y;
+            }
+        }
+        g.blit(texture, destX, destY, destW, destH, u, v, SPRITE_KEY_W, SPRITE_KEY_H, TabletFrame.DESIGN_W,
+                TabletFrame.DESIGN_H);
+    }
+
+    public static void blitLed(GuiGraphics g, int destX, int destY, int destW, int destH,
+            boolean isLit, int colorType, boolean isVertical,
+            ResourceLocation texture) {
+        renderDynamicLed(g, texture, destX, destY, destW, destH, isVertical, isLit, colorType);
     }
 
     private static void fillCircle(NativeImage img, int cx, int cy, int radius, int argb) {
@@ -1388,8 +1317,7 @@ public final class TabletChassisPaint {
         int keySize = 44;
         int half = keySize / 2;
 
-        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y =
-        // 76)
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
         String[] topLabels = { "GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
@@ -1404,18 +1332,16 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X
-        // = 76, Horizontal 8x4)
-        String[] leftLabels = { "CFF", "F2", "F3", "F4", "F5", "F6" };
+        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
+        String[] leftLabels = { "F1", "F2", "F3", "F4", "F5", "F6" };
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 0), leftLabels[i]);
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, leftLabels[i]);
             bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
-        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at
-        // LED_COL_RIGHT_X = 896, Horizontal 8x4)
+        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
         String[] rightLabels = { "F7", "F8", "F9", "F10", "F11", "F12" };
         for (int i = 0; i < 6; i++) {
             int cx = 941;
@@ -1424,8 +1350,7 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at
-        // LED_ROW_BOTTOM_Y = 546)
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
         String[] botLabels = { "NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
@@ -1491,42 +1416,63 @@ public final class TabletChassisPaint {
                     false);
         } else {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E,
+                    0x77060709, 0xFF181A20, 0xFF323640, 0xFF6A7486, 0xFF5B6474, 0xFF444B58, 0xFF242730, 0xFF5B6474,
                     false);
         }
 
-        int textCol = 0xFFF0F4FA;
+        // Illuminated Backlit Stencil Text / Icon (Phosphor Green Glow for standard, Amber-White for Power)
+        int haloCol = red ? 0x55FF4433 : 0x5528DC80;
+        int textCol = red ? 0xFFFFF0EE : 0xFF62FFAE;
+        int coreCol = red ? 0xFFFFFFFF : 0xFFE0FFEE;
         int cx = kx + w / 2;
         int cy = ky + h / 2;
 
         switch (label) {
             case "GRID" -> { // crosshair
-                for (int x = cx - 7; x <= cx + 7; x++)
-                    setPixel(img, x, cy, textCol);
-                for (int y = cy - 7; y <= cy + 7; y++)
-                    setPixel(img, cx, y, textCol);
+                // Glow halo
+                for (int d = -1; d <= 1; d++) {
+                    for (int x = cx - 8; x <= cx + 8; x++) setPixel(img, x, cy + d, haloCol);
+                    for (int y = cy - 8; y <= cy + 8; y++) setPixel(img, cx + d, y, haloCol);
+                }
+                // Solid glyph
+                for (int x = cx - 7; x <= cx + 7; x++) setPixel(img, x, cy, textCol);
+                for (int y = cy - 7; y <= cy + 7; y++) setPixel(img, cx, y, textCol);
                 fillCircle(img, cx, cy, 2, textCol);
+                setPixel(img, cx, cy, coreCol);
             }
             case "BRIGHT" -> { // 8-pointed star
+                // Glow halo
+                fillCircle(img, cx, cy, 4, haloCol);
+                for (int x = cx - 9; x <= cx + 9; x++) setPixel(img, x, cy, haloCol);
+                for (int y = cy - 9; y <= cy + 9; y++) setPixel(img, cx, y, haloCol);
+                // Solid glyph
                 fillCircle(img, cx, cy, 3, textCol);
-                for (int x = cx - 8; x <= cx + 8; x++)
-                    setPixel(img, x, cy, textCol);
-                for (int y = cy - 8; y <= cy + 8; y++)
-                    setPixel(img, cx, y, textCol);
+                for (int x = cx - 8; x <= cx + 8; x++) setPixel(img, x, cy, textCol);
+                for (int y = cy - 8; y <= cy + 8; y++) setPixel(img, cx, y, textCol);
                 int d = 5;
                 setPixel(img, cx - d, cy - d, textCol);
                 setPixel(img, cx + d, cy - d, textCol);
                 setPixel(img, cx - d, cy + d, textCol);
                 setPixel(img, cx + d, cy + d, textCol);
+                setPixel(img, cx, cy, coreCol);
             }
             case "NIGHT" -> { // diamond
                 int s = 7;
+                // Halo
+                for (int dy = -(s + 1); dy <= s + 1; dy++) {
+                    int span = (s + 1) - Math.abs(dy);
+                    for (int dx = -span; dx <= span; dx++) {
+                        setPixel(img, cx + dx, cy + dy, haloCol);
+                    }
+                }
+                // Solid glyph
                 for (int dy = -s; dy <= s; dy++) {
                     int span = s - Math.abs(dy);
                     for (int dx = -span; dx <= span; dx++) {
                         setPixel(img, cx + dx, cy + dy, textCol);
                     }
                 }
+                setPixel(img, cx, cy, coreCol);
             }
             case "POWER" -> { // IEC Standby symbol
                 int radius = 8;
@@ -1547,11 +1493,12 @@ public final class TabletChassisPaint {
                     }
                 }
             }
-            default -> rasterizePixelString(img, label, cx, cy, 2, textCol);
+            default -> rasterizePixelString(img, label, cx, cy, 2, haloCol, textCol, coreCol);
         }
     }
 
-    private static void rasterizePixelString(NativeImage img, String text, int cx, int cy, int fontScale, int color) {
+    private static void rasterizePixelString(NativeImage img, String text, int cx, int cy, int fontScale,
+                                              int haloCol, int textCol, int coreCol) {
         String upper = text.toUpperCase();
         int charW = 5 * fontScale;
         int charSp = 1 * fontScale;
@@ -1559,7 +1506,30 @@ public final class TabletChassisPaint {
         int startX = Math.round(cx - totalW / 2.0f);
         int startY = Math.round(cy - (7 * fontScale) / 2.0f);
 
+        // Pass 1: Diffuse luminous backlight halo around all characters
         int curX = startX;
+        for (int i = 0; i < upper.length(); i++) {
+            char ch = upper.charAt(i);
+            int[] glyph = GLYPHS.getOrDefault(ch, GLYPHS.get(' '));
+            for (int r = 0; r < 7; r++) {
+                int row = glyph[r];
+                for (int c = 0; c < 5; c++) {
+                    if (((row >> (4 - c)) & 1) == 1) {
+                        int px = curX + c * fontScale;
+                        int py = startY + r * fontScale;
+                        for (int dy = -1; dy <= fontScale; dy++) {
+                            for (int dx = -1; dx <= fontScale; dx++) {
+                                setPixel(img, px + dx, py + dy, haloCol);
+                            }
+                        }
+                    }
+                }
+            }
+            curX += (5 + 1) * fontScale;
+        }
+
+        // Pass 2: High-contrast crisp stencil glyphs with bright phosphor core
+        curX = startX;
         for (int i = 0; i < upper.length(); i++) {
             char ch = upper.charAt(i);
             int[] glyph = GLYPHS.getOrDefault(ch, GLYPHS.get(' '));
@@ -1569,7 +1539,8 @@ public final class TabletChassisPaint {
                     if (((row >> (4 - c)) & 1) == 1) {
                         for (int dy = 0; dy < fontScale; dy++) {
                             for (int dx = 0; dx < fontScale; dx++) {
-                                setPixel(img, curX + c * fontScale + dx, startY + r * fontScale + dy, color);
+                                int col = (fontScale >= 2 && dx == 0 && dy == 0) ? coreCol : textCol;
+                                setPixel(img, curX + c * fontScale + dx, startY + r * fontScale + dy, col);
                             }
                         }
                     }
