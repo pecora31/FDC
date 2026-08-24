@@ -46,8 +46,8 @@ public final class TabletChassisPaint {
         int h = TabletFrame.DESIGN_H;
         int r = 34; // Further increased curvature for outer L dưới
         int bW = 9;
-        int cornerW = 56; // L trên shifted deeper into chassis
-        int cornerH = 56;
+        int cornerW = 62; // L trên shifted further deeper into chassis
+        int cornerH = 62;
 
         // 1. Base rim, true-transparent outside the rounded rect (no square corners
         // bleeding through)
@@ -101,10 +101,10 @@ public final class TabletChassisPaint {
         }
 
         // 4. Stepped corners, each with its own layered hex bolt
-        bakeSteppedCorner(img, 0, 0, true, true, cornerW, cornerH, 18, r, bW);
-        bakeSteppedCorner(img, w - cornerW, 0, false, true, cornerW, cornerH, 18, r, bW);
-        bakeSteppedCorner(img, 0, h - cornerH, true, false, cornerW, cornerH, 18, r, bW);
-        bakeSteppedCorner(img, w - cornerW, h - cornerH, false, false, cornerW, cornerH, 18, r, bW);
+        bakeSteppedCorner(img, 0, 0, true, true, cornerW, cornerH, 28, r, bW);
+        bakeSteppedCorner(img, w - cornerW, 0, false, true, cornerW, cornerH, 28, r, bW);
+        bakeSteppedCorner(img, 0, h - cornerH, true, false, cornerW, cornerH, 28, r, bW);
+        bakeSteppedCorner(img, w - cornerW, h - cornerH, false, false, cornerW, cornerH, 28, r, bW);
 
         // 5. Screen bezel well + tactical grid baked into the well floor
         bakeScreenAndTacticalGrid(img);
@@ -148,7 +148,7 @@ public final class TabletChassisPaint {
         int w = TabletFrame.DESIGN_W;
         int h = TabletFrame.DESIGN_H;
         int pSize = cornerW;
-        int rInner = rIn; // 18px curve for L trên
+        int rInner = rIn; // 28px curve for L trên
 
         int kx1 = isLeft ? 0 : w - pSize;
         int kx2 = isLeft ? pSize : w;
@@ -225,8 +225,8 @@ public final class TabletChassisPaint {
         }
 
         // 6. Deep CNC-milled counterbore screw hole (shifted towards inner corner of L-tren)
-        int cx = isLeft ? 30 : (w - 31);
-        int cy = isTop ? 30 : (h - 31);
+        int cx = isLeft ? 36 : (w - 37);
+        int cy = isTop ? 36 : (h - 37);
         int boltR = 7;
 
         fillCircle(img, cx, cy, boltR + 4, 0xFF1A1C20); // Outer counterbore rim
