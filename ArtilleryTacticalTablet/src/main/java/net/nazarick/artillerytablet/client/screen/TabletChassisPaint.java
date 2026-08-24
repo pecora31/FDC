@@ -509,104 +509,141 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Clean Outer Edge Shading, Top/Bottom Bevels, and 45-degree Outer Chamfer Ridges
+        // 2. 8px Outer Lateral Bevel, 8px Top/Bottom End Bevels, and 45-degree Diagonal Miter Seams (matching U-collar)
+        int bevelW = 8;
         if (isLeft) {
-            for (int x = uX1; x < uX1 + bW; x++) {
+            // Left outer lateral bevel (X = 0..8)
+            for (int x = uX1; x < uX1 + bevelW; x++) {
                 int d = x - uX1;
-                int col = (d == 0) ? 0xFF2A2C30 : ((d == 1) ? 0xFF242629 : (d == bW - 2 ? 0xFF191A1D : (d == bW - 1 ? 0xFF17181A : 0xFF222428)));
-                for (int y = uY1; y < uY2; y++) {
+                int col = (d == 0) ? 0xFF2E3137 : ((d == bevelW - 1) ? 0xFF191B1F : 0xFF23252A);
+                for (int y = uY1 + bevelW; y < uY2 - bevelW; y++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
-            for (int y = uY1; y < uY1 + 4; y++) {
+            // Top end bevel (Y = 105..113)
+            for (int y = uY1; y < uY1 + bevelW; y++) {
                 int d = y - uY1;
-                int col = (d == 0) ? 0xFF36393E : ((d == 1) ? 0xFF2C2F34 : 0xFF24262A);
-                for (int x = uX1; x < uX2; x++) {
+                int col = (d == 0) ? 0xFF36393E : ((d == 1) ? 0xFF2D3035 : (d == bevelW - 1 ? 0xFF1E2024 : 0xFF24262B));
+                for (int x = uX1 + bevelW; x < uX2; x++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
-            for (int y = uY2 - 4; y < uY2; y++) {
+            // Bottom end bevel (Y = 517..525)
+            for (int y = uY2 - bevelW; y < uY2; y++) {
                 int d = (uY2 - 1) - y;
-                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
-                for (int x = uX1; x < uX2; x++) {
+                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0D0E10 : (d == bevelW - 1 ? 0xFF1F2125 : 0xFF141619));
+                for (int x = uX1 + bevelW; x < uX2; x++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
-            // 45-degree outer chamfer ridges (dấu đỏ chân nẹp C)
-            for (int d = 0; d < bChamfer; d++) {
-                int x = uX1 + d;
-                // Top-left outer chamfer ridge
-                int ty = uY1 + (bChamfer - 1 - d);
-                for (int step = 0; step < 3; step++) {
-                    int cy = ty + step;
-                    if (isInsideSidePlateau(x, cy, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                        int col = (step == 0) ? 0xFF383B42 : ((step == 1) ? 0xFF2D3036 : 0xFF23252A);
-                        setPixel(img, x, cy, applyStipple(col, x, cy));
+            // Top-left corner 45-degree miter junction (X in 0..8, Y in 105..113)
+            for (int dx = 0; dx < bevelW; dx++) {
+                for (int dy = 0; dy < bevelW; dy++) {
+                    int x = uX1 + dx;
+                    int y = uY1 + dy;
+                    if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
+                    if (dx == dy) {
+                        // Diagonal 45-degree miter ridge seam
+                        setPixel(img, x, y, applyStipple(0xFF383B42, x, y));
+                    } else if (dx < dy) {
+                        // Left-facing segment
+                        int col = (dx == 0) ? 0xFF32353A : 0xFF26282E;
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    } else {
+                        // Top-facing segment
+                        int col = (dy == 0) ? 0xFF36393E : 0xFF2A2D32;
+                        setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
-                // Bottom-left outer chamfer ridge (dấu đỏ chân nẹp)
-                int by = (uY2 - 1) - (bChamfer - 1 - d);
-                for (int step = 0; step < 3; step++) {
-                    int cy = by - step;
-                    if (isInsideSidePlateau(x, cy, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                        int col = (step == 0) ? 0xFF060709 : ((step == 1) ? 0xFF0E0F12 : 0xFF151619);
-                        setPixel(img, x, cy, applyStipple(col, x, cy));
+            }
+            // Bottom-left corner 45-degree miter junction (X in 0..8, Y in 517..525)
+            for (int dx = 0; dx < bevelW; dx++) {
+                for (int dy = 0; dy < bevelW; dy++) {
+                    int x = uX1 + dx;
+                    int y = (uY2 - 1) - dy;
+                    if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
+                    if (dx == dy) {
+                        // Diagonal 45-degree miter ridge seam (dấu đỏ!)
+                        setPixel(img, x, y, applyStipple(0xFF141518, x, y));
+                    } else if (dx < dy) {
+                        // Left-facing segment
+                        int col = (dx == 0) ? 0xFF2E3137 : 0xFF1E2024;
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    } else {
+                        // Bottom-facing segment
+                        int col = (dy == 0) ? 0xFF08080A : 0xFF121316;
+                        setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
         } else {
-            for (int x = uX2 - bW; x < uX2; x++) {
+            // Right outer lateral bevel (X = 972..980)
+            for (int x = uX2 - bevelW; x < uX2; x++) {
                 int d = (uX2 - 1) - x;
-                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0B0C0E : (d == bW - 2 ? 0xFF131416 : (d == bW - 1 ? 0xFF151618 : 0xFF0F1012)));
-                for (int y = uY1; y < uY2; y++) {
+                int col = (d == 0) ? 0xFF08080A : ((d == bevelW - 1) ? 0xFF191B1F : 0xFF0F1012);
+                for (int y = uY1 + bevelW; y < uY2 - bevelW; y++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
-            for (int y = uY1; y < uY1 + 4; y++) {
+            // Top end bevel (Y = 105..113)
+            for (int y = uY1; y < uY1 + bevelW; y++) {
                 int d = y - uY1;
-                int col = (d == 0) ? 0xFF36393E : ((d == 1) ? 0xFF2C2F34 : 0xFF24262A);
-                for (int x = uX1; x < uX2; x++) {
+                int col = (d == 0) ? 0xFF36393E : ((d == 1) ? 0xFF2D3035 : (d == bevelW - 1 ? 0xFF1E2024 : 0xFF24262B));
+                for (int x = uX1; x < uX2 - bevelW; x++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
-            for (int y = uY2 - 4; y < uY2; y++) {
+            // Bottom end bevel (Y = 517..525)
+            for (int y = uY2 - bevelW; y < uY2; y++) {
                 int d = (uY2 - 1) - y;
-                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
-                for (int x = uX1; x < uX2; x++) {
+                int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0D0E10 : (d == bevelW - 1 ? 0xFF1F2125 : 0xFF141619));
+                for (int x = uX1; x < uX2 - bevelW; x++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
-            // 45-degree outer chamfer ridges for right C-bracket
-            for (int d = 0; d < bChamfer; d++) {
-                int x = (uX2 - 1) - d;
-                // Top-right outer chamfer ridge
-                int ty = uY1 + (bChamfer - 1 - d);
-                for (int step = 0; step < 3; step++) {
-                    int cy = ty + step;
-                    if (isInsideSidePlateau(x, cy, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                        int col = (step == 0) ? 0xFF383B42 : ((step == 1) ? 0xFF2D3036 : 0xFF23252A);
-                        setPixel(img, x, cy, applyStipple(col, x, cy));
+            // Top-right corner 45-degree miter junction
+            for (int dx = 0; dx < bevelW; dx++) {
+                for (int dy = 0; dy < bevelW; dy++) {
+                    int x = (uX2 - 1) - dx;
+                    int y = uY1 + dy;
+                    if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
+                    if (dx == dy) {
+                        setPixel(img, x, y, applyStipple(0xFF383B42, x, y));
+                    } else if (dx < dy) {
+                        int col = (dx == 0) ? 0xFF08080A : 0xFF121316;
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    } else {
+                        int col = (dy == 0) ? 0xFF36393E : 0xFF2A2D32;
+                        setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
-                // Bottom-right outer chamfer ridge
-                int by = (uY2 - 1) - (bChamfer - 1 - d);
-                for (int step = 0; step < 3; step++) {
-                    int cy = by - step;
-                    if (isInsideSidePlateau(x, cy, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
-                        int col = (step == 0) ? 0xFF060709 : ((step == 1) ? 0xFF0E0F12 : 0xFF151619);
-                        setPixel(img, x, cy, applyStipple(col, x, cy));
+            }
+            // Bottom-right corner 45-degree miter junction
+            for (int dx = 0; dx < bevelW; dx++) {
+                for (int dy = 0; dy < bevelW; dy++) {
+                    int x = (uX2 - 1) - dx;
+                    int y = (uY2 - 1) - dy;
+                    if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) continue;
+                    if (dx == dy) {
+                        setPixel(img, x, y, applyStipple(0xFF060709, x, y));
+                    } else if (dx < dy) {
+                        int col = (dx == 0) ? 0xFF08080A : 0xFF101114;
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    } else {
+                        int col = (dy == 0) ? 0xFF08080A : 0xFF121316;
+                        setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
@@ -635,13 +672,13 @@ public final class TabletChassisPaint {
         }
 
         // 4. Uniform flat planar bevel facing screen well
-        int bevelW = 8;
+        int innerBevelW = 8;
         if (isLeft) {
-            int bx1 = uX2 - bevelW, bx2 = uX2;
+            int bx1 = uX2 - innerBevelW, bx2 = uX2;
             for (int x = bx1; x < bx2; x++) {
                 int d = x - bx1;
                 int col = (d == 0) ? 0xFF2E3137
-                        : ((d == bevelW - 1) ? 0xFF08090B
+                        : ((d == innerBevelW - 1) ? 0xFF08090B
                         : 0xFF15171B);
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
@@ -650,11 +687,11 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            int bx1 = uX1, bx2 = uX1 + bevelW;
+            int bx1 = uX1, bx2 = uX1 + innerBevelW;
             for (int x = bx1; x < bx2; x++) {
                 int d = (bx2 - 1) - x;
                 int col = (d == 0) ? 0xFF2E3137
-                        : ((d == bevelW - 1) ? 0xFF08090B
+                        : ((d == innerBevelW - 1) ? 0xFF08090B
                         : 0xFF15171B);
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
                     if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
