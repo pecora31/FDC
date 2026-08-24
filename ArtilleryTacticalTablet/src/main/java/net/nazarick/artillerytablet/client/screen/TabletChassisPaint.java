@@ -522,18 +522,18 @@ public final class TabletChassisPaint {
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
         int rInner = 14;
-        int x1 = 14;
+        int x1 = bW; // 9px, exactly aligns with tablet outer chassis bevel
 
         // Shadow under C-bracket
         for (int y = uY1 - 4; y <= uY2 + 5; y++) {
             for (int x = uX1; x <= uX2; x++) {
                 if (isLeft && x >= TabletFrame.DESIGN_W - bW) continue;
                 if (!isLeft && x <= bW) continue;
-                if (isInsideSidePlateau(x - 3, y - 3, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)
-                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                if (isInsideSidePlateau(x - 3, y - 3, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)
+                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                     setPixel(img, x, y, 0x33010102);
-                } else if (isInsideSidePlateau(x - 1, y - 1, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)
-                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                } else if (isInsideSidePlateau(x - 1, y - 1, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)
+                        && !isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                     setPixel(img, x, y, 0x66020203);
                 }
             }
@@ -542,7 +542,7 @@ public final class TabletChassisPaint {
         // 1. Base plateau surface
         for (int y = uY1; y < uY2; y++) {
             for (int x = uX1; x < uX2; x++) {
-                if (isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                if (isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                     int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
                     int col = (grain == 1) ? 0xFF1F2124 : ((grain == 2) ? 0xFF232528 : 0xFF212326);
                     setPixel(img, x, y, col);
@@ -550,13 +550,13 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Bevel Shading: Straight top/bottom horizontal edges, single continuous outer flank line at x1 = 14
+        // 2. Bevel Shading: Straight top/bottom horizontal edges, single continuous outer flank line aligned with tablet outer border at x1 = bW = 9
         if (isLeft) {
-            // Outer flank bevel (X in [0, 14])
+            // Outer flank bevel (X in [0, 9])
             for (int x = uX1; x < uX1 + x1; x++) {
                 int distFromOuter = x - uX1;
                 for (int y = uY1; y < uY2; y++) {
-                    if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) continue;
+                    if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) continue;
                     int col;
                     if (y < uY1 + 4) {
                         int d = y - uY1;
@@ -571,35 +571,35 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Horizontal Bevels (X in [14, 90])
+            // Top & Bottom Horizontal Bevels (X in [9, 90])
             for (int x = uX1 + x1; x < uX2; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
-                    if (isInsideSidePlateau(x, yTop, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                    if (isInsideSidePlateau(x, yTop, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                         int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
                         setPixel(img, x, yTop, applyStipple(col, x, yTop));
                     }
                     int yBot = (uY2 - 1) - d;
-                    if (isInsideSidePlateau(x, yBot, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                    if (isInsideSidePlateau(x, yBot, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                         int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                         setPixel(img, x, yBot, applyStipple(col, x, yBot));
                     }
                 }
             }
 
-            // Single Continuous Vertical Line at X = 14 from Y = 105 to Y = 525 (Left red line)
+            // Single Continuous Vertical Line at X = 9 from Y = 105 to Y = 525 (aligned with tablet outer bezel line)
             for (int y = uY1; y < uY2; y++) {
-                if (isInsideSidePlateau(x1, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                if (isInsideSidePlateau(x1, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                     setPixel(img, x1, y, applyStipple(0xFF141518, x1, y));
                 }
             }
         } else {
-            // Right outer flank bevel (X in [966, 980])
-            int rx1 = TabletFrame.DESIGN_W - x1; // 966
+            // Right outer flank bevel (X in [971, 980])
+            int rx1 = TabletFrame.DESIGN_W - x1; // 971
             for (int x = rx1; x < uX2; x++) {
                 int distFromOuter = (uX2 - 1) - x;
                 for (int y = uY1; y < uY2; y++) {
-                    if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) continue;
+                    if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) continue;
                     int col;
                     if (y < uY1 + 4) {
                         int d = y - uY1;
@@ -614,31 +614,31 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Horizontal Bevels (X in [890, 966])
+            // Top & Bottom Horizontal Bevels (X in [890, 971])
             for (int x = uX1; x < rx1; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
-                    if (isInsideSidePlateau(x, yTop, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                    if (isInsideSidePlateau(x, yTop, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                         int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
                         setPixel(img, x, yTop, applyStipple(col, x, yTop));
                     }
                     int yBot = (uY2 - 1) - d;
-                    if (isInsideSidePlateau(x, yBot, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                    if (isInsideSidePlateau(x, yBot, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                         int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                         setPixel(img, x, yBot, applyStipple(col, x, yBot));
                     }
                 }
             }
 
-            // Single Continuous Vertical Line at X = 966 (Right red line)
+            // Single Continuous Vertical Line at X = 971 (Right outer bezel line)
             for (int y = uY1; y < uY2; y++) {
-                if (isInsideSidePlateau(rx1, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                if (isInsideSidePlateau(rx1, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                     setPixel(img, rx1, y, applyStipple(0xFF141518, rx1, y));
                 }
             }
         }
 
-        // 3. Inner cutout contour (with 45-degree diagonal flare at outer ends X in [0, 14] and R=14 fillets at inner corner X=72)
+        // 3. Inner cutout contour (with 45-degree diagonal flare at outer ends X in [0, 9] and R=14 fillets at inner corner X=72)
         int boundX1 = isLeft ? 0 : cutX1 - 4;
         int boundX2 = isLeft ? cutX2 + 4 : TabletFrame.DESIGN_W;
         int boundY1 = cutY1 - 24;
@@ -647,7 +647,7 @@ public final class TabletChassisPaint {
         for (int y = boundY1; y <= boundY2; y++) {
             for (int x = boundX1; x <= boundX2; x++) {
                 if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
-                float sdf = getSideCutoutSDF(x, y, isLeft, cutX1, cutX2, cutY1, cutY2, rInner);
+                float sdf = getSideCutoutSDF(x, y, isLeft, cutX1, cutX2, cutY1, cutY2, rInner, bW);
                 if (sdf >= 0 && sdf <= 1.5f) {
                     setPixel(img, x, y, applyStipple(0xFF383B41, x, y));
                 } else if (sdf >= -1.2f && sdf < 0) {
@@ -670,7 +670,7 @@ public final class TabletChassisPaint {
                         : ((d == bevelW - 1) ? 0xFF08090B
                         : 0xFF15171B);
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
-                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                    if (isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -683,7 +683,7 @@ public final class TabletChassisPaint {
                         : ((d == bevelW - 1) ? 0xFF08090B
                         : 0xFF15171B);
                 for (int y = uY1 + 2; y < uY2 - 2; y++) {
-                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
+                    if (isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bW)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -692,17 +692,17 @@ public final class TabletChassisPaint {
     }
 
     private static boolean isInsideSidePlateau(int px, int py, boolean isLeft, int uX1, int uX2, int uY1, int uY2,
-                                                int cutX1, int cutX2, int cutY1, int cutY2, int rInner) {
+                                                int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bW) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
-        return getSideCutoutSDF(px, py, isLeft, cutX1, cutX2, cutY1, cutY2, rInner) >= 0;
+        return getSideCutoutSDF(px, py, isLeft, cutX1, cutX2, cutY1, cutY2, rInner, bW) >= 0;
     }
 
     private static float getSideCutoutSDF(int px, int py, boolean isLeft, int cutX1, int cutX2, int cutY1, int cutY2,
-                                           int rInner) {
-        int x1 = 14;
+                                           int rInner, int bW) {
+        int x1 = bW; // 9px
 
         if (isLeft) {
-            // Cutout ceiling & floor with 45-degree diagonal flare starting from outer edge X=0 to vertical line X=14
+            // Cutout ceiling & floor with 45-degree diagonal flare starting from outer edge X=0 to vertical line X=bW (9)
             int curCutY1 = (px < x1) ? (cutY1 + (x1 - px)) : cutY1;
             int curCutY2 = (px < x1) ? (cutY2 - (x1 - px)) : cutY2;
 
@@ -719,7 +719,7 @@ public final class TabletChassisPaint {
             }
             return (float) Math.max(curCutY1 - py, py - curCutY2);
         } else {
-            // Right Side cutout ceiling & floor with 45-degree diagonal flare from X=980 to X=966
+            // Right Side cutout ceiling & floor with 45-degree diagonal flare from X=980 to X=971
             int distFromRight = TabletFrame.DESIGN_W - 1 - px;
             int curCutY1 = (distFromRight < x1) ? (cutY1 + (x1 - distFromRight)) : cutY1;
             int curCutY2 = (distFromRight < x1) ? (cutY2 - (x1 - distFromRight)) : cutY2;
