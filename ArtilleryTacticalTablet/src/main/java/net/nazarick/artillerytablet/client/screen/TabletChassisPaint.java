@@ -9,17 +9,27 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
- * The chassis: carbon-composite shell with true transparent corners, SDF collars around the
- * screen well, a real tactical grid baked into the well floor, SDF recessed corner pockets,
+ * The chassis: carbon-composite shell with true transparent corners, SDF
+ * collars around the
+ * screen well, a real tactical grid baked into the well floor, SDF recessed
+ * corner pockets,
  * lit capsule divider ribs, layered hex bolts.
  *
- * <p>Ported verbatim (same colours, same design-space maths, same pixel order) from the shell
- * portion of a visually-only prototype the user supplied. The prototype's newest revision also
- * bakes the 32 keys' idle look, all 29 LEDs, and button hover/press sprites into the same atlas —
- * deliberately NOT ported here, because those bake once and never change, while this mod's keys
- * and LEDs must keep reflecting live game state (which tab is open, armed/danger, grid on/off,
- * screen power) every frame; {@link UiButton} still draws itself and its own lamp for exactly
- * that reason. Only the static background — the part with no game state behind it — is baked.
+ * <p>
+ * Ported verbatim (same colours, same design-space maths, same pixel order)
+ * from the shell
+ * portion of a visually-only prototype the user supplied. The prototype's
+ * newest revision also
+ * bakes the 32 keys' idle look, all 29 LEDs, and button hover/press sprites
+ * into the same atlas —
+ * deliberately NOT ported here, because those bake once and never change, while
+ * this mod's keys
+ * and LEDs must keep reflecting live game state (which tab is open,
+ * armed/danger, grid on/off,
+ * screen power) every frame; {@link UiButton} still draws itself and its own
+ * lamp for exactly
+ * that reason. Only the static background — the part with no game state behind
+ * it — is baked.
  */
 @OnlyIn(Dist.CLIENT)
 public final class TabletChassisPaint {
@@ -39,7 +49,8 @@ public final class TabletChassisPaint {
         int cornerW = 48;
         int cornerH = 48;
 
-        // 1. Base rim, true-transparent outside the rounded rect (no square corners bleeding through)
+        // 1. Base rim, true-transparent outside the rounded rect (no square corners
+        // bleeding through)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRoundedRect(x, y, 0, 0, w, h, r)) {
@@ -59,7 +70,8 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Four soft-corner chamfer facets (connecting seamlessly with 48px corner pockets)
+        // 3. Four soft-corner chamfer facets (connecting seamlessly with 48px corner
+        // pockets)
         for (int cy = 1; cy < bW; cy++) {
             int d = cy - 1;
             int col = (d == 0) ? 0xFF2D2F33 : ((d == 1) ? 0xFF26282C : ((d == bW - 2) ? 0xFF1B1D1F : 0xFF202225));
@@ -112,13 +124,17 @@ public final class TabletChassisPaint {
         // 9. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
         bakeDynamicKeySprites(img);
 
-        // 11. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
+        // 11. Bake all 32 default tactical keys and unlit LEDs directly onto 980px
+        // chassis
         bakeAllDefaultKeysAndLeds(img);
 
         return img;
     }
 
-    /** Stretches the baked design-space image over whatever rectangle the frame is drawing at. */
+    /**
+     * Stretches the baked design-space image over whatever rectangle the frame is
+     * drawing at.
+     */
     static void blit(GuiGraphics g, TabletFrame frame, ResourceLocation texture) {
         int x = frame.toScreenX(0);
         int y = frame.toScreenY(0);
@@ -129,7 +145,7 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeSteppedCorner(NativeImage img, int vx, int vy, boolean isLeft, boolean isTop,
-                                           int cornerW, int cornerH, int rIn, int outerR, int bW) {
+            int cornerW, int cornerH, int rIn, int outerR, int bW) {
         int w = TabletFrame.DESIGN_W;
         int h = TabletFrame.DESIGN_H;
         int pSize = 48;
@@ -176,7 +192,7 @@ public final class TabletChassisPaint {
                     // Top crest highlight ridge along the mouth of the pocket
                     int crestCol = (isTop && isLeft) ? 0xFF363940
                             : (isTop ? 0xFF2C2F35
-                            : (isLeft ? 0xFF282B30 : 0xFF1C1E22));
+                                    : (isLeft ? 0xFF282B30 : 0xFF1C1E22));
                     setPixel(img, x, y, applyStipple(crestCol, x, y));
                 } else if (distToWall >= 0.0f && distToWall < 2.0f) {
                     // Vertical sloped fillet wall descending into the pocket
@@ -197,7 +213,8 @@ public final class TabletChassisPaint {
                     float dx = outerR - lx, dy = outerR - ly;
                     float distOut = (float) Math.sqrt(dx * dx + dy * dy);
                     if (distOut >= outerR - 2.0f && distOut <= outerR) {
-                        int rimCol = (isTop && isLeft) ? 0xFF2E3136 : (isTop ? 0xFF24262A : (isLeft ? 0xFF222428 : 0xFF08080A));
+                        int rimCol = (isTop && isLeft) ? 0xFF2E3136
+                                : (isTop ? 0xFF24262A : (isLeft ? 0xFF222428 : 0xFF08080A));
                         setPixel(img, x, y, rimCol);
                     }
                 } else if (lx < 2) {
@@ -295,8 +312,10 @@ public final class TabletChassisPaint {
 
         for (int y = (isTop ? 90 : 540); y <= (isTop ? 96 : TabletFrame.DESIGN_H - bW); y++) {
             for (int x = uX1 + bW; x <= uX2 - bW; x++) {
-                if (isInsideUPlateau(x - 4, y - 4, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)
-                        && !isInsideUPlateau(x, y, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                if (isInsideUPlateau(x - 4, y - 4, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                        bChamfer)
+                        && !isInsideUPlateau(x, y, isTop, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                                bChamfer)) {
                     setPixel(img, x, y, 0x55010102);
                 }
             }
@@ -313,13 +332,15 @@ public final class TabletChassisPaint {
         }
 
         if (!isTop) {
-            // Slim lateral side bevels (uX1 left facing light, uX2 right next to Power button)
+            // Slim lateral side bevels (uX1 left facing light, uX2 right next to Power
+            // button)
             int bevelW = 3;
             for (int x = uX1; x < uX1 + bevelW; x++) {
                 int d = x - uX1;
                 int col = (d == 0) ? 0xFF32353A : ((d == 1) ? 0xFF282A2F : 0xFF222428);
                 for (int y = uY1; y < uY2; y++) {
-                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -328,7 +349,8 @@ public final class TabletChassisPaint {
                 int d = (uX2 - 1) - x;
                 int col = (d == 0) ? 0xFF050608 : ((d == 1) ? 0xFF101215 : 0xFF1A1C20);
                 for (int y = uY1; y < uY2; y++) {
-                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -339,7 +361,8 @@ public final class TabletChassisPaint {
                 int d = (uY2 - 1) - y;
                 int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0B0C0E : (y <= bEdgeY + 1 ? 0xFF16171A : 0xFF0E0F11));
                 for (int x = uX1; x < uX2; x++) {
-                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -348,20 +371,25 @@ public final class TabletChassisPaint {
             int bevelH = 8;
             for (int y = uY1; y < uY1 + bevelH; y++) {
                 int d = y - uY1;
-                int col = (d == 0) ? 0xFF141518 : ((d == 1) ? 0xFF191B1E : (d == bevelH - 2 ? 0xFF26282D : (d == bevelH - 1 ? 0xFF2B2D32 : 0xFF1F2125)));
+                int col = (d == 0) ? 0xFF141518
+                        : ((d == 1) ? 0xFF191B1E
+                                : (d == bevelH - 2 ? 0xFF26282D : (d == bevelH - 1 ? 0xFF2B2D32 : 0xFF1F2125)));
                 for (int x = uX1; x < uX2; x++) {
-                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
             }
         } else {
+            // Slim Top U-collar lateral side bevels
             int bevelW = 3;
             for (int x = uX1; x < uX1 + bevelW; x++) {
                 int d = x - uX1;
                 int col = (d == 0) ? 0xFF32353A : ((d == 1) ? 0xFF282A2F : 0xFF222428);
                 for (int y = uY1; y < uY2; y++) {
-                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -370,7 +398,8 @@ public final class TabletChassisPaint {
                 int d = (uX2 - 1) - x;
                 int col = (d == 0) ? 0xFF050608 : ((d == 1) ? 0xFF101215 : 0xFF1A1C20);
                 for (int y = uY1; y < uY2; y++) {
-                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -381,7 +410,8 @@ public final class TabletChassisPaint {
                 int d = y - uY1;
                 int col = (d == 0) ? 0xFF2D2F33 : ((d == 1) ? 0xFF282A2E : (y >= tEdgeY - 2 ? 0xFF1B1C1F : 0xFF222427));
                 for (int x = uX1; x < uX2; x++) {
-                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -390,9 +420,12 @@ public final class TabletChassisPaint {
             int bevelH = 8;
             for (int y = uY2 - bevelH; y < uY2; y++) {
                 int d = (uY2 - 1) - y;
-                int col = (d == 0) ? 0xFF08090B : ((d == 1) ? 0xFF0D0E10 : (d == bevelH - 2 ? 0xFF1F2125 : (d == bevelH - 1 ? 0xFF282A2F : 0xFF141619)));
+                int col = (d == 0) ? 0xFF08090B
+                        : ((d == 1) ? 0xFF0D0E10
+                                : (d == bevelH - 2 ? 0xFF1F2125 : (d == bevelH - 1 ? 0xFF282A2F : 0xFF141619)));
                 for (int x = uX1; x < uX2; x++) {
-                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer)) {
+                    if (isInsideUPlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner,
+                            bChamfer)) {
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
@@ -403,7 +436,8 @@ public final class TabletChassisPaint {
         int boundY2 = !isTop ? uY2 : cutY2 + 4;
         for (int y = boundY1; y <= boundY2; y++) {
             for (int x = cutX1 - 4; x <= cutX2 + 4; x++) {
-                if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2) continue;
+                if (x < uX1 || x >= uX2 || y < uY1 || y >= uY2)
+                    continue;
                 float sdf = getCutoutSDF(x, y, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer);
                 if (sdf >= 0 && sdf <= 1.5f) {
                     setPixel(img, x, y, applyStipple(0xFF383B41, x, y));
@@ -419,15 +453,24 @@ public final class TabletChassisPaint {
     }
 
     private static boolean isInsideUPlateau(int px, int py, boolean isTop, int uX1, int uX2, int uY1, int uY2,
-                                             int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bChamfer) {
-        if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
+            int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bChamfer) {
+        if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2)
+            return false;
         return getCutoutSDF(px, py, isTop, cutX1, cutX2, cutY1, cutY2, rInner, bChamfer) >= 0;
     }
 
     private static float getCutoutSDF(int px, int py, boolean isTop, int cutX1, int cutX2, int cutY1, int cutY2,
-                                       int rInner, int bChamfer) {
+            int rInner, int bChamfer) {
+        // uY1/uY2 not needed once inside the plateau test above; only the cutout
+        // geometry matters.
         if (!isTop) {
             int curCutX1 = cutX1, curCutX2 = cutX2;
+            int uY2 = TabletFrame.DESIGN_H;
+            if (py >= uY2 - bChamfer) {
+                int offset = py - (uY2 - bChamfer);
+                curCutX1 = cutX1 + offset;
+                curCutX2 = cutX2 - offset;
+            }
             if (py < cutY1 + rInner) {
                 if (px < cutX1 + rInner) {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY1 + rInner);
@@ -439,11 +482,19 @@ public final class TabletChassisPaint {
                     return (float) (cutY1 - py);
                 }
             }
-            if (px < curCutX1) return (float) (curCutX1 - px);
-            if (px > curCutX2) return (float) (px - curCutX2);
+            if (px < curCutX1)
+                return (float) (curCutX1 - px);
+            if (px > curCutX2)
+                return (float) (px - curCutX2);
             return (float) -Math.min(px - curCutX1, Math.min(curCutX2 - px, py - cutY1));
         } else {
             int curCutX1 = cutX1, curCutX2 = cutX2;
+            int uY1 = 0;
+            if (py <= uY1 + bChamfer) {
+                int offset = (uY1 + bChamfer) - py;
+                curCutX1 = cutX1 + offset;
+                curCutX2 = cutX2 - offset;
+            }
             if (py > cutY2 - rInner) {
                 if (px < cutX1 + rInner) {
                     float dx = px - (cutX1 + rInner), dy = py - (cutY2 - rInner);
@@ -455,8 +506,10 @@ public final class TabletChassisPaint {
                     return (float) (py - cutY2);
                 }
             }
-            if (px < curCutX1) return (float) (curCutX1 - px);
-            if (px > curCutX2) return (float) (px - curCutX2);
+            if (px < curCutX1)
+                return (float) (curCutX1 - px);
+            if (px > curCutX2)
+                return (float) (px - curCutX2);
             return (float) -Math.min(px - curCutX1, Math.min(curCutX2 - px, cutY2 - py));
         }
     }
@@ -469,6 +522,7 @@ public final class TabletChassisPaint {
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
         int rInner = 14;
+        int chamferDiag = 20;
 
         // Shadow under C-bracket
         for (int y = uY1 - 4; y <= uY2 + 5; y++) {
@@ -487,7 +541,7 @@ public final class TabletChassisPaint {
 
         // 1. Base plateau surface
         for (int y = uY1; y < uY2; y++) {
-            for (int x = uX1; x <= uX2; x++) {
+            for (int x = uX1; x < uX2; x++) {
                 if (isInsideSidePlateau(x, y, isLeft, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
                     int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
                     int col = (grain == 1) ? 0xFF1F2124 : ((grain == 2) ? 0xFF232528 : 0xFF212326);
@@ -496,19 +550,23 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Bevel Shading: Top highlight, Bottom shadow, Outer flank slope
+        // 2. Bevel Shading matching the red outline profile
         int bFlankW = 18;
         if (isLeft) {
+            // Left outer flank bevel
             for (int x = uX1; x < uX1 + bFlankW; x++) {
                 int distFromOuter = x - uX1;
-                for (int y = uY1; y < uY2; y++) {
+                int topY = uY1 + (chamferDiag - distFromOuter);
+                int botY = (uY2 - 1) - (chamferDiag - distFromOuter);
+
+                for (int y = topY; y <= botY; y++) {
                     if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) continue;
                     int col;
-                    if (y < uY1 + 4) {
-                        int d = y - uY1;
+                    if (y < topY + 4) {
+                        int d = y - topY;
                         col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
-                    } else if (y >= uY2 - 4) {
-                        int d = (uY2 - 1) - y;
+                    } else if (y > botY - 4) {
+                        int d = botY - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
                         col = (distFromOuter == 0) ? 0xFF2A2C30 : ((distFromOuter == 1) ? 0xFF242629 : ((distFromOuter >= bFlankW - 2) ? 0xFF18191C : 0xFF202226));
@@ -517,7 +575,8 @@ public final class TabletChassisPaint {
                 }
             }
 
-            for (int x = uX1 + bFlankW; x < uX2; x++) {
+            // Top & Bottom Horizontal Bevels
+            for (int x = uX1 + chamferDiag; x < uX2; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
@@ -532,16 +591,20 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
+            // Right outer flank bevel
             for (int x = uX2 - bFlankW; x < uX2; x++) {
                 int distFromOuter = (uX2 - 1) - x;
-                for (int y = uY1; y < uY2; y++) {
+                int topY = uY1 + (chamferDiag - distFromOuter);
+                int botY = (uY2 - 1) - (chamferDiag - distFromOuter);
+
+                for (int y = topY; y <= botY; y++) {
                     if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) continue;
                     int col;
-                    if (y < uY1 + 4) {
-                        int d = y - uY1;
+                    if (y < topY + 4) {
+                        int d = y - topY;
                         col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
-                    } else if (y >= uY2 - 4) {
-                        int d = (uY2 - 1) - y;
+                    } else if (y > botY - 4) {
+                        int d = botY - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
                         col = (distFromOuter == 0) ? 0xFF08080A : ((distFromOuter == 1) ? 0xFF0B0C0E : ((distFromOuter >= bFlankW - 2) ? 0xFF151618 : 0xFF0F1012));
@@ -550,7 +613,8 @@ public final class TabletChassisPaint {
                 }
             }
 
-            for (int x = uX1; x < uX2 - bFlankW; x++) {
+            // Top & Bottom Horizontal Bevels
+            for (int x = uX1; x < uX2 - chamferDiag; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
@@ -617,47 +681,23 @@ public final class TabletChassisPaint {
                 }
             }
         }
-
-        // 5. Chamfer Facet Wedge at Shoulder Connecting to Top/Bottom Colar (as drawn by user)
-        int chamferDiag = 20;
-        if (isLeft) {
-            for (int x = 0; x < 90; x++) {
-                int topY = (x < chamferDiag) ? (70 + (chamferDiag - x)) : 70;
-                for (int y = topY; y < 105; y++) {
-                    int col = (y < topY + 3) ? 0xFF383C44 : 0xFF1A1C1F;
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                }
-            }
-            for (int x = 0; x < 90; x++) {
-                int botY = (x < chamferDiag) ? (560 - (chamferDiag - x)) : 560;
-                for (int y = 525; y <= botY; y++) {
-                    int col = (y > botY - 3) ? 0xFF08080A : 0xFF1A1C1F;
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                }
-            }
-        } else {
-            for (int x = 890; x < TabletFrame.DESIGN_W; x++) {
-                int distFromRight = TabletFrame.DESIGN_W - 1 - x;
-                int topY = (distFromRight < chamferDiag) ? (70 + (chamferDiag - distFromRight)) : 70;
-                for (int y = topY; y < 105; y++) {
-                    int col = (y < topY + 3) ? 0xFF383C44 : 0xFF1A1C1F;
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                }
-            }
-            for (int x = 890; x < TabletFrame.DESIGN_W; x++) {
-                int distFromRight = TabletFrame.DESIGN_W - 1 - x;
-                int botY = (distFromRight < chamferDiag) ? (560 - (chamferDiag - distFromRight)) : 560;
-                for (int y = 525; y <= botY; y++) {
-                    int col = (y > botY - 3) ? 0xFF08080A : 0xFF1A1C1F;
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                }
-            }
-        }
     }
 
     private static boolean isInsideSidePlateau(int px, int py, boolean isLeft, int uX1, int uX2, int uY1, int uY2,
                                                 int cutX1, int cutX2, int cutY1, int cutY2, int rInner) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
+        int chamferDiag = 20;
+        if (isLeft) {
+            if (px < uX1 + chamferDiag) {
+                int offset = (uX1 + chamferDiag) - px;
+                if (py < uY1 + offset || py > (uY2 - 1) - offset) return false;
+            }
+        } else {
+            if (px >= uX2 - chamferDiag) {
+                int offset = px - (uX2 - chamferDiag);
+                if (py < uY1 + offset || py > (uY2 - 1) - offset) return false;
+            }
+        }
         return getSideCutoutSDF(px, py, isLeft, cutX1, cutX2, cutY1, cutY2, rInner) >= 0;
     }
 
@@ -717,16 +757,20 @@ public final class TabletChassisPaint {
         }
 
         for (int y = py1; y < py1 + 2; y++) {
-            for (int x = px1 + pR; x < px2 - pR; x++) setPixel(img, x, y, 0xFF040506);
+            for (int x = px1 + pR; x < px2 - pR; x++)
+                setPixel(img, x, y, 0xFF040506);
         }
         for (int y = py1 + pR; y < py2 - pR; y++) {
-            for (int x = px1; x < px1 + 2; x++) setPixel(img, x, y, 0xFF040506);
+            for (int x = px1; x < px1 + 2; x++)
+                setPixel(img, x, y, 0xFF040506);
         }
         for (int y = py2 - 2; y < py2; y++) {
-            for (int x = px1 + pR; x < px2 - pR; x++) setPixel(img, x, y, 0xFF282B30);
+            for (int x = px1 + pR; x < px2 - pR; x++)
+                setPixel(img, x, y, 0xFF282B30);
         }
         for (int y = py1 + pR; y < py2 - pR; y++) {
-            for (int x = px2 - 2; x < px2; x++) setPixel(img, x, y, 0xFF282B30);
+            for (int x = px2 - 2; x < px2; x++)
+                setPixel(img, x, y, 0xFF282B30);
         }
     }
 
@@ -737,7 +781,8 @@ public final class TabletChassisPaint {
             int cx = 148 + 38 + i * 76;
             bakeCapsuleRib(img, cx, 41, ribLen, true);
         }
-        // Bottom row single ribs between inner key pairs (F13-F14-F15-F16-F17-F18-F19-F20)
+        // Bottom row single ribs between inner key pairs
+        // (F13-F14-F15-F16-F17-F18-F19-F20)
         for (int i = 1; i <= 7; i++) {
             int cx = 148 + 38 + i * 76;
             bakeCapsuleRib(img, cx, 589, ribLen, true);
@@ -810,7 +855,7 @@ public final class TabletChassisPaint {
     }
 
     private static float[] getCapsuleDist(float px, float py, float cx, float cy, float rx1, float ry1, float rx2,
-                                           float ry2, float ribRadius, boolean isVertical) {
+            float ry2, float ribRadius, boolean isVertical) {
         float segX1 = isVertical ? cx : rx1 + ribRadius;
         float segX2 = isVertical ? cx : rx2 - ribRadius;
         float segY1 = isVertical ? ry1 + ribRadius : cy;
@@ -821,14 +866,15 @@ public final class TabletChassisPaint {
         float t = (l2 > 0) ? Math.max(0, Math.min(1, ((px - segX1) * dx + (py - segY1) * dy) / l2)) : 0;
         float projX = segX1 + t * dx, projY = segY1 + t * dy;
         float dist = (float) Math.sqrt((px - projX) * (px - projX) + (py - projY) * (py - projY));
-        return new float[]{dist, projX, projY};
+        return new float[] { dist, projX, projY };
     }
 
     // =========================================================================
     // SHARED PIXEL PRIMITIVES
     // =========================================================================
     private static boolean isInsideRoundedRect(int px, int py, int rx1, int ry1, int rx2, int ry2, float radius) {
-        if (px < rx1 || px >= rx2 || py < ry1 || py >= ry2) return false;
+        if (px < rx1 || px >= rx2 || py < ry1 || py >= ry2)
+            return false;
         if (px < rx1 + radius && py < ry1 + radius) {
             float dx = px - (rx1 + radius), dy = py - (ry1 + radius);
             return dx * dx + dy * dy <= radius * radius;
@@ -850,7 +896,8 @@ public final class TabletChassisPaint {
 
     private static int applyStipple(int baseCol, int x, int y) {
         int grain = ((x * 17 + y * 31) ^ (x * 11)) % 3;
-        if (grain == 0) return baseCol;
+        if (grain == 0)
+            return baseCol;
         int a = (baseCol >>> 24) & 0xFF;
         int r = (baseCol >>> 16) & 0xFF;
         int g = (baseCol >>> 8) & 0xFF;
@@ -863,9 +910,11 @@ public final class TabletChassisPaint {
     }
 
     private static void setPixel(NativeImage img, int x, int y, int argb) {
-        if (x < 0 || x >= img.getWidth() || y < 0 || y >= img.getHeight()) return;
+        if (x < 0 || x >= img.getWidth() || y < 0 || y >= img.getHeight())
+            return;
         int a = (argb >>> 24) & 0xFF;
-        if (a == 0) return;
+        if (a == 0)
+            return;
         int r = (argb >>> 16) & 0xFF;
         int g = (argb >>> 8) & 0xFF;
         int b = argb & 0xFF;
@@ -910,7 +959,8 @@ public final class TabletChassisPaint {
 
     private static void bakeDynamicKeySprites(NativeImage img) {
         int r = 7;
-        // PBT Idle (Khớp 100% ảnh mẫu: Viền nổi cao, lòng chìm sâu, tông xám tro quân sự)
+        // PBT Idle (Khớp 100% ảnh mẫu: Viền nổi cao, lòng chìm sâu, tông xám tro quân
+        // sự)
         bakeKeySprite(img, SPRITE_KEY_PBT_IDLE_X, SPRITE_KEY_PBT_IDLE_Y, 44, 44, r,
                 0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E, false);
         // PBT Hover
@@ -945,9 +995,9 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeKeySprite(NativeImage img, int kx, int ky, int w, int h, int roundRadius,
-                                      int dropShadow, int borderDark, int wallExtrusion,
-                                      int shoulderLight, int rimTop, int dishBase,
-                                      int dishShadow, int dishHighlight, boolean pressed) {
+            int dropShadow, int borderDark, int wallExtrusion,
+            int shoulderLight, int rimTop, int dishBase,
+            int dishShadow, int dishHighlight, boolean pressed) {
         // 1. Outer base drop shadow (mỏng 1px dưới chân phím)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
@@ -969,9 +1019,12 @@ public final class TabletChassisPaint {
         // 3. Raised outer rim body (Viền nút nổi cao hơn bề mặt chứa chữ)
         for (int y = 1; y < h - 1; y++) {
             int rimCol = dishBase;
-            if (y <= 2) rimCol = shoulderLight;
-            else if (y <= 4) rimCol = rimTop;
-            else if (y >= h - 3) rimCol = wallExtrusion;
+            if (y <= 2)
+                rimCol = shoulderLight;
+            else if (y <= 4)
+                rimCol = rimTop;
+            else if (y >= h - 3)
+                rimCol = wallExtrusion;
 
             for (int x = 1; x < w - 1; x++) {
                 if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, roundRadius - 1)) {
@@ -1002,7 +1055,8 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 5b. Inner top & left drop shadow (Bóng đổ từ gờ viền cao xuống lòng phím chìm)
+        // 5b. Inner top & left drop shadow (Bóng đổ từ gờ viền cao xuống lòng phím
+        // chìm)
         for (int x = 0; x < dishW; x++) {
             if (isInsideRounded(x, 0, dishW, dishH, innerRadius)) {
                 setPixel(img, dishX + x, dishY, dishShadow);
@@ -1017,7 +1071,8 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 5c. Inner bottom & right highlight reflection (Ánh sáng hắt ở mép trong dưới của gờ)
+        // 5c. Inner bottom & right highlight reflection (Ánh sáng hắt ở mép trong dưới
+        // của gờ)
         for (int x = 0; x < dishW; x++) {
             if (isInsideRounded(x, dishH - 1, dishW, dishH, innerRadius)) {
                 setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
@@ -1031,8 +1086,10 @@ public final class TabletChassisPaint {
     }
 
     private static boolean isInsideRounded(int px, int py, int w, int h, int r) {
-        if (px < 0 || px >= w || py < 0 || py >= h) return false;
-        if (r <= 0) return true;
+        if (px < 0 || px >= w || py < 0 || py >= h)
+            return false;
+        if (r <= 0)
+            return true;
         if (px < r && py < r) {
             int dx = r - px - 1, dy = r - py - 1;
             return dx * dx + dy * dy <= r * r;
@@ -1057,20 +1114,29 @@ public final class TabletChassisPaint {
         if (lit) {
             int rgb = litCol & 0x00FFFFFF;
 
-            // 1. Elongated Capsule Phosphor Halo (Quầng hào quang tỏa đều theo thân ống dẫn quang)
+            // 1. Elongated Capsule Phosphor Halo (Quầng hào quang tỏa đều theo thân ống dẫn
+            // quang)
             for (int dy = -3; dy <= h + 2; dy++) {
                 for (int dx = -3; dx <= w + 2; dx++) {
                     int distSq = 0;
-                    if (dx < 0) distSq += dx * dx;
-                    else if (dx >= w) distSq += (dx - w + 1) * (dx - w + 1);
-                    if (dy < 0) distSq += dy * dy;
-                    else if (dy >= h) distSq += (dy - h + 1) * (dy - h + 1);
+                    if (dx < 0)
+                        distSq += dx * dx;
+                    else if (dx >= w)
+                        distSq += (dx - w + 1) * (dx - w + 1);
+                    if (dy < 0)
+                        distSq += dy * dy;
+                    else if (dy >= h)
+                        distSq += (dy - h + 1) * (dy - h + 1);
 
                     int alpha = 0;
-                    if (distSq == 0) alpha = 0; // Handled by body
-                    else if (distSq <= 2) alpha = 0x60;
-                    else if (distSq <= 5) alpha = 0x30;
-                    else if (distSq <= 9) alpha = 0x14;
+                    if (distSq == 0)
+                        alpha = 0; // Handled by body
+                    else if (distSq <= 2)
+                        alpha = 0x60;
+                    else if (distSq <= 5)
+                        alpha = 0x30;
+                    else if (distSq <= 9)
+                        alpha = 0x14;
 
                     if (alpha > 0) {
                         setPixel(img, lx + dx, ly + dy, (alpha << 24) | rgb);
@@ -1094,7 +1160,8 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // 4. Axial Optical Core Filament (Lõi quang học sáng trắng chạy dọc theo trục ống dẫn)
+            // 4. Axial Optical Core Filament (Lõi quang học sáng trắng chạy dọc theo trục
+            // ống dẫn)
             if (isVert) {
                 int coreX = lx + w / 2 - 1;
                 for (int y = 1; y < h - 1; y++) {
@@ -1112,7 +1179,8 @@ public final class TabletChassisPaint {
                 setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Optical Light-Pipe Capsule (Khớp 100% que dẫn sáng thấu kính cong trong ảnh mẫu)
+            // Unlit Optical Light-Pipe Capsule (Khớp 100% que dẫn sáng thấu kính cong trong
+            // ảnh mẫu)
             // 1. Recessed dark slot
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
@@ -1127,7 +1195,8 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // 3. Curved specular highlight reflection (Vệt phản quang trắng bạc uốn cong đặc trưng trên que dẫn sáng)
+            // 3. Curved specular highlight reflection (Vệt phản quang trắng bạc uốn cong
+            // đặc trưng trên que dẫn sáng)
             if (isVert) {
                 // Vertical light pipe (Top/Bottom buttons)
                 for (int y = 1; y < h - 1; y++) {
@@ -1155,50 +1224,90 @@ public final class TabletChassisPaint {
     }
 
     public static void blitButton(GuiGraphics g, int destX, int destY, int destW, int destH,
-                                  boolean isRed, boolean isHovered, boolean isPressed,
-                                  ResourceLocation texture) {
+            boolean isRed, boolean isHovered, boolean isPressed,
+            ResourceLocation texture) {
         int u, v;
         if (isRed) {
             if (isPressed) {
-                u = SPRITE_KEY_RED_PRESSED_X; v = SPRITE_KEY_RED_PRESSED_Y;
+                u = SPRITE_KEY_RED_PRESSED_X;
+                v = SPRITE_KEY_RED_PRESSED_Y;
             } else if (isHovered) {
-                u = SPRITE_KEY_RED_HOVER_X; v = SPRITE_KEY_RED_HOVER_Y;
+                u = SPRITE_KEY_RED_HOVER_X;
+                v = SPRITE_KEY_RED_HOVER_Y;
             } else {
-                u = SPRITE_KEY_RED_IDLE_X; v = SPRITE_KEY_RED_IDLE_Y;
+                u = SPRITE_KEY_RED_IDLE_X;
+                v = SPRITE_KEY_RED_IDLE_Y;
             }
         } else {
             if (isPressed) {
-                u = SPRITE_KEY_PBT_PRESSED_X; v = SPRITE_KEY_PBT_PRESSED_Y;
+                u = SPRITE_KEY_PBT_PRESSED_X;
+                v = SPRITE_KEY_PBT_PRESSED_Y;
             } else if (isHovered) {
-                u = SPRITE_KEY_PBT_HOVER_X; v = SPRITE_KEY_PBT_HOVER_Y;
+                u = SPRITE_KEY_PBT_HOVER_X;
+                v = SPRITE_KEY_PBT_HOVER_Y;
             } else {
-                u = SPRITE_KEY_PBT_IDLE_X; v = SPRITE_KEY_PBT_IDLE_Y;
+                u = SPRITE_KEY_PBT_IDLE_X;
+                v = SPRITE_KEY_PBT_IDLE_Y;
             }
         }
-        g.blit(texture, destX, destY, destW, destH, u, v, SPRITE_KEY_W, SPRITE_KEY_H, TabletFrame.DESIGN_W, TabletFrame.DESIGN_H);
+        g.blit(texture, destX, destY, destW, destH, u, v, SPRITE_KEY_W, SPRITE_KEY_H, TabletFrame.DESIGN_W,
+                TabletFrame.DESIGN_H);
     }
 
     public static void blitLed(GuiGraphics g, int destX, int destY, int destW, int destH,
-                               boolean isLit, int colorType, boolean isVertical,
-                               ResourceLocation texture) {
+            boolean isLit, int colorType, boolean isVertical,
+            ResourceLocation texture) {
         int u, v, srcW, srcH;
         if (!isLit) {
             if (isVertical) {
-                u = SPRITE_LED_UNLIT_V_X; v = SPRITE_LED_UNLIT_V_Y; srcW = 4; srcH = 8;
+                u = SPRITE_LED_UNLIT_V_X;
+                v = SPRITE_LED_UNLIT_V_Y;
+                srcW = 4;
+                srcH = 8;
             } else {
-                u = SPRITE_LED_UNLIT_H_X; v = SPRITE_LED_UNLIT_H_Y; srcW = 8; srcH = 4;
+                u = SPRITE_LED_UNLIT_H_X;
+                v = SPRITE_LED_UNLIT_H_Y;
+                srcW = 8;
+                srcH = 4;
             }
         } else {
             // colorType: 0 = GREEN, 1 = RED (danger), 2 = AMBER (power)
             if (colorType == 1) {
-                if (isVertical) { u = SPRITE_LED_RED_V_X; v = SPRITE_LED_RED_V_Y; srcW = 4; srcH = 8; }
-                else { u = SPRITE_LED_RED_H_X; v = SPRITE_LED_RED_H_Y; srcW = 8; srcH = 4; }
+                if (isVertical) {
+                    u = SPRITE_LED_RED_V_X;
+                    v = SPRITE_LED_RED_V_Y;
+                    srcW = 4;
+                    srcH = 8;
+                } else {
+                    u = SPRITE_LED_RED_H_X;
+                    v = SPRITE_LED_RED_H_Y;
+                    srcW = 8;
+                    srcH = 4;
+                }
             } else if (colorType == 2) {
-                if (isVertical) { u = SPRITE_LED_AMBER_V_X; v = SPRITE_LED_AMBER_V_Y; srcW = 4; srcH = 8; }
-                else { u = SPRITE_LED_AMBER_H_X; v = SPRITE_LED_AMBER_H_Y; srcW = 8; srcH = 4; }
+                if (isVertical) {
+                    u = SPRITE_LED_AMBER_V_X;
+                    v = SPRITE_LED_AMBER_V_Y;
+                    srcW = 4;
+                    srcH = 8;
+                } else {
+                    u = SPRITE_LED_AMBER_H_X;
+                    v = SPRITE_LED_AMBER_H_Y;
+                    srcW = 8;
+                    srcH = 4;
+                }
             } else {
-                if (isVertical) { u = SPRITE_LED_GREEN_V_X; v = SPRITE_LED_GREEN_V_Y; srcW = 4; srcH = 8; }
-                else { u = SPRITE_LED_GREEN_H_X; v = SPRITE_LED_GREEN_H_Y; srcW = 8; srcH = 4; }
+                if (isVertical) {
+                    u = SPRITE_LED_GREEN_V_X;
+                    v = SPRITE_LED_GREEN_V_Y;
+                    srcW = 4;
+                    srcH = 8;
+                } else {
+                    u = SPRITE_LED_GREEN_H_X;
+                    v = SPRITE_LED_GREEN_H_Y;
+                    srcW = 8;
+                    srcH = 4;
+                }
             }
         }
         g.blit(texture, destX, destY, destW, destH, u, v, srcW, srcH, TabletFrame.DESIGN_W, TabletFrame.DESIGN_H);
@@ -1220,49 +1329,50 @@ public final class TabletChassisPaint {
     private static final Map<Character, int[]> GLYPHS = new HashMap<>();
 
     static {
-        GLYPHS.put(' ', new int[]{0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000});
-        GLYPHS.put('-', new int[]{0b00000, 0b00000, 0b00000, 0b11111, 0b00000, 0b00000, 0b00000});
-        GLYPHS.put('+', new int[]{0b00000, 0b00100, 0b00100, 0b11111, 0b00100, 0b00100, 0b00000});
-        GLYPHS.put(':', new int[]{0b00000, 0b01100, 0b01100, 0b00000, 0b01100, 0b01100, 0b00000});
-        GLYPHS.put('0', new int[]{0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110});
-        GLYPHS.put('1', new int[]{0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110});
-        GLYPHS.put('2', new int[]{0b01110, 0b10001, 0b00001, 0b00110, 0b01000, 0b10000, 0b11111});
-        GLYPHS.put('3', new int[]{0b11110, 0b00001, 0b00001, 0b01110, 0b00001, 0b00001, 0b11110});
-        GLYPHS.put('4', new int[]{0b00010, 0b00110, 0b01010, 0b10010, 0b11111, 0b00010, 0b00010});
-        GLYPHS.put('5', new int[]{0b11111, 0b10000, 0b11110, 0b00001, 0b00001, 0b10001, 0b01110});
-        GLYPHS.put('6', new int[]{0b00110, 0b01000, 0b10000, 0b11110, 0b10001, 0b10001, 0b01110});
-        GLYPHS.put('7', new int[]{0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b01000, 0b01000});
-        GLYPHS.put('8', new int[]{0b01110, 0b10001, 0b10001, 0b01110, 0b10001, 0b10001, 0b01110});
-        GLYPHS.put('9', new int[]{0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100});
-        GLYPHS.put('A', new int[]{0b01110, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001});
-        GLYPHS.put('B', new int[]{0b11110, 0b10001, 0b10001, 0b11110, 0b10001, 0b10001, 0b11110});
-        GLYPHS.put('C', new int[]{0b01110, 0b10001, 0b10000, 0b10000, 0b10000, 0b10001, 0b01110});
-        GLYPHS.put('D', new int[]{0b11100, 0b10010, 0b10001, 0b10001, 0b10001, 0b10010, 0b11100});
-        GLYPHS.put('E', new int[]{0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b11111});
-        GLYPHS.put('F', new int[]{0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b10000});
-        GLYPHS.put('G', new int[]{0b01110, 0b10001, 0b10000, 0b10111, 0b10001, 0b10001, 0b01110});
-        GLYPHS.put('I', new int[]{0b01110, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110});
-        GLYPHS.put('J', new int[]{0b00010, 0b00010, 0b00010, 0b00010, 0b10010, 0b10010, 0b01100});
-        GLYPHS.put('L', new int[]{0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b11111});
-        GLYPHS.put('M', new int[]{0b10001, 0b11011, 0b10101, 0b10001, 0b10001, 0b10001, 0b10001});
-        GLYPHS.put('N', new int[]{0b10001, 0b11001, 0b10101, 0b10011, 0b10001, 0b10001, 0b10001});
-        GLYPHS.put('O', new int[]{0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110});
-        GLYPHS.put('P', new int[]{0b11110, 0b10001, 0b10001, 0b11110, 0b10000, 0b10000, 0b10000});
-        GLYPHS.put('R', new int[]{0b11110, 0b10001, 0b10001, 0b11110, 0b10100, 0b10001, 0b10001});
-        GLYPHS.put('S', new int[]{0b01111, 0b10000, 0b10000, 0b01110, 0b00001, 0b00001, 0b11110});
-        GLYPHS.put('T', new int[]{0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100});
-        GLYPHS.put('U', new int[]{0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110});
-        GLYPHS.put('V', new int[]{0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01010, 0b00100});
-        GLYPHS.put('W', new int[]{0b10001, 0b10001, 0b10001, 0b10101, 0b10101, 0b11011, 0b10001});
-        GLYPHS.put('Y', new int[]{0b10001, 0b10001, 0b01010, 0b00100, 0b00100, 0b00100, 0b00100});
+        GLYPHS.put(' ', new int[] { 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000 });
+        GLYPHS.put('-', new int[] { 0b00000, 0b00000, 0b00000, 0b11111, 0b00000, 0b00000, 0b00000 });
+        GLYPHS.put('+', new int[] { 0b00000, 0b00100, 0b00100, 0b11111, 0b00100, 0b00100, 0b00000 });
+        GLYPHS.put(':', new int[] { 0b00000, 0b01100, 0b01100, 0b00000, 0b01100, 0b01100, 0b00000 });
+        GLYPHS.put('0', new int[] { 0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 });
+        GLYPHS.put('1', new int[] { 0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110 });
+        GLYPHS.put('2', new int[] { 0b01110, 0b10001, 0b00001, 0b00110, 0b01000, 0b10000, 0b11111 });
+        GLYPHS.put('3', new int[] { 0b11110, 0b00001, 0b00001, 0b01110, 0b00001, 0b00001, 0b11110 });
+        GLYPHS.put('4', new int[] { 0b00010, 0b00110, 0b01010, 0b10010, 0b11111, 0b00010, 0b00010 });
+        GLYPHS.put('5', new int[] { 0b11111, 0b10000, 0b11110, 0b00001, 0b00001, 0b10001, 0b01110 });
+        GLYPHS.put('6', new int[] { 0b00110, 0b01000, 0b10000, 0b11110, 0b10001, 0b10001, 0b01110 });
+        GLYPHS.put('7', new int[] { 0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b01000, 0b01000 });
+        GLYPHS.put('8', new int[] { 0b01110, 0b10001, 0b10001, 0b01110, 0b10001, 0b10001, 0b01110 });
+        GLYPHS.put('9', new int[] { 0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100 });
+        GLYPHS.put('A', new int[] { 0b01110, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001 });
+        GLYPHS.put('B', new int[] { 0b11110, 0b10001, 0b10001, 0b11110, 0b10001, 0b10001, 0b11110 });
+        GLYPHS.put('C', new int[] { 0b01110, 0b10001, 0b10000, 0b10000, 0b10000, 0b10001, 0b01110 });
+        GLYPHS.put('D', new int[] { 0b11100, 0b10010, 0b10001, 0b10001, 0b10001, 0b10010, 0b11100 });
+        GLYPHS.put('E', new int[] { 0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b11111 });
+        GLYPHS.put('F', new int[] { 0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b10000 });
+        GLYPHS.put('G', new int[] { 0b01110, 0b10001, 0b10000, 0b10111, 0b10001, 0b10001, 0b01110 });
+        GLYPHS.put('I', new int[] { 0b01110, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110 });
+        GLYPHS.put('J', new int[] { 0b00010, 0b00010, 0b00010, 0b00010, 0b10010, 0b10010, 0b01100 });
+        GLYPHS.put('L', new int[] { 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b11111 });
+        GLYPHS.put('M', new int[] { 0b10001, 0b11011, 0b10101, 0b10001, 0b10001, 0b10001, 0b10001 });
+        GLYPHS.put('N', new int[] { 0b10001, 0b11001, 0b10101, 0b10011, 0b10001, 0b10001, 0b10001 });
+        GLYPHS.put('O', new int[] { 0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 });
+        GLYPHS.put('P', new int[] { 0b11110, 0b10001, 0b10001, 0b11110, 0b10000, 0b10000, 0b10000 });
+        GLYPHS.put('R', new int[] { 0b11110, 0b10001, 0b10001, 0b11110, 0b10100, 0b10001, 0b10001 });
+        GLYPHS.put('S', new int[] { 0b01111, 0b10000, 0b10000, 0b01110, 0b00001, 0b00001, 0b11110 });
+        GLYPHS.put('T', new int[] { 0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100 });
+        GLYPHS.put('U', new int[] { 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 });
+        GLYPHS.put('V', new int[] { 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01010, 0b00100 });
+        GLYPHS.put('W', new int[] { 0b10001, 0b10001, 0b10001, 0b10101, 0b10101, 0b11011, 0b10001 });
+        GLYPHS.put('Y', new int[] { 0b10001, 0b10001, 0b01010, 0b00100, 0b00100, 0b00100, 0b00100 });
     }
 
     private static void bakeAllDefaultKeysAndLeds(NativeImage img) {
         int keySize = 44;
         int half = keySize / 2;
 
-        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
-        String[] topLabels = {"GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT"};
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y =
+        // 76)
+        String[] topLabels = { "GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
@@ -1276,8 +1386,9 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
-        String[] leftLabels = {"CFF", "F2", "F3", "F4", "F5", "F6"};
+        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X
+        // = 76, Horizontal 8x4)
+        String[] leftLabels = { "CFF", "F2", "F3", "F4", "F5", "F6" };
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
@@ -1285,8 +1396,9 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
-        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
-        String[] rightLabels = {"F7", "F8", "F9", "F10", "F11", "F12"};
+        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at
+        // LED_COL_RIGHT_X = 896, Horizontal 8x4)
+        String[] rightLabels = { "F7", "F8", "F9", "F10", "F11", "F12" };
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
@@ -1294,8 +1406,9 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
-        String[] botLabels = {"NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER"};
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at
+        // LED_ROW_BOTTOM_Y = 546)
+        String[] botLabels = { "NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
@@ -1325,7 +1438,8 @@ public final class TabletChassisPaint {
                         && !isInsideRoundedRect(x, y, ix1, iy1, ix2, iy2, keyR)) {
 
                     boolean inTopLeft = (x + y < cx + cy);
-                    int dIn = Math.min(Math.abs(x - ix1), Math.min(Math.abs(x - ix2), Math.min(Math.abs(y - iy1), Math.abs(y - iy2))));
+                    int dIn = Math.min(Math.abs(x - ix1),
+                            Math.min(Math.abs(x - ix2), Math.min(Math.abs(y - iy1), Math.abs(y - iy2))));
 
                     int col;
                     if (inTopLeft) {
@@ -1355,10 +1469,12 @@ public final class TabletChassisPaint {
         int r = 7;
         if (red) {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x77060709, 0xFF220606, 0xFF5E1212, 0xFFB02828, 0xFF9E2222, 0xFF7A1818, 0xFF3C0808, 0xFFA62424, false);
+                    0x77060709, 0xFF220606, 0xFF5E1212, 0xFFB02828, 0xFF9E2222, 0xFF7A1818, 0xFF3C0808, 0xFFA62424,
+                    false);
         } else {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E, false);
+                    0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E,
+                    false);
         }
 
         int textCol = 0xFFF0F4FA;
@@ -1367,14 +1483,18 @@ public final class TabletChassisPaint {
 
         switch (label) {
             case "GRID" -> { // crosshair
-                for (int x = cx - 7; x <= cx + 7; x++) setPixel(img, x, cy, textCol);
-                for (int y = cy - 7; y <= cy + 7; y++) setPixel(img, cx, y, textCol);
+                for (int x = cx - 7; x <= cx + 7; x++)
+                    setPixel(img, x, cy, textCol);
+                for (int y = cy - 7; y <= cy + 7; y++)
+                    setPixel(img, cx, y, textCol);
                 fillCircle(img, cx, cy, 2, textCol);
             }
             case "BRIGHT" -> { // 8-pointed star
                 fillCircle(img, cx, cy, 3, textCol);
-                for (int x = cx - 8; x <= cx + 8; x++) setPixel(img, x, cy, textCol);
-                for (int y = cy - 8; y <= cy + 8; y++) setPixel(img, cx, y, textCol);
+                for (int x = cx - 8; x <= cx + 8; x++)
+                    setPixel(img, x, cy, textCol);
+                for (int y = cy - 8; y <= cy + 8; y++)
+                    setPixel(img, cx, y, textCol);
                 int d = 5;
                 setPixel(img, cx - d, cy - d, textCol);
                 setPixel(img, cx + d, cy - d, textCol);
@@ -1402,7 +1522,8 @@ public final class TabletChassisPaint {
                     for (int dx = -radius; dx <= radius; dx++) {
                         int d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -2 && Math.abs(dx) <= gapHalfW) continue;
+                            if (dy < -2 && Math.abs(dx) <= gapHalfW)
+                                continue;
                             setPixel(img, cx + dx, cy + dy, textCol);
                         }
                     }
@@ -1440,4 +1561,3 @@ public final class TabletChassisPaint {
         }
     }
 }
-
