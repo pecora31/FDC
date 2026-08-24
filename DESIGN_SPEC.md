@@ -54,7 +54,8 @@
 ---
 
 ## 3. 💡 HỆ THỐNG ĐÈN LED (OPTICAL LIGHT-PIPE CAPSULE SPECIFICATION)
-* **Số lượng**: Đúng 32 đèn LED, đặt ngay dưới chân / cạnh mỗi nút bấm.
+* **Số lượng**: Đúng 28 đèn LED, phân bổ cho các phím chức năng nội bộ (8 đèn hàng trên, 8 đèn hàng dưới, 6 đèn cạnh trái, 6 đèn cạnh phải).
+* **4 phím góc KHÔNG CÓ ĐÈN LED**: `GRID`, `BRIGHT`, `NIGHT`, `POWER` được đặt trong **Hốc lõm bảo vệ (Sunken Bezel Well 5px)** chống cấn nút và không có đèn LED chỉ thị.
 * **⚠️ Quy tắc phương của đèn LED**: **Chiều dài của đèn LED luôn VUÔNG GÓC với cạnh kề của phím bấm**:
   * **Hàng trên & Hàng dưới** (kề cạnh ngang của phím): Đèn LED nằm **DỌC ($4 \times 8\text{ px}$)** tại $Y = 76$ (trên) và $Y = 546$ (dưới).
   * **Cạnh trái & Cạnh phải** (kề cạnh đứng của phím): Đèn LED nằm **NGANG ($8 \times 4\text{ px}$)** tại $X = 76$ (trái) và $X = 896$ (phải).

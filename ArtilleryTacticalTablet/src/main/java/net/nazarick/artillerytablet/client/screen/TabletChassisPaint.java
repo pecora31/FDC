@@ -1239,13 +1239,19 @@ public final class TabletChassisPaint {
         int keySize = 44;
         int half = keySize / 2;
 
-        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 10 LEDs at LED_ROW_TOP_Y = 76)
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
         String[] topLabels = {"GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT"};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
+            if (i == 0 || i == 9) {
+                // 4 Corner Function Buttons have sunken protective wells and NO LEDs
+                bakeSunkenButtonWell(img, cx, cy);
+            }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, topLabels[i]);
-            bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
+            if (i != 0 && i != 9) {
+                bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
+            }
         }
 
         // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
@@ -1266,20 +1272,23 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 10 LEDs at LED_ROW_BOTTOM_Y = 546)
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
         String[] botLabels = {"NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER"};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
-            if (i == 9) {
-                bakePowerButtonWell(img, cx, cy);
+            if (i == 0 || i == 9) {
+                // 4 Corner Function Buttons have sunken protective wells and NO LEDs
+                bakeSunkenButtonWell(img, cx, cy);
             }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
-            bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
+            if (i != 0 && i != 9) {
+                bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
+            }
         }
     }
 
-    private static void bakePowerButtonWell(NativeImage img, int cx, int cy) {
+    private static void bakeSunkenButtonWell(NativeImage img, int cx, int cy) {
         int keyW = 44, keyH = 44, keyR = 7;
         int rimThick = 5;
         int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
