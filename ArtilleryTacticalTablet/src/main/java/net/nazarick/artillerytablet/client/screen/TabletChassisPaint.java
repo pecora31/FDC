@@ -44,10 +44,10 @@ public final class TabletChassisPaint {
 
         int w = TabletFrame.DESIGN_W;
         int h = TabletFrame.DESIGN_H;
-        int r = 18;
+        int r = 26; // Increased curvature for outer L dưới
         int bW = 9;
-        int cornerW = 48;
-        int cornerH = 48;
+        int cornerW = 56; // L trên shifted deeper into chassis
+        int cornerH = 56;
 
         // 1. Base rim, true-transparent outside the rounded rect (no square corners
         // bleeding through)
@@ -70,8 +70,7 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Four soft-corner chamfer facets (connecting seamlessly with 48px corner
-        // pockets)
+        // 3. Four soft-corner chamfer facets (connecting seamlessly with corner pockets)
         for (int cy = 1; cy < bW; cy++) {
             int d = cy - 1;
             int col = (d == 0) ? 0xFF2D2F33 : ((d == 1) ? 0xFF26282C : ((d == bW - 2) ? 0xFF1B1D1F : 0xFF202225));
@@ -102,10 +101,10 @@ public final class TabletChassisPaint {
         }
 
         // 4. Stepped corners, each with its own layered hex bolt
-        bakeSteppedCorner(img, 0, 0, true, true, cornerW, cornerH, 7, r, bW);
-        bakeSteppedCorner(img, w - cornerW, 0, false, true, cornerW, cornerH, 7, r, bW);
-        bakeSteppedCorner(img, 0, h - cornerH, true, false, cornerW, cornerH, 7, r, bW);
-        bakeSteppedCorner(img, w - cornerW, h - cornerH, false, false, cornerW, cornerH, 7, r, bW);
+        bakeSteppedCorner(img, 0, 0, true, true, cornerW, cornerH, 18, r, bW);
+        bakeSteppedCorner(img, w - cornerW, 0, false, true, cornerW, cornerH, 18, r, bW);
+        bakeSteppedCorner(img, 0, h - cornerH, true, false, cornerW, cornerH, 18, r, bW);
+        bakeSteppedCorner(img, w - cornerW, h - cornerH, false, false, cornerW, cornerH, 18, r, bW);
 
         // 5. Screen bezel well + tactical grid baked into the well floor
         bakeScreenAndTacticalGrid(img);
@@ -148,8 +147,8 @@ public final class TabletChassisPaint {
             int cornerW, int cornerH, int rIn, int outerR, int bW) {
         int w = TabletFrame.DESIGN_W;
         int h = TabletFrame.DESIGN_H;
-        int pSize = 48;
-        int rInner = 14;
+        int pSize = cornerW;
+        int rInner = rIn; // 18px curve for L trên
 
         int kx1 = isLeft ? 0 : w - pSize;
         int kx2 = isLeft ? pSize : w;
@@ -162,7 +161,7 @@ public final class TabletChassisPaint {
                 int lx = isLeft ? x : (w - 1 - x);
                 int ly = isTop ? y : (h - 1 - y);
 
-                // 2. Outer tablet rounded corner check (R = 18)
+                // 2. Outer tablet rounded corner check (R = outerR)
                 if (lx < outerR && ly < outerR) {
                     float dx = outerR - lx, dy = outerR - ly;
                     float distOut = (float) Math.sqrt(dx * dx + dy * dy);
@@ -226,8 +225,8 @@ public final class TabletChassisPaint {
         }
 
         // 6. Deep CNC-milled counterbore screw hole
-        int cx = isLeft ? 23 : (w - 24);
-        int cy = isTop ? 23 : (h - 24);
+        int cx = isLeft ? 26 : (w - 27);
+        int cy = isTop ? 26 : (h - 27);
         int boltR = 5;
 
         fillCircle(img, cx, cy, boltR + 3, 0xFF1A1C20); // Outer counterbore rim
