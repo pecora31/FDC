@@ -1284,6 +1284,9 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
+            if (i == 0 || i == 9) {
+                bakeButtonSunkenWell(img, cx, cy);
+            }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, topLabels[i]);
             bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
         }
@@ -1311,15 +1314,15 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
-            if (i == 9) {
-                bakePowerButtonWell(img, cx, cy);
+            if (i == 0 || i == 9) {
+                bakeButtonSunkenWell(img, cx, cy);
             }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
             bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
         }
     }
 
-    private static void bakePowerButtonWell(NativeImage img, int cx, int cy) {
+    private static void bakeButtonSunkenWell(NativeImage img, int cx, int cy) {
         int keyW = 44, keyH = 44, keyR = 7;
         int rimThick = 4;
         int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
