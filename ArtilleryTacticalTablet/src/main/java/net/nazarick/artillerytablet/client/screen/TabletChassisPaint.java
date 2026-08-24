@@ -522,7 +522,7 @@ public final class TabletChassisPaint {
         int cutX1 = isLeft ? 0 : 908;
         int cutX2 = isLeft ? 72 : TabletFrame.DESIGN_W;
         int rInner = 14;
-        int x1 = 18, x2 = 36;
+        int x1 = 14;
 
         // Shadow under C-bracket
         for (int y = uY1 - 4; y <= uY2 + 5; y++) {
@@ -550,9 +550,9 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Bevel Shading & Perfectly Aligned Vertical Crease Lines
+        // 2. Bevel Shading: Straight top/bottom horizontal edges, single continuous outer flank line at x1 = 14
         if (isLeft) {
-            // Outer flank bevel (X in [0, 18])
+            // Outer flank bevel (X in [0, 14])
             for (int x = uX1; x < uX1 + x1; x++) {
                 int distFromOuter = x - uX1;
                 for (int y = uY1; y < uY2; y++) {
@@ -571,7 +571,7 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Horizontal Bevels (X in [18, 90])
+            // Top & Bottom Horizontal Bevels (X in [14, 90])
             for (int x = uX1 + x1; x < uX2; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
@@ -587,28 +587,15 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Aligned Vertical Line at X = 18 (Left red line)
+            // Single Continuous Vertical Line at X = 14 from Y = 105 to Y = 525 (Left red line)
             for (int y = uY1; y < uY2; y++) {
                 if (isInsideSidePlateau(x1, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
                     setPixel(img, x1, y, applyStipple(0xFF141518, x1, y));
                 }
             }
-
-            // Aligned Vertical Line at X = 36 (Right red line)
-            for (int y = uY1; y <= 124; y++) {
-                if (isInsideSidePlateau(x2, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
-                    setPixel(img, x2, y, applyStipple(0xFF141518, x2, y));
-                }
-            }
-            for (int y = 506; y < uY2; y++) {
-                if (isInsideSidePlateau(x2, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
-                    setPixel(img, x2, y, applyStipple(0xFF141518, x2, y));
-                }
-            }
         } else {
-            // Right outer flank bevel (X in [962, 980])
-            int rx1 = TabletFrame.DESIGN_W - x1; // 962
-            int rx2 = TabletFrame.DESIGN_W - x2; // 944
+            // Right outer flank bevel (X in [966, 980])
+            int rx1 = TabletFrame.DESIGN_W - x1; // 966
             for (int x = rx1; x < uX2; x++) {
                 int distFromOuter = (uX2 - 1) - x;
                 for (int y = uY1; y < uY2; y++) {
@@ -627,7 +614,7 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Horizontal Bevels (X in [890, 962])
+            // Top & Bottom Horizontal Bevels (X in [890, 966])
             for (int x = uX1; x < rx1; x++) {
                 for (int d = 0; d < 4; d++) {
                     int yTop = uY1 + d;
@@ -643,27 +630,15 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Aligned Vertical Line at X = 962 (Right flank line)
+            // Single Continuous Vertical Line at X = 966 (Right red line)
             for (int y = uY1; y < uY2; y++) {
                 if (isInsideSidePlateau(rx1, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
                     setPixel(img, rx1, y, applyStipple(0xFF141518, rx1, y));
                 }
             }
-
-            // Aligned Vertical Line at X = 944
-            for (int y = uY1; y <= 124; y++) {
-                if (isInsideSidePlateau(rx2, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
-                    setPixel(img, rx2, y, applyStipple(0xFF141518, rx2, y));
-                }
-            }
-            for (int y = 506; y < uY2; y++) {
-                if (isInsideSidePlateau(rx2, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner)) {
-                    setPixel(img, rx2, y, applyStipple(0xFF141518, rx2, y));
-                }
-            }
         }
 
-        // 3. Inner cutout contour (with 45-degree diagonal flare at outer ends X in [18, 36] and R=14 fillets at inner corner X=72)
+        // 3. Inner cutout contour (with 45-degree diagonal flare at outer ends X in [0, 14] and R=14 fillets at inner corner X=72)
         int boundX1 = isLeft ? 0 : cutX1 - 4;
         int boundX2 = isLeft ? cutX2 + 4 : TabletFrame.DESIGN_W;
         int boundY1 = cutY1 - 24;
@@ -724,23 +699,12 @@ public final class TabletChassisPaint {
 
     private static float getSideCutoutSDF(int px, int py, boolean isLeft, int cutX1, int cutX2, int cutY1, int cutY2,
                                            int rInner) {
-        int x1 = 18, x2 = 36;
-        int chamferH = x2 - x1; // 18px
+        int x1 = 14;
 
         if (isLeft) {
-            // Cutout ceiling & floor with 45-degree diagonal flare starting at X=18 and ending at X=36
-            int curCutY1;
-            int curCutY2;
-            if (px < x1) {
-                curCutY1 = cutY1 + chamferH;
-                curCutY2 = cutY2 - chamferH;
-            } else if (px < x2) {
-                curCutY1 = cutY1 + (x2 - px);
-                curCutY2 = cutY2 - (x2 - px);
-            } else {
-                curCutY1 = cutY1;
-                curCutY2 = cutY2;
-            }
+            // Cutout ceiling & floor with 45-degree diagonal flare starting from outer edge X=0 to vertical line X=14
+            int curCutY1 = (px < x1) ? (cutY1 + (x1 - px)) : cutY1;
+            int curCutY2 = (px < x1) ? (cutY2 - (x1 - px)) : cutY2;
 
             if (px > cutX2 - rInner) {
                 if (py < cutY1 + rInner) {
@@ -755,20 +719,10 @@ public final class TabletChassisPaint {
             }
             return (float) Math.max(curCutY1 - py, py - curCutY2);
         } else {
-            // Right Side cutout ceiling & floor with 45-degree diagonal flare starting at X=962 and ending at X=944
+            // Right Side cutout ceiling & floor with 45-degree diagonal flare from X=980 to X=966
             int distFromRight = TabletFrame.DESIGN_W - 1 - px;
-            int curCutY1;
-            int curCutY2;
-            if (distFromRight < x1) {
-                curCutY1 = cutY1 + chamferH;
-                curCutY2 = cutY2 - chamferH;
-            } else if (distFromRight < x2) {
-                curCutY1 = cutY1 + (x2 - distFromRight);
-                curCutY2 = cutY2 - (x2 - distFromRight);
-            } else {
-                curCutY1 = cutY1;
-                curCutY2 = cutY2;
-            }
+            int curCutY1 = (distFromRight < x1) ? (cutY1 + (x1 - distFromRight)) : cutY1;
+            int curCutY2 = (distFromRight < x1) ? (cutY2 - (x1 - distFromRight)) : cutY2;
 
             if (px < cutX1 + rInner) {
                 if (py < cutY1 + rInner) {
