@@ -2,7 +2,6 @@ package net.nazarick.artillerytablet.mapcheck;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.nazarick.artillerytablet.client.screen.NatoSymbolRenderer;
-import net.nazarick.artillerytablet.client.screen.TabletChassisPaint;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Dedicated Showcase & Test Harness for the NATO Military Symbology Library (MIL-STD-2525D).
- * Renders all standard branch icons, affiliations, and echelon sizes on the tablet display.
+ * Standalone Master Reference Table & Specification Sheet for NATO MIL-STD-2525D / APP-6D Symbology.
+ * Exports a high-resolution standalone poster (1600x1000) with comprehensive annotations and technical rules.
  */
 public final class NatoSymbolView {
 
@@ -25,106 +24,229 @@ public final class NatoSymbolView {
 
     private NatoSymbolView() {}
 
+    public static final int POSTER_W = 1600;
+    public static final int POSTER_H = 1000;
+
     public static void run(Path out) throws Exception {
         Files.createDirectories(out);
 
-        // 1. Bake Tablet Chassis
-        NativeImage img = TabletChassisPaint.bake();
+        NativeImage img = new NativeImage(POSTER_W, POSTER_H, false);
 
-        // 2. Render NATO Symbology Matrix onto 800x450 OLED Screen
-        int sx = 90, sy = 90, sw = 800, sh = 450;
-        renderNatoShowcase(img, sx, sy, sw, sh);
+        // 1. Draw Master Specification Poster
+        renderMasterSpecTable(img);
 
-        // 3. Write outputs
+        // 2. Write outputs
         img.writeToFile(out.resolve("nato-symbols.png"));
         img.writeToFile(out.resolve("case.png"));
-        System.out.printf("NATO Symbols Showcase: OK -> %s and %s%n",
+        System.out.printf("NATO Master Reference Table: OK -> %s and %s%n",
                 out.resolve("nato-symbols.png"), out.resolve("case.png"));
     }
 
-    private static void renderNatoShowcase(NativeImage img, int sx, int sy, int sw, int sh) {
-        // Deep Charcoal OLED Canvas
-        for (int y = sy; y < sy + sh; y++) {
-            for (int x = sx; x < sx + sw; x++) {
-                if (isInsideRoundedRect(x, y, sx, sy, sx + sw, sy + sh, 10)) {
-                    setPixel(img, x, y, 0xFF080A0E);
-                }
+    private static void renderMasterSpecTable(NativeImage img) {
+        // 1. Dark Tactical Navy-Charcoal Background with subtle blueprint grid
+        for (int y = 0; y < POSTER_H; y++) {
+            for (int x = 0; x < POSTER_W; x++) {
+                int col = 0xFF080A0E;
+                if (x % 50 == 0 || y % 50 == 0) col = 0xFF10141C;
+                if (x % 200 == 0 || y % 200 == 0) col = 0xFF181F2C;
+                setPixel(img, x, y, col);
             }
         }
 
-        // Header Title
-        drawSmallText(img, "NATO MIL-STD-2525D / APP-6D TACTICAL SYMBOLOGY LIBRARY", sx + 16, sy + 14, 0xFFFFFFFF);
-        for (int px = sx + 16; px < sx + sw - 16; px++) setPixel(img, px, sy + 28, 0xFF334155);
+        // Outer border
+        drawGlassPanel(img, 10, 10, POSTER_W - 20, POSTER_H - 20, 0x00000000, 0xFF334155);
+        drawGlassPanel(img, 14, 14, POSTER_W - 28, POSTER_H - 28, 0x00000000, 0xFF1E293B);
 
-        // Row 1: FRIENDLY (Blue Force) Combat Units
-        drawSmallText(img, "FRIENDLY (BLUE FORCE):", sx + 16, sy + 38, 0xFF3B82F6);
-        NatoSymbolRenderer.drawSymbol(img, sx + 50,  sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.INFANTRY, NatoSymbolRenderer.Echelon.PLATOON, "1/A/1-22", "IN");
-        NatoSymbolRenderer.drawSymbol(img, sx + 120, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.ARMOR, NatoSymbolRenderer.Echelon.COMPANY, "A/1-66", "AR");
-        NatoSymbolRenderer.drawSymbol(img, sx + 190, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.MECH_INFANTRY, NatoSymbolRenderer.Echelon.BATTALION, "1-8", "MECH");
-        NatoSymbolRenderer.drawSymbol(img, sx + 260, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.FIELD_ARTILLERY, NatoSymbolRenderer.Echelon.COMPANY, "A/1-77", "FA");
-        NatoSymbolRenderer.drawSymbol(img, sx + 330, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.SP_ARTILLERY, NatoSymbolRenderer.Echelon.COMPANY, "BTY-1", "PZH");
-        NatoSymbolRenderer.drawSymbol(img, sx + 400, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.ROCKET_ARTILLERY, NatoSymbolRenderer.Echelon.COMPANY, "HIMARS", "MLRS");
-        NatoSymbolRenderer.drawSymbol(img, sx + 470, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.MORTAR, NatoSymbolRenderer.Echelon.SECTION, "MTR-1", "120M");
-        NatoSymbolRenderer.drawSymbol(img, sx + 540, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.RECONNAISSANCE, NatoSymbolRenderer.Echelon.COMPANY, "1/1-10", "CAV");
-        NatoSymbolRenderer.drawSymbol(img, sx + 610, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.AIR_DEFENSE, NatoSymbolRenderer.Echelon.COMPANY, "PATRIOT", "AD");
-        NatoSymbolRenderer.drawSymbol(img, sx + 680, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.AVIATION_ROTARY, NatoSymbolRenderer.Echelon.COMPANY, "APACHE", "AV");
-        NatoSymbolRenderer.drawSymbol(img, sx + 750, sy + 75, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.OBSERVATION_POST, NatoSymbolRenderer.Echelon.TEAM, "JFST-1", "FO");
+        // 2. Master Header
+        for (int y = 20; y < 80; y++) {
+            for (int x = 20; x < POSTER_W - 20; x++) {
+                setPixel(img, x, y, 0xFF0F141E);
+            }
+        }
+        for (int x = 20; x < POSTER_W - 20; x++) setPixel(img, x, 80, 0xFF3B82F6);
 
-        // Row 2: HOSTILE (Red OPFOR) Combat Units
-        drawSmallText(img, "HOSTILE (RED OPFOR):", sx + 16, sy + 130, 0xFFEF4444);
-        NatoSymbolRenderer.drawSymbol(img, sx + 50,  sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.INFANTRY, NatoSymbolRenderer.Echelon.PLATOON, "TGT-10", "IN");
-        NatoSymbolRenderer.drawSymbol(img, sx + 120, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.ARMOR, NatoSymbolRenderer.Echelon.COMPANY, "TGT-11", "T90");
-        NatoSymbolRenderer.drawSymbol(img, sx + 190, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.MECH_INFANTRY, NatoSymbolRenderer.Echelon.COMPANY, "TGT-12", "BMP");
-        NatoSymbolRenderer.drawSymbol(img, sx + 260, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.FIELD_ARTILLERY, NatoSymbolRenderer.Echelon.COMPANY, "TGT-13", "D30");
-        NatoSymbolRenderer.drawSymbol(img, sx + 330, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.SP_ARTILLERY, NatoSymbolRenderer.Echelon.COMPANY, "TGT-14", "2S19");
-        NatoSymbolRenderer.drawSymbol(img, sx + 400, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.ROCKET_ARTILLERY, NatoSymbolRenderer.Echelon.COMPANY, "TGT-15", "GRAD");
-        NatoSymbolRenderer.drawSymbol(img, sx + 470, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.MORTAR, NatoSymbolRenderer.Echelon.SECTION, "TGT-16", "2B11");
-        NatoSymbolRenderer.drawSymbol(img, sx + 540, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.RECONNAISSANCE, NatoSymbolRenderer.Echelon.SECTION, "TGT-17", "BRDM");
-        NatoSymbolRenderer.drawSymbol(img, sx + 610, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.AIR_DEFENSE, NatoSymbolRenderer.Echelon.COMPANY, "TGT-18", "TOR");
-        NatoSymbolRenderer.drawSymbol(img, sx + 680, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.AVIATION_ROTARY, NatoSymbolRenderer.Echelon.COMPANY, "TGT-19", "KA52");
-        NatoSymbolRenderer.drawSymbol(img, sx + 750, sy + 170, 30, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.ANTI_TANK, NatoSymbolRenderer.Echelon.SECTION, "TGT-20", "KORNET");
+        drawTextScaled(img, "NATO MIL-STD-2525D / APP-6D TACTICAL SYMBOLOGY SPECIFICATION", 32, 32, 2, 0xFFFFFFFF);
+        drawSmallText(img, "OFFICIAL MILITARY REFERENCE STANDARD & ASSET DESIGN SYSTEM -- ASTRA C2 SYSTEM CORE", 32, 60, 0xFF94A3B8);
+        drawSmallText(img, "DOC-REF: ASTRA-SPEC-MIL2525D-REV4", POSTER_W - 300, 60, 0xFF38BDF8);
 
-        // Row 3: SUPPORT, COMBAT SERVICE & NEUTRAL / UNKNOWN
-        drawSmallText(img, "COMBAT SUPPORT & SERVICE (ENGINEER / SIGNAL / MEDICAL / LOGISTICS / HQ):", sx + 16, sy + 225, 0xFFCBD5E1);
-        NatoSymbolRenderer.drawSymbol(img, sx + 50,  sy + 265, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.ENGINEER, NatoSymbolRenderer.Echelon.COMPANY, "54 EN", "EN");
-        NatoSymbolRenderer.drawSymbol(img, sx + 130, sy + 265, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.SIGNAL, NatoSymbolRenderer.Echelon.COMPANY, "121 SIG", "SIG");
-        NatoSymbolRenderer.drawSymbol(img, sx + 210, sy + 265, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.MEDICAL, NatoSymbolRenderer.Echelon.COMPANY, "MED-1", "MED");
-        NatoSymbolRenderer.drawSymbol(img, sx + 290, sy + 265, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.LOGISTICS, NatoSymbolRenderer.Echelon.BATTALION, "BSB", "LOG");
-        NatoSymbolRenderer.drawSymbol(img, sx + 370, sy + 265, 30, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.HEADQUARTERS, NatoSymbolRenderer.Echelon.BRIGADE, "1 ABCT", "HQ");
+        // =========================================================================
+        // SECTION 1: AFFILIATIONS & GEOMETRIC FRAMES (LEFT PANEL: X = 30 to 420)
+        // =========================================================================
+        int p1X = 30, p1Y = 100, p1W = 390, p1H = 870;
+        drawGlassPanel(img, p1X, p1Y, p1W, p1H, 0xF00D111A, 0xFF2A3444);
+        drawSectionHeader(img, p1X, p1Y, p1W, "1. AFFILIATIONS (NHAN DANG LUC LUONG)");
 
-        drawSmallText(img, "NEUTRAL (GREEN) & UNKNOWN (AMBER):", sx + 450, sy + 225, 0xFF10B981);
-        NatoSymbolRenderer.drawSymbol(img, sx + 490, sy + 265, 30, NatoSymbolRenderer.Affiliation.NEUTRAL, NatoSymbolRenderer.UnitType.LOGISTICS, null, "UN-CONVOY", "CIV");
-        NatoSymbolRenderer.drawSymbol(img, sx + 570, sy + 265, 30, NatoSymbolRenderer.Affiliation.NEUTRAL, NatoSymbolRenderer.UnitType.MEDICAL, null, "ICRC-1", "HOSP");
-        NatoSymbolRenderer.drawSymbol(img, sx + 660, sy + 265, 30, NatoSymbolRenderer.Affiliation.UNKNOWN, NatoSymbolRenderer.UnitType.ARMOR, null, "TRACK-402", "UNK");
-        NatoSymbolRenderer.drawSymbol(img, sx + 740, sy + 265, 30, NatoSymbolRenderer.Affiliation.UNKNOWN, NatoSymbolRenderer.UnitType.AIR_DEFENSE, null, "RADAR-88", "EMIT");
+        // 1. Friendly (Blue Box)
+        int afY1 = p1Y + 45;
+        NatoSymbolRenderer.drawSymbol(img, p1X + 45, afY1 + 25, 36, NatoSymbolRenderer.Affiliation.FRIENDLY, NatoSymbolRenderer.UnitType.INFANTRY, NatoSymbolRenderer.Echelon.PLATOON, "1/A", "FRIENDLY");
+        drawSmallText(img, "FRIENDLY (QUAN DONG MINH)", p1X + 90, afY1 + 10, 0xFF3B82F6);
+        drawSmallText(img, "Màu: Xanh Biển (#3B82F6 / #0E294B)", p1X + 90, afY1 + 24, 0xFFCBD5E1);
+        drawSmallText(img, "Khung: Hinh chu nhat bo goc (Rounded Box)", p1X + 90, afY1 + 38, 0xFF94A3B8);
 
-        // Row 4: ECHELON SIZES LEGEND
-        for (int px = sx + 16; px < sx + sw - 16; px++) setPixel(img, px, sy + 325, 0xFF334155);
-        drawSmallText(img, "NATO ECHELON SIZES:  [Ø] TEAM  [●] SQUAD  [●●] SECTION  [●●●] PLATOON  [|] COMPANY/BATTERY  [||] BATTALION  [|||] REGIMENT  [X] BRIGADE  [XX] DIVISION", sx + 16, sy + 340, 0xFFCBD5E1);
+        // 2. Hostile (Red Diamond)
+        int afY2 = afY1 + 80;
+        NatoSymbolRenderer.drawSymbol(img, p1X + 45, afY2 + 25, 36, NatoSymbolRenderer.Affiliation.HOSTILE, NatoSymbolRenderer.UnitType.ARMOR, NatoSymbolRenderer.Echelon.COMPANY, "TGT-01", "HOSTILE");
+        drawSmallText(img, "HOSTILE (QUAN DOI PHUONG - OPFOR)", p1X + 90, afY2 + 10, 0xFFEF4444);
+        drawSmallText(img, "Màu: Do Tham (#EF4444 / #3B0D0D)", p1X + 90, afY2 + 24, 0xFFCBD5E1);
+        drawSmallText(img, "Khung: Hinh thoi sac canh (Diamond)", p1X + 90, afY2 + 38, 0xFF94A3B8);
 
-        // Technical Spec Notice
-        drawSmallText(img, "STANDARDS COMPLIANCE: MIL-STD-2525D / NATO APP-6D VECTOR GRAPHICS ENGINE (ASTRA C2 CORE)", sx + 16, sy + 380, 0xFF7A8699);
+        // 3. Neutral (Green Square)
+        int afY3 = afY2 + 80;
+        NatoSymbolRenderer.drawSymbol(img, p1X + 45, afY3 + 25, 36, NatoSymbolRenderer.Affiliation.NEUTRAL, NatoSymbolRenderer.UnitType.MEDICAL, null, "UN-01", "NEUTRAL");
+        drawSmallText(img, "NEUTRAL (LUC LUONG TRUNG LAP / CIV)", p1X + 90, afY3 + 10, 0xFF10B981);
+        drawSmallText(img, "Màu: Xanh Luc (#10B981 / #0A2E1C)", p1X + 90, afY3 + 24, 0xFFCBD5E1);
+        drawSmallText(img, "Khung: Hinh vuong (Square)", p1X + 90, afY3 + 38, 0xFF94A3B8);
+
+        // 4. Unknown (Amber Quatrefoil)
+        int afY4 = afY3 + 80;
+        NatoSymbolRenderer.drawSymbol(img, p1X + 45, afY4 + 25, 36, NatoSymbolRenderer.Affiliation.UNKNOWN, NatoSymbolRenderer.UnitType.AIR_DEFENSE, null, "TRK-99", "UNKNOWN");
+        drawSmallText(img, "UNKNOWN / PENDING (CHUA XAC DINH)", p1X + 90, afY4 + 10, 0xFFF59E0B);
+        drawSmallText(img, "Màu: Vang Ho Phach (#F59E0B / #3D2808)", p1X + 90, afY4 + 24, 0xFFCBD5E1);
+        drawSmallText(img, "Khung: Co 4 la uon cong (Quatrefoil)", p1X + 90, afY4 + 38, 0xFF94A3B8);
+
+        // Echelon Hierarchy Legend inside Left Panel
+        int echBoxY = afY4 + 85;
+        for (int px = p1X + 10; px < p1X + p1W - 10; px++) setPixel(img, px, echBoxY, 0xFF334155);
+        drawSmallText(img, "2. ECHELON HIERARCHY (CAP BAC DON VI)", p1X + 15, echBoxY + 12, 0xFFFFFFFF);
+
+        String[][] echelons = {
+                {"[ Ø ]", "TEAM", "To Chien Dau / To 3-4 Nguoi"},
+                {"[ ● ]", "SQUAD", "Tieu Doi (8 - 12 Chien Si)"},
+                {"[ ●● ]", "SECTION", "Phan Doi / Khau Doi Hoa Luc"},
+                {"[ ●●● ]", "PLATOON", "Trung Doi (3 - 4 Tieu Doi)"},
+                {"[ | ]", "COMPANY / BTY", "Dai Doi / Khau Doi Phao"},
+                {"[ || ]", "BATTALION", "Tieu Doan / Lien Doan"},
+                {"[ ||| ]", "REGIMENT", "Trung Doan / Group"},
+                {"[ X ]", "BRIGADE", "Lu Doan (BCT)"},
+                {"[ XX ]", "DIVISION", "Su Doan Bo Binh / Thiet Giap"},
+                {"[ XXX ]", "CORPS", "Quan Doan Tac Chien"}
+        };
+
+        for (int i = 0; i < echelons.length; i++) {
+            int ey = echBoxY + 36 + i * 24;
+            drawSmallText(img, echelons[i][0], p1X + 15, ey, 0xFF38BDF8);
+            drawSmallText(img, echelons[i][1], p1X + 75, ey, 0xFFFFFFFF);
+            drawSmallText(img, echelons[i][2], p1X + 195, ey, 0xFF94A3B8);
+        }
+
+        // Technical Rule Box at bottom
+        int ruleY = echBoxY + 290;
+        drawGlassPanel(img, p1X + 10, ruleY, p1W - 20, 160, 0xAA080B10, 0xFF475569);
+        drawSmallText(img, "QUY TAC DONG BO THIET KE ASTRA C2:", p1X + 20, ruleY + 12, 0xFFF59E0B);
+        drawSmallText(img, "- Toan bo icon tren map bat buoc theo", p1X + 20, ruleY + 32, 0xFFCBD5E1);
+        drawSmallText(img, "  khung vector MIL-STD-2525D.", p1X + 20, ruleY + 46, 0xFFCBD5E1);
+        drawSmallText(img, "- Mau Xanh (#3B82F6) cho Dong Minh.", p1X + 20, ruleY + 64, 0xFF93C5FD);
+        drawSmallText(img, "- Mau Do (#EF4444) cho Muc Tieu Dich.", p1X + 20, ruleY + 78, 0xFFFCA5A5);
+        drawSmallText(img, "- Khong tu y thay doi hinh dang khung.", p1X + 20, ruleY + 96, 0xFFCBD5E1);
+        drawSmallText(img, "- Chu thich don vi luon dat phia duoi.", p1X + 20, ruleY + 110, 0xFFCBD5E1);
+        drawSmallText(img, "- Cap bac don vi luon dat tren dau khung.", p1X + 20, ruleY + 124, 0xFFCBD5E1);
+
+        // =========================================================================
+        // SECTION 2: MASTER TABLE OF BRANCH & FUNCTION ICONS (MAIN AREA: X = 440 to 1570)
+        // =========================================================================
+        int p2X = 440, p2Y = 100, p2W = 1130, p2H = 870;
+        drawGlassPanel(img, p2X, p2Y, p2W, p2H, 0xF00D111A, 0xFF2A3444);
+        drawSectionHeader(img, p2X, p2Y, p2W, "3. MASTER BRANCH & COMBAT FUNCTION ICONS (BANG QUY CHUAN BINH CHUNG QUAN SU)");
+
+        // Table Header
+        int thY = p2Y + 36;
+        for (int px = p2X; px < p2X + p2W; px++) {
+            for (int py = thY; py < thY + 24; py++) setPixel(img, px, py, 0xFF161E2C);
+        }
+        for (int px = p2X; px < p2X + p2W; px++) setPixel(img, px, thY + 24, 0xFF3B82F6);
+
+        drawSmallText(img, "BIEU TUONG (ICON)", p2X + 20, thY + 8, 0xFF38BDF8);
+        drawSmallText(img, "BINH CHUNG (BRANCH)", p2X + 160, thY + 8, 0xFF38BDF8);
+        drawSmallText(img, "Y NGHIA HINH HOC (GEOMETRY)", p2X + 380, thY + 8, 0xFF38BDF8);
+        drawSmallText(img, "UNG DUNG & TRANG BI THUC TE (APPLICATIONS)", p2X + 700, thY + 8, 0xFF38BDF8);
+
+        // Table Content Rows
+        record BranchRow(NatoSymbolRenderer.UnitType type, String name, String geom, String examples) {}
+        BranchRow[] rows = {
+                new BranchRow(NatoSymbolRenderer.UnitType.INFANTRY, "BO BINH (INFANTRY)", "Dau gach cheo X (Day deo dan cheo)", "Bo binh co dong, Tieu doan Bo binh Nhe"),
+                new BranchRow(NatoSymbolRenderer.UnitType.ARMOR, "TANG THIET GIAP (ARMOR)", "Vong xich xe oval (Armor Track)", "Xe tang chu luc M1A2 Abrams, Leopard 2, T-90M"),
+                new BranchRow(NatoSymbolRenderer.UnitType.FIELD_ARTILLERY, "PHAO BINH MAT DAT (FA)", "Diem tron dac (Dan phao Cannonball)", "Luu phao keo M777 155mm, D-30 122mm"),
+                new BranchRow(NatoSymbolRenderer.UnitType.SP_ARTILLERY, "PHAO TU HANH (SPG)", "Vong xich Oval + Diem tron phao", "PZh 2000, M109A6 Paladin, 2S19 Msta-S, Archer"),
+                new BranchRow(NatoSymbolRenderer.UnitType.ROCKET_ARTILLERY, "PHAO PHAN LUC (MLRS)", "Diem tron phao + Mui ten phong", "M142 HIMARS, M270 MLRS, BM-21 Grad, BM-30"),
+                new BranchRow(NatoSymbolRenderer.UnitType.MORTAR, "SUNG COI (MORTAR)", "Diem tron + Nong coi dung thang", "Sung coi 120mm M120, 81mm L16, Coi tu hanh"),
+                new BranchRow(NatoSymbolRenderer.UnitType.MECH_INFANTRY, "BO BINH CO GIOI (MECH)", "Vong xich Oval + Chu X bo binh", "Xe chien dau bo binh IFV (M2 Bradley, Puma, BMP-3)"),
+                new BranchRow(NatoSymbolRenderer.UnitType.AIR_DEFENSE, "PHONG KHONG (AIR DEFENSE)", "Vom cung bao ve bau troi (Dome)", "MIM-104 Patriot, IRIS-T SLM, Tor-M2, Pantsir-S1"),
+                new BranchRow(NatoSymbolRenderer.UnitType.AVIATION_ROTARY, "KHONG QUAN TRUC THANG (AV)", "Canh quat xoay hinh no (Bowtie)", "Truc thang chien dau AH-64 Apache, Ka-52, Mi-28"),
+                new BranchRow(NatoSymbolRenderer.UnitType.RECONNAISSANCE, "TRINH SAT CO DONG (RECON)", "Duong vat cheo trinh sat (Slash)", "Phan doi trinh sat kieu Fennek, BRDM-2, Jackal"),
+                new BranchRow(NatoSymbolRenderer.UnitType.ANTI_TANK, "CHONG TANG (ANTI-TANK)", "Ky hieu chu V nguoc (Inverted V)", "To doi ten lua Javelin, Spike, Kornet-EM, Stugna-P"),
+                new BranchRow(NatoSymbolRenderer.UnitType.OBSERVATION_POST, "QUAN SAT TIEN DUYEN (FO)", "Tam giac dai quan sat + Tam mat", "Dai chi huy phao binh JFST, Forward Observer (FO)"),
+                new BranchRow(NatoSymbolRenderer.UnitType.HEADQUARTERS, "SO CHI HUY (HQ / CP)", "Can co chi huy o goc duoi khung", "So chi huy Lu doan TOC, So chi huy Tieu doan CP"),
+                new BranchRow(NatoSymbolRenderer.UnitType.ENGINEER, "CONG BINH (ENGINEER)", "Vom cau vuot / Thanh luy kien co", "Cong binh mo duong, Xe bac cau, Xe pha loi ABV"),
+                new BranchRow(NatoSymbolRenderer.UnitType.SIGNAL, "THONG TIN LIEN LAC (SIG)", "Tia chop song vo tuyen (Bolt)", "Tram thu phat ve tinh C2, Xe tiep song chien thuat"),
+                new BranchRow(NatoSymbolRenderer.UnitType.LOGISTICS, "HAU CAN TIEP VAN (LOG)", "Thanh ngang tiep van quan su", "Doan xe tai dan duoc, Tiep te xang dau nhien lieu"),
+                new BranchRow(NatoSymbolRenderer.UnitType.MEDICAL, "QUAN Y CUU THUONG (MED)", "Chu thap Geneva Y te (+)", "Benh vien da chien, Xe cuu thuong bop the M113")
+        };
+
+        for (int i = 0; i < rows.length; i++) {
+            BranchRow r = rows[i];
+            int ry = thY + 30 + i * 46;
+
+            // Zebra striping
+            if (i % 2 == 0) {
+                for (int px = p2X + 4; px < p2X + p2W - 4; px++) {
+                    for (int py = ry - 4; py < ry + 38; py++) setPixel(img, px, py, 0xFF101520);
+                }
+            }
+
+            // Draw Sample Symbol in Friendly Blue and Hostile Red
+            NatoSymbolRenderer.drawSymbol(img, p2X + 45, ry + 16, 28, NatoSymbolRenderer.Affiliation.FRIENDLY, r.type, null, null, null);
+            NatoSymbolRenderer.drawSymbol(img, p2X + 105, ry + 16, 28, NatoSymbolRenderer.Affiliation.HOSTILE, r.type, null, null, null);
+
+            // Columns
+            drawSmallText(img, r.name, p2X + 160, ry + 12, 0xFFFFFFFF);
+            drawSmallText(img, r.geom, p2X + 380, ry + 12, 0xFFCBD5E1);
+            drawSmallText(img, r.examples, p2X + 700, ry + 12, 0xFF94A3B8);
+
+            // Row divider
+            for (int px = p2X + 10; px < p2X + p2W - 10; px++) setPixel(img, px, ry + 40, 0xFF1C2433);
+        }
     }
 
-    private static boolean isInsideRoundedRect(int px, int py, int x1, int y1, int x2, int y2, int r) {
-        if (px < x1 || px >= x2 || py < y1 || py >= y2) return false;
-        if (px < x1 + r && py < y1 + r) {
-            int dx = x1 + r - px - 1, dy = y1 + r - py - 1;
-            return dx * dx + dy * dy <= r * r;
+    private static void drawSectionHeader(NativeImage img, int x, int y, int w, String title) {
+        for (int py = y; py < y + 30; py++) {
+            for (int px = x; px < x + w; px++) setPixel(img, px, py, 0xFF141923);
         }
-        if (px >= x2 - r && py < y1 + r) {
-            int dx = px - (x2 - r), dy = y1 + r - py - 1;
-            return dx * dx + dy * dy <= r * r;
+        for (int px = x; px < x + w; px++) setPixel(img, px, y + 30, 0xFF334155);
+        drawSmallText(img, title, x + 12, y + 10, 0xFFFFFFFF);
+    }
+
+    private static void drawGlassPanel(NativeImage img, int x, int y, int w, int h, int fillCol, int borderCol) {
+        for (int py = y; py < y + h; py++) {
+            for (int px = x; px < x + w; px++) {
+                if (px == x || px == x + w - 1 || py == y || py == y + h - 1) {
+                    setPixel(img, px, py, borderCol);
+                } else if (fillCol != 0) {
+                    setPixel(img, px, py, fillCol);
+                }
+            }
         }
-        if (px < x1 + r && py >= y2 - r) {
-            int dx = x1 + r - px - 1, dy = py - (y2 - r);
-            return dx * dx + dy * dy <= r * r;
+    }
+
+    private static void drawTextScaled(NativeImage img, String text, int x, int y, int scale, int col) {
+        String upper = text.toUpperCase();
+        int curX = x;
+        for (int i = 0; i < upper.length(); i++) {
+            char ch = upper.charAt(i);
+            int[] glyph = GLYPHS.getOrDefault(ch, GLYPHS.get(' '));
+            for (int r = 0; r < 7; r++) {
+                int row = glyph[r];
+                for (int c = 0; c < 5; c++) {
+                    if (((row >> (4 - c)) & 1) == 1) {
+                        for (int dy = 0; dy < scale; dy++) {
+                            for (int dx = 0; dx < scale; dx++) {
+                                setPixel(img, curX + c * scale + dx, y + r * scale + dy, col);
+                            }
+                        }
+                    }
+                }
+            }
+            curX += (5 + 1) * scale;
         }
-        if (px >= x2 - r && py >= y2 - r) {
-            int dx = px - (x2 - r), dy = py - (y2 - r);
-            return dx * dx + dy * dy <= r * r;
-        }
-        return true;
     }
 
     private static void drawSmallText(NativeImage img, String text, int x, int y, int col) {
@@ -146,7 +268,7 @@ public final class NatoSymbolView {
     }
 
     private static void setPixel(NativeImage img, int x, int y, int col) {
-        if (x < 0 || x >= 980 || y < 0 || y >= 630) return;
+        if (x < 0 || x >= POSTER_W || y < 0 || y >= POSTER_H) return;
         int a = (col >> 24) & 0xFF;
         int r = (col >> 16) & 0xFF;
         int g = (col >> 8) & 0xFF;
@@ -181,6 +303,8 @@ public final class NatoSymbolView {
         GLYPHS.put('Ø', new int[] { 0b01111, 0b10011, 0b10101, 0b11001, 0b11110, 0, 0 });
         GLYPHS.put(':', new int[] { 0, 0b01100, 0b01100, 0, 0b01100, 0b01100, 0 });
         GLYPHS.put('&', new int[] { 0b01100, 0b10010, 0b01100, 0b10101, 0b10010, 0b01101, 0 });
+        GLYPHS.put('.', new int[] { 0, 0, 0, 0, 0, 0b01100, 0b01100 });
+        GLYPHS.put('#', new int[] { 0b01010, 0b11111, 0b01010, 0b01010, 0b11111, 0b01010, 0 });
 
         GLYPHS.put('0', new int[] { 0b01110, 0b10011, 0b10101, 0b11001, 0b10001, 0b10001, 0b01110 });
         GLYPHS.put('1', new int[] { 0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110 });
