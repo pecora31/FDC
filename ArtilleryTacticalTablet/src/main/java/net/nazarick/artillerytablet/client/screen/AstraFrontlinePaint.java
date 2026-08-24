@@ -122,73 +122,62 @@ public final class AstraFrontlinePaint {
     }
 
     // =========================================================================
-    // 2. NATO BLUE FORCE & RED FORCE TRACKING
+    // 2. NATO BLUE FORCE & RED FORCE TRACKING (MIL-STD-2525D VECTOR ICONS)
     // =========================================================================
     private static void drawTacticalUnitsAndOverlays(NativeImage img, int sx, int sy, int sw, int sh) {
         // Friendly Units (Preserved standard NATO Blue - Rectangle frame)
         // 1. PZh 2000 Battery Alpha
-        drawNatoFriendly(img, sx + 410, sy + 320, "FA", "BTY-A [4x PZh 2000]");
+        NatoSymbolRenderer.drawSymbol(img, sx + 410, sy + 320, 30,
+                NatoSymbolRenderer.Affiliation.FRIENDLY,
+                NatoSymbolRenderer.UnitType.SP_ARTILLERY,
+                NatoSymbolRenderer.Echelon.COMPANY,
+                "BTY-A [PZH2000]", "1/77");
 
         // 2. Armor Platoon (Leopard 2A7)
-        drawNatoFriendly(img, sx + 530, sy + 200, "AR", "1/PzBtl 104");
+        NatoSymbolRenderer.drawSymbol(img, sx + 530, sy + 200, 30,
+                NatoSymbolRenderer.Affiliation.FRIENDLY,
+                NatoSymbolRenderer.UnitType.ARMOR,
+                NatoSymbolRenderer.Echelon.PLATOON,
+                "1/PzBtl 104", "LEO2");
 
         // 3. Mechanized Infantry (Puma IFV)
-        drawNatoFriendly(img, sx + 580, sy + 280, "IN", "2/PzGrenBtl 122");
+        NatoSymbolRenderer.drawSymbol(img, sx + 580, sy + 280, 30,
+                NatoSymbolRenderer.Affiliation.FRIENDLY,
+                NatoSymbolRenderer.UnitType.MECH_INFANTRY,
+                NatoSymbolRenderer.Echelon.COMPANY,
+                "2/PzGrenBtl", "PUMA");
 
-        // 4. Forward Observer Team (JFST)
-        drawNatoFriendly(img, sx + 480, sy + 130, "FO", "JFST OBS-1");
+        // 4. Forward Observer Team (JFST) with FO symbol & Line-of-Sight Cone
+        NatoSymbolRenderer.drawSymbol(img, sx + 480, sy + 130, 30,
+                NatoSymbolRenderer.Affiliation.FRIENDLY,
+                NatoSymbolRenderer.UnitType.OBSERVATION_POST,
+                NatoSymbolRenderer.Echelon.TEAM,
+                "JFST OBS-1", "FO");
         drawSensorCone(img, sx + 480, sy + 130, 48.0f, 120, 0x24FFFFFF);
 
         // Hostile Units (Preserved standard NATO Red - Diamond frame)
         // 1. Enemy Artillery Battery (Target Alpha)
-        drawNatoHostile(img, sx + 680, sy + 110, "FA", "TGT-001 [2S19 BTY]");
+        NatoSymbolRenderer.drawSymbol(img, sx + 680, sy + 110, 30,
+                NatoSymbolRenderer.Affiliation.HOSTILE,
+                NatoSymbolRenderer.UnitType.SP_ARTILLERY,
+                NatoSymbolRenderer.Echelon.COMPANY,
+                "TGT-001 [2S19]", "ARTY");
         drawThreatRing(img, sx + 680, sy + 110, 65, 0x55EF4444);
 
         // 2. Enemy Mechanized Armor Column
-        drawNatoHostile(img, sx + 730, sy + 230, "AR", "TGT-002 [BMP-3 x4]");
+        NatoSymbolRenderer.drawSymbol(img, sx + 730, sy + 230, 30,
+                NatoSymbolRenderer.Affiliation.HOSTILE,
+                NatoSymbolRenderer.UnitType.MECH_INFANTRY,
+                NatoSymbolRenderer.Echelon.COMPANY,
+                "TGT-002 [BMP-3]", "MECH");
 
         // 3. Enemy Air Defense
-        drawNatoHostile(img, sx + 620, sy + 75, "AD", "TGT-003 [PANTSIR]");
+        NatoSymbolRenderer.drawSymbol(img, sx + 620, sy + 75, 30,
+                NatoSymbolRenderer.Affiliation.HOSTILE,
+                NatoSymbolRenderer.UnitType.AIR_DEFENSE,
+                NatoSymbolRenderer.Echelon.COMPANY,
+                "TGT-003 [PANTSIR]", "AD");
         drawThreatRing(img, sx + 620, sy + 75, 80, 0x33EF4444);
-    }
-
-    private static void drawNatoFriendly(NativeImage img, int x, int y, String sym, String label) {
-        int w = 26, h = 19;
-        int bx = x - w / 2, by = y - h / 2;
-        int fillCol = 0xAA0B2440;
-        int borderCol = 0xFF3B82F6;
-        int textCol = 0xFFE2E8F0;
-
-        for (int py = by; py <= by + h; py++) {
-            for (int px = bx; px <= bx + w; px++) {
-                if (px == bx || px == bx + w || py == by || py == by + h) {
-                    setPixel(img, px, py, borderCol);
-                } else {
-                    setPixel(img, px, py, fillCol);
-                }
-            }
-        }
-        drawSmallText(img, sym, bx + 6, by + 6, textCol);
-        drawSmallText(img, label, bx - 12, by + h + 4, 0xFFCBD5E1);
-    }
-
-    private static void drawNatoHostile(NativeImage img, int x, int y, String sym, String label) {
-        int r = 14;
-        int borderCol = 0xFFEF4444;
-        int fillCol = 0xAA3B0D0D;
-
-        for (int dy = -r; dy <= r; dy++) {
-            int span = r - Math.abs(dy);
-            for (int dx = -span; dx <= span; dx++) {
-                if (Math.abs(dx) == span || Math.abs(dy) == r) {
-                    setPixel(img, x + dx, y + dy, borderCol);
-                } else {
-                    setPixel(img, x + dx, y + dy, fillCol);
-                }
-            }
-        }
-        drawSmallText(img, sym, x - 6, y - 4, 0xFFFEE2E2);
-        drawSmallText(img, label, x - 20, y + r + 4, 0xFFFCA5A5);
     }
 
     private static void drawThreatRing(NativeImage img, int cx, int cy, int radius, int argb) {
