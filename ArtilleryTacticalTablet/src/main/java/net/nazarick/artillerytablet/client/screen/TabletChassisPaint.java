@@ -243,6 +243,7 @@ public final class TabletChassisPaint {
         int outX1 = mapX - bevelW, outY1 = mapY - bevelW;
         int outX2 = mapX + mapW + bevelW, outY2 = mapY + mapH + bevelW;
 
+        // 1. Sleek tactical bezel well
         for (int y = outY1; y < outY2; y++) {
             for (int x = outX1; x < outX2; x++) {
                 if (isInsideRoundedRect(x, y, outX1, outY1, outX2, outY2, outR)
@@ -282,21 +283,125 @@ public final class TabletChassisPaint {
             }
         }
 
+        // 2. Pure True OLED FHD Display Floor (No grid lines, no CRT scanlines, true pure OLED black)
         for (int y = mapY; y < mapY + mapH; y++) {
             for (int x = mapX; x < mapX + mapW; x++) {
                 if (isInsideRoundedRect(x, y, mapX, mapY, mapX + mapW, mapY + mapH, scrR)) {
-                    int col = 0xFF02070A;
-                    int relX = x - mapX;
-                    int relY = y - mapY;
-                    if (relX % 32 == 0 || relY % 32 == 0) {
-                        col = 0xFF06151C;
-                    }
-                    if (relX % 160 == 0 || relY % 160 == 0) {
-                        col = 0xFF0A222C;
-                    }
-                    setPixel(img, x, y, col);
+                    setPixel(img, x, y, 0xFF030406);
                 }
             }
+        }
+
+        // 3. Crisp ASTRA SYSTEMS Logo
+        drawAstraLogo(img, mapX + mapW / 2, mapY + mapH / 2);
+    }
+
+    private static void drawAstraLogo(NativeImage img, int cx, int cy) {
+        int redCol = 0xFFB8141D;
+        int subTextCol = 0xFF9AA4B2;
+        int topY = cy - 24;
+        int letH = 30;
+        int letW = 32;
+        int gap = 16;
+        int totalW = 5 * letW + 4 * gap;
+        int startX = cx - totalW / 2;
+
+        // Render 'ASTRA'
+        for (int i = 0; i < 5; i++) {
+            int lx = startX + i * (letW + gap);
+            switch (i) {
+                case 0, 4 -> { // 'A' Chevron (Lambda shape with no crossbar)
+                    for (int y = topY; y <= topY + letH; y++) {
+                        float t = (float) (y - topY) / letH;
+                        int leftX = Math.round(lx + 16 - t * 16);
+                        int rightX = Math.round(lx + 16 + t * 16);
+                        for (int dx = -2; dx <= 2; dx++) {
+                            setPixel(img, leftX + dx, y, redCol);
+                            setPixel(img, rightX + dx, y, redCol);
+                        }
+                    }
+                }
+                case 1 -> { // 'S'
+                    int thick = 5;
+                    // Top bar
+                    for (int x = lx + 4; x <= lx + letW; x++)
+                        for (int y = topY; y < topY + thick; y++) setPixel(img, x, y, redCol);
+                    // Top-left round corner & upper stem
+                    for (int y = topY + 2; y <= topY + letH / 2; y++)
+                        for (int x = lx; x < lx + thick; x++) setPixel(img, x, y, redCol);
+                    // Middle bar
+                    for (int x = lx + 2; x <= lx + letW - 2; x++)
+                        for (int y = topY + letH / 2 - 2; y <= topY + letH / 2 + 2; y++) setPixel(img, x, y, redCol);
+                    // Lower-right stem
+                    for (int y = topY + letH / 2; y <= topY + letH - 2; y++)
+                        for (int x = lx + letW - thick; x <= lx + letW; x++) setPixel(img, x, y, redCol);
+                    // Bottom bar
+                    for (int x = lx; x <= lx + letW - 4; x++)
+                        for (int y = topY + letH - thick; y <= topY + letH; y++) setPixel(img, x, y, redCol);
+                }
+                case 2 -> { // 'T'
+                    int thick = 5;
+                    // Top horizontal bar
+                    for (int x = lx; x <= lx + letW; x++)
+                        for (int y = topY; y < topY + thick; y++) setPixel(img, x, y, redCol);
+                    // Center vertical stem
+                    for (int y = topY + thick; y <= topY + letH; y++)
+                        for (int x = lx + letW / 2 - 2; x <= lx + letW / 2 + 2; x++) setPixel(img, x, y, redCol);
+                }
+                case 3 -> { // 'R'
+                    int thick = 5;
+                    // Left vertical stem
+                    for (int y = topY; y <= topY + letH; y++)
+                        for (int x = lx; x < lx + thick; x++) setPixel(img, x, y, redCol);
+                    // Upper loop top
+                    for (int x = lx + thick; x <= lx + letW - 4; x++)
+                        for (int y = topY; y < topY + thick; y++) setPixel(img, x, y, redCol);
+                    // Upper loop right curve
+                    for (int y = topY + 2; y <= topY + letH / 2; y++)
+                        for (int x = lx + letW - thick; x <= lx + letW; x++) setPixel(img, x, y, redCol);
+                    // Upper loop bottom
+                    for (int x = lx + thick; x <= lx + letW - 4; x++)
+                        for (int y = topY + letH / 2 - 2; y <= topY + letH / 2 + 2; y++) setPixel(img, x, y, redCol);
+                    // Angled leg with stylized notch
+                    for (int y = topY + letH / 2; y <= topY + letH; y++) {
+                        float t = (float) (y - (topY + letH / 2)) / (letH / 2.0f);
+                        int legX = Math.round(lx + 10 + t * (letW - 10));
+                        for (int dx = -2; dx <= 2; dx++) {
+                            setPixel(img, legX + dx, y, redCol);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Subtitle: '—  S Y S T E M S  —'
+        int subY = cy + 22;
+        // Left & right crimson accent lines
+        int lineLen = 50;
+        int lineGap = 16;
+        int textSubW = 140;
+        int line1X2 = cx - textSubW / 2 - lineGap;
+        int line1X1 = line1X2 - lineLen;
+        int line2X1 = cx + textSubW / 2 + lineGap;
+        int line2X2 = line2X1 + lineLen;
+
+        for (int x = line1X1; x <= line1X2; x++) {
+            setPixel(img, x, subY + 3, redCol);
+            setPixel(img, x, subY + 4, redCol);
+        }
+        for (int x = line2X1; x <= line2X2; x++) {
+            setPixel(img, x, subY + 3, redCol);
+            setPixel(img, x, subY + 4, redCol);
+        }
+
+        // Draw tracked 'S Y S T E M S'
+        String sub = "SYSTEMS";
+        int subCharCount = sub.length();
+        int subSlot = textSubW / subCharCount;
+        for (int i = 0; i < subCharCount; i++) {
+            char ch = sub.charAt(i);
+            int subX = (cx - textSubW / 2) + i * subSlot + subSlot / 2;
+            rasterizePixelString(img, String.valueOf(ch), subX, subY + 4, 1, subTextCol);
         }
     }
 
@@ -1500,26 +1605,26 @@ public final class TabletChassisPaint {
 
         switch (label) {
             case "GRID" -> { // crosshair
-                for (int x = cx - 7; x <= cx + 7; x++)
+                for (int x = cx - 5; x <= cx + 5; x++)
                     setPixel(img, x, cy, textCol);
-                for (int y = cy - 7; y <= cy + 7; y++)
+                for (int y = cy - 5; y <= cy + 5; y++)
                     setPixel(img, cx, y, textCol);
-                fillCircle(img, cx, cy, 2, textCol);
+                fillCircle(img, cx, cy, 1, textCol);
             }
             case "BRIGHT" -> { // 8-pointed star
-                fillCircle(img, cx, cy, 3, textCol);
-                for (int x = cx - 8; x <= cx + 8; x++)
+                fillCircle(img, cx, cy, 2, textCol);
+                for (int x = cx - 6; x <= cx + 6; x++)
                     setPixel(img, x, cy, textCol);
-                for (int y = cy - 8; y <= cy + 8; y++)
+                for (int y = cy - 6; y <= cy + 6; y++)
                     setPixel(img, cx, y, textCol);
-                int d = 5;
+                int d = 4;
                 setPixel(img, cx - d, cy - d, textCol);
                 setPixel(img, cx + d, cy - d, textCol);
                 setPixel(img, cx - d, cy + d, textCol);
                 setPixel(img, cx + d, cy + d, textCol);
             }
             case "NIGHT" -> { // diamond
-                int s = 7;
+                int s = 5;
                 for (int dy = -s; dy <= s; dy++) {
                     int span = s - Math.abs(dy);
                     for (int dx = -span; dx <= span; dx++) {
@@ -1528,25 +1633,25 @@ public final class TabletChassisPaint {
                 }
             }
             case "POWER" -> { // IEC Standby symbol
-                int radius = 8;
-                for (int y = cy - radius - 2; y <= cy - radius + 6; y++) {
+                int radius = 6;
+                for (int y = cy - radius - 2; y <= cy - radius + 4; y++) {
                     setPixel(img, cx, y, textCol);
                 }
                 int rIn2 = (radius - 2) * (radius - 2);
                 int rOut2 = radius * radius;
-                int gapHalfW = 3;
+                int gapHalfW = 2;
                 for (int dy = -radius; dy <= radius; dy++) {
                     for (int dx = -radius; dx <= radius; dx++) {
                         int d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -2 && Math.abs(dx) <= gapHalfW)
+                            if (dy < -1 && Math.abs(dx) <= gapHalfW)
                                 continue;
                             setPixel(img, cx + dx, cy + dy, textCol);
                         }
                     }
                 }
             }
-            default -> rasterizePixelString(img, label, cx, cy, 2, textCol);
+            default -> rasterizePixelString(img, label, cx, cy, 1, textCol);
         }
     }
 
