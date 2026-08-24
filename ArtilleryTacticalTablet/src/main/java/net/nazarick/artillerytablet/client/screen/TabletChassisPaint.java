@@ -120,11 +120,7 @@ public final class TabletChassisPaint {
         // 8. Divider Ribs between inner key clusters
         bakeAllDividerRibs(img);
 
-        // 9. Dynamic high-resolution Keycap & LED Sprite Atlas Bank
-        bakeDynamicKeySprites(img);
-
-        // 11. Bake all 32 default tactical keys and unlit LEDs directly onto 980px
-        // chassis
+        // 9. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
         bakeAllDefaultKeysAndLeds(img);
 
         return img;

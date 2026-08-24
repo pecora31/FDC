@@ -249,6 +249,17 @@ tasks.register('caseLive', JavaExec) {
     javaLauncher = javaToolchains.launcherFor(java.toolchain)
 }
 
+tasks.register('astraFrontline', JavaExec) {
+    group = 'verification'
+    description = 'Draws ASTRA Frontline C2 UI to build/mapcheck/astra-frontline.png and case.png'
+
+    classpath = sourceSets.mapcheck.runtimeClasspath
+    mainClass = 'net.nazarick.artillerytablet.mapcheck.AstraFrontlineView$Main'
+    args project.layout.buildDirectory.dir('mapcheck').get().asFile.absolutePath
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}
+
 // The image converter: a design tool, not part of the mod. It reads a reference picture and writes
 // Java that draws it through Paint, so the case can be taken from a picture instead of measured off
 // one by hand — see the convert package for why the stages happen in the order they do.
