@@ -509,42 +509,45 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Outer Flank Bevel, Top/Bottom Bevels & Inward Diagonal Chamfers
+        // 2. Outer Flank Bevel, Top/Bottom Bevels & Outer Corner Diagonal Chamfers
         int bFlankW = 18;
-        int innerChamferW = 18; // Chamfering inward at the inner end near screen well
+        int cornerChamfer = 18; // 45-degree diagonal chamfer at outer corner (0, 123) -> (18, 105)
         if (isLeft) {
             // Full left flank bevel surface (X in [uX1, uX1 + bFlankW])
             for (int x = uX1; x < uX1 + bFlankW; x++) {
                 int distFromOuter = x - uX1;
-                for (int y = uY1; y < uY2; y++) {
+                int topY = uY1 + (bFlankW - distFromOuter);
+                int botY = (uY2 - 1) - (bFlankW - distFromOuter);
+
+                for (int y = topY; y <= botY; y++) {
                     if (!isInsideSidePlateau(x, y, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, 0)) continue;
 
                     int col;
-                    if (y < uY1 + 4) {
-                        int d = y - uY1;
+                    if (y < topY + 4) {
+                        // Top diagonal chamfer bevel highlight
+                        int d = y - topY;
                         col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
-                    } else if (y >= uY2 - 4) {
-                        int d = (uY2 - 1) - y;
+                    } else if (y > botY - 4) {
+                        // Bottom diagonal chamfer bevel shadow
+                        int d = botY - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
+                        // Outer vertical flank slope
                         col = (distFromOuter == 0) ? 0xFF2A2C30 : ((distFromOuter == 1) ? 0xFF242629 : ((distFromOuter >= bFlankW - 2) ? 0xFF18191C : 0xFF202226));
                     }
                     setPixel(img, x, y, applyStipple(col, x, y));
                 }
             }
 
-            // Top & Bottom Bevels including the inward diagonal chamfer at X in [uX1 + bFlankW, uX2]
+            // Top & Bottom Horizontal Bevels for the inner portion of the bracket (x >= uX1 + bFlankW)
             for (int x = uX1 + bFlankW; x < uX2; x++) {
-                int topY = (x > cutX2) ? (uY1 + (x - cutX2)) : uY1;
-                int botY = (x > cutX2) ? ((uY2 - 1) - (x - cutX2)) : (uY2 - 1);
-
                 for (int d = 0; d < 4; d++) {
-                    int yTop = topY + d;
+                    int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, 0)) {
                         int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
                         setPixel(img, x, yTop, applyStipple(col, x, yTop));
                     }
-                    int yBot = botY - d;
+                    int yBot = (uY2 - 1) - d;
                     if (isInsideSidePlateau(x, yBot, true, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, 0)) {
                         int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                         setPixel(img, x, yBot, applyStipple(col, x, yBot));
@@ -555,15 +558,18 @@ public final class TabletChassisPaint {
             // Full right flank bevel surface (X in [uX2 - bFlankW, uX2])
             for (int x = uX2 - bFlankW; x < uX2; x++) {
                 int distFromOuter = (uX2 - 1) - x;
-                for (int y = uY1; y < uY2; y++) {
+                int topY = uY1 + (bFlankW - distFromOuter);
+                int botY = (uY2 - 1) - (bFlankW - distFromOuter);
+
+                for (int y = topY; y <= botY; y++) {
                     if (!isInsideSidePlateau(x, y, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, 0)) continue;
 
                     int col;
-                    if (y < uY1 + 4) {
-                        int d = y - uY1;
+                    if (y < topY + 4) {
+                        int d = y - topY;
                         col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
-                    } else if (y >= uY2 - 4) {
-                        int d = (uY2 - 1) - y;
+                    } else if (y > botY - 4) {
+                        int d = botY - y;
                         col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                     } else {
                         col = (distFromOuter == 0) ? 0xFF08080A : ((distFromOuter == 1) ? 0xFF0B0C0E : ((distFromOuter >= bFlankW - 2) ? 0xFF151618 : 0xFF0F1012));
@@ -572,18 +578,15 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // Top & Bottom Bevels including the inward diagonal chamfer at X in [uX1, uX2 - bFlankW]
+            // Top & Bottom Horizontal Bevels for the inner portion of the bracket (x < uX2 - bFlankW)
             for (int x = uX1; x < uX2 - bFlankW; x++) {
-                int topY = (x < cutX1) ? (uY1 + (cutX1 - x)) : uY1;
-                int botY = (x < cutX1) ? ((uY2 - 1) - (cutX1 - x)) : (uY2 - 1);
-
                 for (int d = 0; d < 4; d++) {
-                    int yTop = topY + d;
+                    int yTop = uY1 + d;
                     if (isInsideSidePlateau(x, yTop, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, 0)) {
                         int col = (d == 0) ? 0xFF383C44 : ((d == 1) ? 0xFF2E3137 : 0xFF24262B);
                         setPixel(img, x, yTop, applyStipple(col, x, yTop));
                     }
-                    int yBot = botY - d;
+                    int yBot = (uY2 - 1) - d;
                     if (isInsideSidePlateau(x, yBot, false, uX1, uX2, uY1, uY2, cutX1, cutX2, cutY1, cutY2, rInner, 0)) {
                         int col = (d == 0) ? 0xFF08080A : ((d == 1) ? 0xFF0E0F12 : 0xFF16171A);
                         setPixel(img, x, yBot, applyStipple(col, x, yBot));
@@ -648,14 +651,15 @@ public final class TabletChassisPaint {
     private static boolean isInsideSidePlateau(int px, int py, boolean isLeft, int uX1, int uX2, int uY1, int uY2,
                                                 int cutX1, int cutX2, int cutY1, int cutY2, int rInner, int bChamfer) {
         if (px < uX1 || px >= uX2 || py < uY1 || py >= uY2) return false;
+        int bFlankW = 18;
         if (isLeft) {
-            if (px > cutX2) {
-                int offset = px - cutX2;
+            if (px < uX1 + bFlankW) {
+                int offset = (uX1 + bFlankW) - px;
                 if (py < uY1 + offset || py > (uY2 - 1) - offset) return false;
             }
         } else {
-            if (px < cutX1) {
-                int offset = cutX1 - px;
+            if (px >= uX2 - bFlankW) {
+                int offset = px - (uX2 - bFlankW);
                 if (py < uY1 + offset || py > (uY2 - 1) - offset) return false;
             }
         }
