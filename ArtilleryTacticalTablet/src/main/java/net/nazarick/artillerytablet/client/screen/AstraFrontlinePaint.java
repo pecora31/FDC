@@ -58,66 +58,140 @@ public final class AstraFrontlinePaint {
     // =========================================================================
     // 1. TACTICAL MAP BACKGROUND (FULLSCREEN)
     // =========================================================================
+    // 1. FULL REALISTIC TOPOGRAPHIC TERRAIN & HILLSHADING MAP ENGINE
+    // =========================================================================
     private static void drawTacticalMap(NativeImage img, int sx, int sy, int sw, int sh) {
-        for (int y = sy; y < sy + sh; y++) {
-            for (int x = sx; x < sx + sw; x++) {
-                if (!isInsideRoundedRect(x, y, sx, sy, sx + sw, sy + sh, SCR_R)) continue;
-
-                int col = 0xFF08090C;
-                int cx = x - sx;
-                int cy = y - sy;
-
-                // Contour lines
-                double elevation = Math.sin(cx * 0.018) * Math.cos(cy * 0.018) * 50
-                        + Math.sin((cx + cy) * 0.012) * 40
-                        + Math.cos((cx * 0.025 - cy * 0.01)) * 30;
-                int contourStep = ((int) Math.abs(elevation)) % 24;
-                if (contourStep == 0 || contourStep == 1) {
-                    col = 0xFF14171E; // Contour line
-                } else if (contourStep == 12) {
-                    col = 0xFF0E1015; // Secondary contour
+        // 1. Generate multi-frequency elevation map & compute true NW 45° hillshading
+        double[][] heightmap = new double[sw][sh];
+        for (int cy = 0; cy < sh; cy++) {
+            for (int cx = 0; cx < sw; cx++) {
+                double nx = cx * 0.007;
+                double ny = cy * 0.007;
+                // Layered octaves for natural hills and mountains
+                double elev = Math.sin(nx * 2.5) * Math.cos(ny * 2.5) * 45.0
+                        + Math.sin(nx * 5.0 + ny * 3.0) * 22.0
+                        + Math.cos(nx * 10.0 - ny * 8.0) * 12.0
+                        + Math.sin((cx + cy) * 0.04) * 4.0;
+                
+                // River depression carving across map
+                double riverPath = Math.sin(cy * 0.015) * 60.0 + (sw * 0.45);
+                double riverDist = Math.abs(cx - riverPath);
+                if (riverDist < 35.0) {
+                    elev -= (35.0 - riverDist) * 1.6;
                 }
-
-                // Grid lines (MGRS 1km grid)
-                if (cx % 80 == 0 || cy % 75 == 0) {
-                    col = 0xFF181C24;
-                }
-                // Grid intersection crosshairs
-                if (cx % 80 == 0 && cy % 75 == 0) {
-                    col = 0xFF3E4856;
-                }
-
-                setPixel(img, x, y, col);
+                heightmap[cx][cy] = elev;
             }
         }
 
-        // River / Waterway vector
-        for (int y = sy; y < sy + sh; y++) {
-            int rx = sx + 390 + (int) (Math.sin((y - sy) * 0.025) * 45 + Math.cos((y - sy) * 0.01) * 25);
-            for (int dx = -4; dx <= 4; dx++) {
-                int col = (Math.abs(dx) <= 1) ? 0xFF222834 : 0xFF141820;
-                setPixel(img, rx + dx, y, col);
+        // 2. Render Terrain with Biomes, Bathymetry, Slope Hillshading & Contour Lines
+        for (int cy = 0; cy < sh; cy++) {
+            for (int cx = 0; cx < sw; cx++) {
+                int x = sx + cx;
+                int y = sy + cy;
+                if (!isInsideRoundedRect(x, y, sx, sy, sx + sw, sy + sh, SCR_R)) continue;
+
+                double elev = heightmap[cx][cy];
+                int baseCol;
+
+                // Biome classification based on elevation
+                if (elev < -15.0) {
+                    // Deep Water (Dark Navy)
+                    baseCol = 0xFF14243B;
+                } else if (elev < -5.0) {
+                    // Shallow Water / River (Tactical Blue-Cyan)
+                    baseCol = 0xFF1E3A5F;
+                } else if (elev < 0.0) {
+                    // River Shoreline / Sand
+                    baseCol = 0xFF706852;
+                } else if (elev < 25.0) {
+                    // Lowland Plains / Grass
+                    baseCol = 0xFF2A3E26;
+                } else if (elev < 50.0) {
+                    // Forest / Woodland
+                    baseCol = 0xFF1E331B;
+                } else if (elev < 68.0) {
+                    // Highland Plateau / Rocky Scrub
+                    baseCol = 0xFF3D4638;
+                } else {
+                    // Mountain Peaks / Exposed Slate
+                    baseCol = 0xFF4D535A;
+                }
+
+                // Apply Northwest 315° Sun Slope Hillshading
+                if (elev >= -5.0 && cx > 0 && cy > 0) {
+                    double wElev = heightmap[cx - 1][cy];
+                    double nElev = heightmap[cx][cy - 1];
+                    double nwElev = heightmap[cx - 1][cy - 1];
+
+                    double dx = (elev - wElev);
+                    double dz = (elev - nElev);
+                    double dnw = (elev - nwElev) * 0.7071;
+                    double slope = (-0.7071 * dx - 0.7071 * dz + dnw) * 0.28;
+
+                    double factor = 1.0 + Math.max(-0.40, Math.min(0.35, slope * 0.20));
+                    int r = (baseCol >> 16) & 0xFF;
+                    int g = (baseCol >> 8) & 0xFF;
+                    int b = baseCol & 0xFF;
+
+                    r = Math.min(255, Math.max(0, (int)(r * factor)));
+                    g = Math.min(255, Math.max(0, (int)(g * factor)));
+                    b = Math.min(255, Math.max(0, (int)(b * factor)));
+                    baseCol = 0xFF000000 | (r << 16) | (g << 8) | b;
+                }
+
+                // Apply Military Contour Lines (every 20m major, every 10m minor)
+                if (elev >= 0.0) {
+                    int absElev = (int) Math.round(elev);
+                    if (absElev % 20 == 0) {
+                        // Major contour line
+                        int r = Math.max(0, ((baseCol >> 16) & 0xFF) - 35);
+                        int g = Math.max(0, ((baseCol >> 8) & 0xFF) - 35);
+                        int b = Math.max(0, (baseCol & 0xFF) - 35);
+                        baseCol = 0xFF000000 | (r << 16) | (g << 8) | b;
+                    } else if (absElev % 10 == 0) {
+                        // Minor contour line
+                        int r = Math.max(0, ((baseCol >> 16) & 0xFF) - 18);
+                        int g = Math.max(0, ((baseCol >> 8) & 0xFF) - 18);
+                        int b = Math.max(0, (baseCol & 0xFF) - 18);
+                        baseCol = 0xFF000000 | (r << 16) | (g << 8) | b;
+                    }
+                }
+
+                // Military MGRS 1km Coordinate Grid
+                if (cx % 80 == 0 || cy % 75 == 0) {
+                    // Subtle translucent grid line
+                    int r = Math.min(255, ((baseCol >> 16) & 0xFF) + 30);
+                    int g = Math.min(255, ((baseCol >> 8) & 0xFF) + 35);
+                    int b = Math.min(255, (baseCol & 0xFF) + 45);
+                    baseCol = 0xFF000000 | (r << 16) | (g << 8) | b;
+                }
+                if (cx % 80 == 0 && cy % 75 == 0) {
+                    baseCol = 0xFF94A3B8; // Intersection crosshair
+                }
+
+                setPixel(img, x, y, baseCol);
             }
         }
 
         // Tactical MSR (Main Supply Route) Road Vector
         for (int x = sx; x < sx + sw; x++) {
-            int ry = sy + 220 + (int) (Math.sin((x - sx) * 0.01) * 50);
+            int cx = x - sx;
+            int ry = sy + 250 + (int) (Math.sin(cx * 0.008) * 45 + Math.cos(cx * 0.02) * 15);
             if (ry >= sy && ry < sy + sh) {
                 for (int dy = -1; dy <= 1; dy++) {
-                    setPixel(img, x, ry + dy, (dy == 0) ? 0xFF5A606E : 0xFF282C34);
+                    setPixel(img, x, ry + dy, (dy == 0) ? 0xFF8E99A8 : 0xFF333D4B);
                 }
             }
         }
 
-        // Grid coordinate labels along top & bottom edges
+        // Grid coordinate labels along top & right edges
         for (int i = 1; i < sw / 80; i++) {
             int gx = sx + i * 80;
-            drawSmallText(img, "4" + (2 + i) + "E", gx + 4, sy + 8, 0xFF5A6678);
+            drawSmallText(img, "4" + (2 + i) + "E", gx + 4, sy + 8, 0xFFCBD5E1);
         }
         for (int i = 1; i < sh / 75; i++) {
             int gy = sy + i * 75;
-            drawSmallText(img, "8" + (4 + i) + "N", sx + sw - 40, gy - 8, 0xFF5A6678);
+            drawSmallText(img, "8" + (4 + i) + "N", sx + sw - 40, gy - 8, 0xFFCBD5E1);
         }
     }
 
