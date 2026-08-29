@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — FLIR Thermal Rasterizer & 3D Hypsometric Topo Polish (Gemini)
+
+Đã làm:
+- **Nâng cấp Map TOPO Vector Đen Trắng (`Rasterizer.rasterizeHypsometric`)**:
+  + Thêm gradient độ cao than chì chìm (`0x18` -> `0x42`) kết hợp đổ bóng sườn dốc nhẹ ($18\%$) $\to$ Nhận diện hình khối 3D đồi núi ngay lập tức trong 0.5s.
+  + Đường đồng mức chính (Index contour mỗi 5 bậc): Màu trắng tinh `#FFFFFF` sắc lẹm. Đường phụ: Màu bạc `#B8C0C8`.
+  + Mặt nước chuyển sang màu xanh than đen hải đồ `#0E141B` sạch sẽ và chuyên nghiệp.
+- **Triển khai Map THERMAL Chuẩn Kính Ngắm Nhiệt Quân Sự FLIR (`Rasterizer.rasterizeThermal`)**:
+  + Chế độ White-Hot chuyên dụng: Nguồn nhiệt/Lava/Động cơ/Cháy $\to$ Rực sáng trắng tinh (`#FFFFFF`).
+  + Đất đá phơi nắng $\to$ Xám ấm. Rừng cây (thoát hơi nước mát) $\to$ Xám tối. Mặt nước (hấp thụ nhiệt) $\to$ Đen sâu thẳm.
+  + Tích hợp đầy đủ vào `MapEngineOverlay` (nối từ `TerrainMips.filter() == THERMAL`).
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — thêm `rasterizeThermal`, `rasterizeThermalParallel`, nâng cấp `hypsoCell`)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/mapengine/MapEngineOverlay.java` (sửa — định tuyến `THERMAL` sang `Rasterizer.rasterizeThermal`)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Terrace Step Relief, Clutter-Free Biome Ground & Natural Foliage (Gemini)
 
 Đã làm:

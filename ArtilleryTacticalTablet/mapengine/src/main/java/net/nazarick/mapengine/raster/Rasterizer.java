@@ -562,35 +562,28 @@ public final class Rasterizer {
         }
         float height = smoothed[idx];
         boolean waterHere = columns.depthAt(idx) > 0;
-        int base = TOPO_BACKGROUND;
 
-        // A coastline, not a colour — the one place land and water still read as different things in
-        // an otherwise flat black fill: drawn exactly like an elevation contour, the same line style,
-        // just at the water/land boundary instead of an interval crossing. On the water side this is
-        // the only line ever drawn there at all — see the elevation contour skip below for why a lake's
-        // own surface still traces no lines of its own.
         int coast = Math.max(
                 coastLineStrength(columns, x, z - 1, width, waterHere),
                 coastLineStrength(columns, x - 1, z, width, waterHere));
 
         if (waterHere) {
+            int waterBase = 0xFF0E141B;
             if (coast > 0) {
-                return lerpColour(base, TOPO_INK, TOPO_INK_MIX_MINOR);
+                return 0xFFD8E0E8;
             }
-            // A fine stipple, not a colour, so water still reads as water even far from any shore —
-            // a staggered dot grid rather than a straight one, so it does not read as a screen-door
-            // pattern at a glance. Same restraint as the coastline: texture, not a second fill colour.
-            return isWaterStipple(x, z) ? lerpColour(base, TOPO_INK, TOPO_WATER_STIPPLE_MIX) : base;
+            return isWaterStipple(x, z) ? 0xFF1C2834 : waterBase;
         }
 
-        // Which band this column falls in, plain integer division — the line is drawn wherever a
-        // neighbour falls in a different band, not wherever a computed distance-to-isoline crosses
-        // some threshold. This is the simpler, more literal reading of JM's own rule ("just the
-        // configured shift in height, we draw the lines"): slice the terrain into flat steps first,
-        // then draw the boundary between two different steps, the way a contour model is physically
-        // built up from stacked flat layers rather than computed as a smooth mathematical surface.
-        // No sub-pixel interpolation, no gradient estimate — a boundary is either there or it isn't,
-        // decided the same way for every pixel regardless of how steep or shallow the ground is there.
+        // Hypsometric depth gradient (Dark charcoal at sea level -> lighter gray on high ground)
+        float t = Math.max(0f, Math.min(1f, (height - TOPO_SEA_LEVEL) / 180f));
+        int g = Math.round(0x18 + 0x2A * t);
+        // Add subtle 3D relief so hills and valleys are instantly readable
+        float step = slopeOf(columns, x, z, 1, 1);
+        float lit = 1.0f + 0.18f * step;
+        g = Math.max(0x10, Math.min(0x55, Math.round(g * lit)));
+        int base = 0xFF000000 | (g << 16) | (g << 8) | g;
+
         int band = topoBand(height);
         int strength = Math.max(coast, Math.max(
                 topoLineStrength(smoothed, x, z - 1, width, band),
@@ -598,8 +591,96 @@ public final class Rasterizer {
         if (strength == 0) {
             return base;
         }
-        float mix = strength == 2 ? TOPO_INK_MIX_INDEX : TOPO_INK_MIX_MINOR;
-        return lerpColour(base, TOPO_INK, mix);
+        return strength == 2 ? 0xFFFFFFFF : 0xFFB8C0C8;
+    }
+
+    /**
+     * FLIR Military Thermal Sight rasterization: White-Hot mode with thermal physical properties
+     * (cold water body absorption, cool canopy transpiration, solar-heated rock/ground, pure white-hot hazards).
+     */
+    public static int[] rasterizeThermal(ColumnBuffer columns, BlockStyle style, int level) {
+        int width = columns.width;
+        int[] pixels = new int[columns.columns()];
+        int stride = 1 << level;
+        for (int z = 0; z < width; z++) {
+            for (int x = 0; x < width; x++) {
+                pixels[columns.index(x, z)] = thermalCell(columns, style, x, z, stride);
+            }
+        }
+        return pixels;
+    }
+
+    public static int[] rasterizeThermalParallel(ColumnBuffer columns, BlockStyle style, int level,
+                                                 java.util.concurrent.ExecutorService executor) {
+        int width = columns.width;
+        int[] pixels = new int[columns.columns()];
+        int stride = 1 << level;
+        int workers = Math.max(1, Runtime.getRuntime().availableProcessors());
+        int rowsPerTask = Math.max(1, (width + workers - 1) / workers);
+        java.util.List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+        for (int z0 = 0; z0 < width; z0 += rowsPerTask) {
+            int zStart = z0;
+            int zEnd = Math.min(width, z0 + rowsPerTask);
+            futures.add(executor.submit(() -> {
+                for (int z = zStart; z < zEnd; z++) {
+                    for (int x = 0; x < width; x++) {
+                        pixels[columns.index(x, z)] = thermalCell(columns, style, x, z, stride);
+                    }
+                }
+            }));
+        }
+        for (java.util.concurrent.Future<?> f : futures) {
+            try {
+                f.get();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            } catch (java.util.concurrent.ExecutionException e) {
+                throw new RuntimeException(e.getCause());
+            }
+        }
+        return pixels;
+    }
+
+    private static int thermalCell(ColumnBuffer columns, BlockStyle style, int x, int z, int stride) {
+        int idx = columns.index(x, z);
+        short height = columns.height[idx];
+        if (height == ColumnBuffer.NO_DATA) {
+            return 0;
+        }
+        int waterDepth = columns.depthAt(idx);
+        if (waterDepth > 0) {
+            float cold = Math.min(1.0f, waterDepth / 10.0f);
+            int v = Math.round(18 - 8 * cold);
+            int r = Math.round(v * 0.7f);
+            int g = Math.round(v * 0.9f);
+            int b = Math.round(v * 1.3f);
+            return 0xFF000000 | (b << 16) | (g << 8) | r;
+        }
+
+        short block = columns.block[idx];
+        if (style.isHazard(block)) {
+            // Pure White-Hot thermal signature for lava / fire / hot engine sources
+            return 0xFFFFFFFF;
+        }
+
+        short biome = columns.biome[idx];
+        int base = style.columnColour(block, biome, 0, 0, height);
+        int r = base & 0xFF;
+        int g = (base >> 8) & 0xFF;
+        int b = (base >> 16) & 0xFF;
+        float lum = (0.299f * r + 0.587f * g + 0.114f * b) / 255f;
+
+        boolean isCanopy = columns.groundHeight != null && columns.groundHeight[idx] < height;
+        float baseHeat = isCanopy ? 0.26f : 0.46f;
+        float heat = baseHeat * 0.55f + lum * 0.45f;
+
+        float relief = reliefOf(columns, x, z, stride);
+        heat = heat * (0.80f + 0.35f * relief);
+        heat = Math.max(0.10f, Math.min(0.95f, heat));
+
+        int v = Math.round(heat * 255f);
+        return 0xFF000000 | (v << 16) | (v << 8) | v;
     }
 
     /** 1 when the neighbour is on the other side of the land/water boundary, 0 otherwise. */

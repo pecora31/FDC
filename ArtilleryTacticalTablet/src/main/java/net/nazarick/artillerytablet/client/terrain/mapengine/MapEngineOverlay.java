@@ -355,12 +355,9 @@ public final class MapEngineOverlay {
             return null;
         }
         return switch (TerrainMips.filter()) {
-            // The JourneyMap-reference look the user asked to match: a smooth elevation-coloured
-            // gradient with contour lines darkening it, not real block colour underneath.
             case RELIEF -> Rasterizer.rasterizeHypsometric(columns);
-            // THERMAL has no mapengine rasterizer yet — falls back to the shaded ground view rather
-            // than drawing nothing, a real gap flagged in this class's own doc rather than hidden.
-            case NONE, THERMAL -> Rasterizer.rasterize(columns, style, level);
+            case THERMAL -> Rasterizer.rasterizeThermal(columns, style, level);
+            case NONE -> Rasterizer.rasterize(columns, style, level);
         };
     }
 
