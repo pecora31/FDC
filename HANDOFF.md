@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Fix Button Hover/Press Animation and LED Lighting (Gemini)
+
+Đã làm:
+- **Giữ nguyên 100% phong cách thiết kế và mã nguồn gốc**:
+  + Khắc phục lỗi `UiButton.render` bị rẽ nhánh vào sprite atlas texture chưa khớp, chuyển thẳng về luồng vẽ chuẩn gốc `render(Paint p, px, py, mouseDown)`.
+  + Phục hồi nguyên bản hiệu ứng **3D PBT keycap lún phím khi bấm (press offset)**, **đổi màu khi hover**, và **bóng đèn LED phát sáng quang học** chuẩn nguyên gốc.
+  + Kết nối trạng thái `armed` cho đèn LED của nút CFF.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — delegate directly to paint renderer)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — pass armed state to CFF LED)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Pure Standard Military Cartography: Depression Hachures & Concentric Loop Summits (Gemini)
 
 Đã làm:

@@ -588,7 +588,7 @@ public class TabletScreen extends Screen {
 
         // ---- left edge: laying the guns --------------------------------------------------------
         side(false, 0, kw, kh, Component.translatable("gui.artillerytablet.frame.cff"),
-                () -> fire(selected >= 0 ? selected : 0), false,
+                () -> fire(selected >= 0 ? selected : 0), armed,
                 Component.translatable("gui.artillerytablet.frame.cff.tip")).danger().active(armed);
         side(false, 1, kw, kh, Component.translatable("gui.artillerytablet.key.adjust"),
                 () -> lay(selected), false,
