@@ -1304,9 +1304,6 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
-            if (i == 0 || i == 9) {
-                bakeSunkenButtonWell(img, cx, cy);
-            }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             if (i != 0 && i != 9) {
                 bakeLedSocket(img, cx - 2, 76, 4, 8);
@@ -1333,9 +1330,6 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
-            if (i == 0 || i == 9) {
-                bakeSunkenButtonWell(img, cx, cy);
-            }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             if (i != 0 && i != 9) {
                 bakeLedSocket(img, cx - 2, 546, 4, 8);
@@ -1358,46 +1352,6 @@ public final class TabletChassisPaint {
         for (int y = -1; y <= h; y++) {
             for (int x = -1; x <= w; x++) {
                 setPixel(img, lx + x, ly + y, 0xFF08090C);
-            }
-        }
-    }
-
-    private static void bakeSunkenButtonWell(NativeImage img, int cx, int cy) {
-        int keyW = 44, keyH = 44, keyR = 8;
-        int rimThick = 5;
-        int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
-        int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
-        int ox2 = ox1 + outW, oy2 = oy1 + outH;
-        int ix1 = cx - keyW / 2, iy1 = cy - keyH / 2;
-        int ix2 = ix1 + keyW, iy2 = iy1 + keyH;
-
-        for (int y = oy1; y < oy2; y++) {
-            for (int x = ox1; x < ox2; x++) {
-                if (isInsideRoundedRect(x, y, ox1, oy1, ox2, oy2, outR)
-                        && !isInsideRoundedRect(x, y, ix1, iy1, ix2, iy2, keyR)) {
-
-                    boolean inTopLeft = (x + y < cx + cy);
-                    int dIn = Math.min(Math.abs(x - ix1),
-                            Math.min(Math.abs(x - ix2), Math.min(Math.abs(y - iy1), Math.abs(y - iy2))));
-
-                    int col;
-                    if (inTopLeft) {
-                        col = switch (dIn) {
-                            case 0, 1 -> 0xFF040507;
-                            case 2 -> 0xFF08090C;
-                            case 3 -> 0xFF0E0F12;
-                            default -> 0xFF181A1E;
-                        };
-                    } else {
-                        col = switch (dIn) {
-                            case 0, 1 -> 0xFF141518;
-                            case 2 -> 0xFF22242A;
-                            case 3 -> 0xFF2B2E35;
-                            default -> 0xFF34373F;
-                        };
-                    }
-                    setPixel(img, x, y, applyStipple(col, x, y));
-                }
             }
         }
     }
