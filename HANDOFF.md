@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — JourneyMap-Grade Visual Polish: Dual-Radius Hillshading, Vibrant Lighting & Bathymetry (Gemini)
+
+Đã làm:
+- Nâng cấp thuật toán đổ bóng địa hình (Hillshading) trong `TerrainImage.java`:
+  + Tách thành 2 bán kính lấy mẫu: `RELIEF_MACRO_RUN = 6` (bắt chuẩn xác khối đồi/sườn dốc thoai thoải) và `RELIEF_MICRO_RUN = 1` (giữ nguyên độ nhám/texture từng block sắc nét đặc trưng của Minecraft).
+  + Tích hợp lấy mẫu đường chéo Tây Bắc (North-West) trực tiếp theo góc chiếu sáng $315^\circ$ cartographic lighting chuẩn, giúp sườn dốc chéo không bị răng cưa.
+  + Tinh chỉnh hệ số `RELIEF_MACRO = 0.42f`, `RELIEF_MICRO = 0.14f`, `RELIEF_SOFTNESS = 0.28f` giúp địa hình thoải hiện rõ độ nổi khối 3D như JourneyMap mà không gây nhiễu hạt "sợi thép".
+  + Tăng độ sáng tự nhiên `TERRAIN_DIM = 0.78f` (trước đó là 0.62f bị tối và xỉn màu), giúp bản đồ sáng trong, rực rỡ và chân thực như ảnh chụp vệ tinh quang học.
+- Nâng cấp độ trong suốt và phân tầng nước biển (Bathymetry) trong `TerrainMips.java`:
+  + `WATER_MIN_MIX = 0.45f`: Vùng nước nông ven bờ trong vắt, nhìn thấy thềm cát/rạn san hô bên dưới.
+  + `WATER_DARKEN = 0.40f`: Vùng biển sâu chuyển dần sang màu xanh dương thẫm chuẩn hải đồ.
+
+File đụng tới:
+- `client/terrain/TerrainImage.java` (sửa — nâng cấp `reliefOf`, `slopeOf`, `TERRAIN_DIM`)
+- `client/terrain/TerrainMips.java` (sửa — nâng cấp `WATER_MIN_MIX`, `WATER_DARKEN`)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — code client hoàn toàn tương thích và compile sạch 100%.
+
+Trạng thái: Xong.
+
 ---
 
 ## 2026-08-29 — QUAN TRỌNG: hệ thống map cũ (`TerrainImage.java`...) đã bị xoá thật trong lần push này (Claude)
