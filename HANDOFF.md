@@ -26,6 +26,42 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — UiButton stub: animation nút bấm và đèn LED đã bị xóa, chờ Gemini dựng lại (Claude)
+
+Đã làm:
+- Theo yêu cầu của user, đã xóa toàn bộ phần vẽ animation nút bấm và đèn LED trong `UiButton.render()`
+  (bevel 3D, glow LED nhiều lớp, glyph vẽ tay cho `Mark`, animation nhấn/hover riêng cho từng loại nút
+  nav/mfd/mark/menuItem/danger/hard) — thay bằng một khối vẽ phẳng, tối giản duy nhất cho mọi loại nút
+  (viền mảnh + nhãn chữ, LED chỉ còn 1 màu bật/tắt, mark chỉ còn 1 ký tự chữ cái).
+- **Giữ nguyên 100% API/builder** (`hard()`, `mfd()`, `mark()`, `asNav()`, `danger()`, `lamp()`,
+  `power()`, `sub()`, `active()`, `invisible()`, `asMenuItem()`, `tooltip()`...) và toàn bộ logic
+  tương tác (`press()`, `release()`, `contains()`, `isPressed()`, âm thanh click) — không đụng gì đến
+  `TabletScreen.java`, mọi lời gọi vẫn compile và chạy đúng, chỉ là hình vẽ ra rất mộc.
+- Lý do: user muốn giao lại toàn bộ phần thiết kế animation nút bấm + đèn LED cho Gemini làm từ đầu,
+  không muốn giữ code cũ (một phần của Claude từ các phiên trước, không rõ ranh giới chính xác với
+  phần Gemini đã sửa lên trên — xem thêm ghi chú merge bug bên dưới) làm nền.
+
+**Lưu ý quan trọng — bug merge trước đó:** khi resolve conflict `HANDOFF.md` ở merge commit `33414e9`
+(pull commit `6a87171` "Fix button press/hover animation... while strictly preserving original style"),
+nội dung code thực tế của `6a87171` cho `UiButton.java`/`TabletScreen.java` đã bị rơi mất — kết quả
+merge lúc đó trùng khớp 100% với `7399d72` (bản trước `6a87171`), không phải `6a87171`. Vì `UiButton.java`
+đã bị stub toàn bộ ở đây nên không còn ảnh hưởng, nhưng `TabletScreen.java` hiện tại vẫn đang mang các
+tham số LED wiring từ `7399d72` (vd `side(..., this::cycleFireMode, true, ...)` cho MODE/ARC — luôn bật),
+KHÔNG phải bản `6a87171` đã lùi lại (`false` cho các LED đó). Đáng để kiểm tra lại khi dựng animation
+mới, vì đây có thể không phải trạng thái LED mà `6a87171` từng chủ định.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — stub toàn bộ phần
+  vẽ animation/LED, giữ nguyên API và logic tương tác)
+
+Bên kia cần làm gì:
+- Dựng lại animation nút bấm (hover/press) và đèn LED quang học trong `UiButton.render()` theo ý mới,
+  dùng lại API hiện có (`led`, `hardOn`, `hard`, `mark`, `danger`, `power`, `mfd`, `mfdOn`...).
+- Kiểm tra lại các tham số LED wiring trong `TabletScreen.java` (đặc biệt các nút cạnh trái CFF/ADJUST/
+  MODE/ARC) — xem ghi chú merge bug ở trên trước khi coi đó là trạng thái đã chốt.
+
+Trạng thái: Cần bên kia tích hợp.
+
 ## 2026-08-29 — Fix Button Hover/Press Animation and LED Lighting (Gemini)
 
 Đã làm:

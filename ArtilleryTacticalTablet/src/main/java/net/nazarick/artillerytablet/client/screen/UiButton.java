@@ -18,50 +18,14 @@ import net.nazarick.artillerytablet.init.ModSounds;
  */
 @OnlyIn(Dist.CLIENT)
 public class UiButton {
-    /** Almost transparent, so the map stays faintly visible behind a key. */
+    // STUB — the previous bevel/LED/press-animation rendering was removed on request (2026-08-29)
+    // so it can be redesigned from scratch. Everything below draws the plainest possible box; the
+    // builder API and state fields are untouched so TabletScreen's calls keep compiling.
     private static final int BACKGROUND = 0xB0141A21;
-
-    // Injection-moulded matte PBT key (ash grey polymer) — authentic MFD palette matching Image 1.
-    private static final int COL_BTN_DROP_SHADOW = 0x88040508;
-    private static final int COL_BTN_BORDER_DARK = 0xFF101216;
-    private static final int COL_BTN_WALL_EXTRUSION = 0xFF2A2D36;
-    private static final int COL_BTN_SHOULDER_LIGHT = 0xFF565C6A;
-    private static final int COL_BTN_SHOULDER_HOVER = 0xFF6E7688;
-    private static final int COL_BTN_SHOULDER_PRESSED = 0xFF22252C;
-    private static final int COL_BTN_RIM_TOP = 0xFF4A4E5C;
-    private static final int COL_BTN_RIM_TOP_PRESSED = 0xFF22252C;
-    private static final int COL_BTN_DISH_BASE = 0xFF3A3E48;
-    private static final int COL_BTN_DISH_HOVER = 0xFF484D5A;
-    private static final int COL_BTN_DISH_PRESSED = 0xFF24262E;
-    private static final int COL_BTN_DISH_SHADOW = 0xFF22242B;
-    private static final int COL_BTN_DISH_SHADOW_PRESSED = 0xFF16181E;
-    private static final int COL_BTN_DISH_HIGHLIGHT = 0xFF525868;
-    private static final int COL_BTN_DISH_HIGHLIGHT_PRESSED = 0xFF343844;
-    private static final int COL_BTN_TEXT = 0xFFFFFFFF;
-    private static final int COL_BTN_TEXT_PRESSED = 0xFFB0B4BC;
-
-    // Bright tactical crimson key — CFF and POWER.
-    private static final int COL_RED_BORDER_DARK = 0xFF180303;
-    private static final int COL_RED_WALL_EXTRUSION = 0xFF440808;
-    private static final int COL_RED_SHOULDER_LIGHT = 0xFFC82424;
-    private static final int COL_RED_SHOULDER_HOVER = 0xFFE63030;
-    private static final int COL_RED_SHOULDER_PRESSED = 0xFF360404;
-    private static final int COL_RED_RIM_TOP = 0xFF9E1818;
-    private static final int COL_RED_RIM_TOP_PRESSED = 0xFF360404;
-    private static final int COL_RED_DISH_BASE = 0xFF7A1212;
-    private static final int COL_RED_DISH_HOVER = 0xFF961818;
-    private static final int COL_RED_DISH_PRESSED = 0xFF400606;
-    private static final int COL_RED_DISH_SHADOW = 0xFF480606;
-    private static final int COL_RED_DISH_SHADOW_PRESSED = 0xFF1C0202;
-    private static final int COL_RED_DISH_HIGHLIGHT = 0xFFA41E1E;
-    private static final int COL_RED_DISH_HIGHLIGHT_PRESSED = 0xFF500808;
-    private static final int COL_RED_TEXT = 0xFFFFFFFF;
-    private static final int COL_RED_TEXT_PRESSED = 0xFFC0C0C0;
-
-    // Smoked-lens LED, on the bezel beside a key.
-    private static final int LED_LIT_GOOD = 0xFF00E65A;
-    private static final int LED_LIT_DANGER = 0xFFFF2A2A;
-    private static final int LED_LIT_POWER = 0xFFFFB000;
+    private static final int STUB_OUTLINE = 0xFF3A4048;
+    private static final int STUB_OUTLINE_LIT = 0xFF7C8894;
+    private static final int STUB_TEXT = 0xFFE0E4E8;
+    private static final int STUB_TEXT_DIM = 0x667C8894;
 
     public final int x;
     public final int y;
@@ -226,39 +190,7 @@ public class UiButton {
         }
         int x1 = led[0], y1 = led[1], w = led[2], h = led[3];
         int x2 = x1 + w, y2 = y1 + h;
-
-        boolean isLit = hardOn;
-        int litColour = danger ? LED_LIT_DANGER : power ? LED_LIT_POWER : LED_LIT_GOOD;
-
-        if (isLit) {
-            // 1. Phosphor Bloom Halo (Quầng sáng phốt pho 1px tỏa rộng ra ngoài)
-            int glow = 0x55000000 | (litColour & 0x00FFFFFF);
-            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, glow);
-
-            // 2. Vivid Semiconductor Diode Body
-            p.fill(x1, y1, x2, y2, litColour);
-
-            // 3. Specular White Core Dot/Line
-            if (h >= 4) {
-                p.fill(x1 + w / 2, y1 + 1, x1 + w / 2 + 1, y2 - 1, 0xFFFFFFFF);
-            } else if (w >= 4) {
-                p.fill(x1 + 1, y1 + h / 2, x2 - 1, y1 + h / 2 + 1, 0xFFFFFFFF);
-            } else {
-                p.fill(x1, y1, x1 + 1, y1 + 1, 0xFFFFFFFF);
-            }
-        } else {
-            // 1. Thin Dark Recess Socket Border (Viền đen mỏng xung quanh hốc chìm)
-            p.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF0A0B0E);
-
-            // 2. Smoked optical glass diode body
-            p.fill(x1, y1, x2, y2, 0xFF222834);
-
-            // 3. Top glass reflection sheen (1px)
-            p.fill(x1, y1, x2, y1 + 1, 0xFF4A5468);
-
-            // 4. Bottom inner shadow (1px)
-            p.fill(x1, y2 - 1, x2, y2, 0xFF101318);
-        }
+        p.fill(x1, y1, x2, y2, hardOn ? STUB_OUTLINE_LIT : 0xFF222834);
     }
 
     /**
@@ -269,86 +201,17 @@ public class UiButton {
      * agnostic by design (see the class javadoc), so its glyph has to be too.
      */
     private void drawMark(Paint p, int cx, int cy, int w, int color) {
-        switch (mark) {
-            case GRID -> { // crosshair
-                int s = Math.max(4, Math.round(w * (7f / 44)));
-                p.fill(cx - s, cy - 1, cx + s + 1, cy + 1, color);
-                p.fill(cx - 1, cy - s, cx + 1, cy + s + 1, color);
-                fillCircle(p, cx, cy, Math.max(1, Math.round(w * (2.5f / 44))), color);
-            }
-            case BRIGHT -> { // 8-pointed star / sun
-                int s = Math.max(4, Math.round(w * (6.5f / 44)));
-                p.fill(cx - s, cy, cx + s + 1, cy + 1, color);
-                p.fill(cx, cy - s, cx + 1, cy + s + 1, color);
-                int d = Math.max(2, Math.round(s * 0.7f));
-                p.fill(cx - d, cy - d, cx - d + 1, cy - d + 1, color);
-                p.fill(cx + d, cy - d, cx + d + 1, cy - d + 1, color);
-                p.fill(cx - d, cy + d, cx - d + 1, cy + d + 1, color);
-                p.fill(cx + d, cy + d, cx + d + 1, cy + d + 1, color);
-                fillCircle(p, cx, cy, Math.max(1, Math.round(w * (2f / 44))), color);
-            }
-            case NIGHT -> { // diamond
-                int s = Math.max(4, Math.round(w * (6f / 44)));
-                for (int dy = -s; dy <= s; dy++) {
-                    int span = s - Math.abs(dy);
-                    p.fill(cx - span, cy + dy, cx + span + 1, cy + dy + 1, color);
-                }
-            }
-            case POWER -> { // IEC 60417-5009 standby symbol (slender power bar & ring)
-                int radius = Math.max(4, Math.round(w * (6.5f / 44)));
-                int ringThick = Math.max(1, Math.round(w * (1.8f / 44)));
-                int gapHalfAngleDeg = 28;
-
-                drawAARingArc(p, cx, cy, radius, ringThick, gapHalfAngleDeg, color);
-
-                int barHalfW = (w <= 24) ? 0 : Math.max(0, Math.round(w * (1.0f / 44)) / 2);
-                int barTop = cy - radius - Math.max(1, Math.round(w * (1.5f / 44)));
-                int barBottom = cy + Math.max(1, Math.round(w * (1.2f / 44)));
-                p.fill(cx - barHalfW, barTop, cx + barHalfW + 1, barBottom, color);
-            }
-            default -> {}
-        }
-    }
-
-    private static void drawAARingArc(Paint p, int cx, int cy, int radius, int thickness, int gapAngleDeg, int argb) {
-        int box = radius + 2;
-        int bx = cx - box, by = cy - box;
-        int rOut = radius;
-        int rIn = radius - thickness;
-        int maxAlpha = (argb >>> 24) & 0xFF;
-        int rgb = argb & 0x00FFFFFF;
-
-        for (int dy = -box; dy <= box; dy++) {
-            for (int dx = -box; dx <= box; dx++) {
-                int px = cx + dx, py = cy + dy;
-                float dist = (float) Math.sqrt(dx * dx + dy * dy);
-                if (dist >= rIn - 0.5f && dist <= rOut + 0.5f) {
-                    double angleDeg = Math.toDegrees(Math.atan2(dx, -dy));
-                    if (Math.abs(angleDeg) > gapAngleDeg) {
-                        float cov = 1.0f;
-                        if (dist > rOut - 0.5f) {
-                            cov = Math.max(0f, Math.min(1f, rOut + 0.5f - dist));
-                        } else if (dist < rIn + 0.5f) {
-                            cov = Math.max(0f, Math.min(1f, dist - (rIn - 0.5f)));
-                        }
-                        int a = Math.round(cov * maxAlpha);
-                        if (a > 0) {
-                            p.fill(px, py, px + 1, py + 1, (a << 24) | rgb);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static void fillCircle(Paint p, int cx, int cy, int radius, int color) {
-        for (int dy = -radius; dy <= radius; dy++) {
-            for (int dx = -radius; dx <= radius; dx++) {
-                if (dx * dx + dy * dy <= radius * radius) {
-                    p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
-                }
-            }
-        }
+        // Stub — draws the mark's name as a single letter instead of a glyph, until redesigned.
+        String letter = switch (mark) {
+            case PLUS -> "+";
+            case MINUS -> "-";
+            case CENTRE -> "C";
+            case GRID -> "G";
+            case BRIGHT -> "B";
+            case NIGHT -> "N";
+            case POWER -> "P";
+        };
+        p.label(letter, cx - 3, cy - 4, 6, 8, color);
     }
 
     /**
@@ -411,168 +274,29 @@ public class UiButton {
     }
 
     public void render(Paint p, double px, double py, boolean mouseDown) {
+        // STUB — a single plain box for every button kind (hard, nav, mfd, mark, menuItem, danger,
+        // default), no hover fill, no press offset, no LED glow. Redesign from here.
         if (invisible) {
             return;
         }
         boolean lit = active && contains(px, py);
-        boolean isPressed = lit && mouseDown;
 
-        if (hard) {
-            boolean red = danger || power;
+        int textCol = !active ? STUB_TEXT_DIM : STUB_TEXT;
+        int outlineCol = !active ? STUB_OUTLINE : lit ? STUB_OUTLINE_LIT : STUB_OUTLINE;
 
-            int kx = x, ky = y;
-            if (!isPressed) {
-                p.fill(kx + 1, ky + h, kx + w, ky + h + 1, COL_BTN_DROP_SHADOW);
-                p.fill(kx + w, ky + 1, kx + w + 1, ky + h, COL_BTN_DROP_SHADOW);
-            } else {
-                int pressOffset = Math.max(1, Math.round(w * (2f / 44f)));
-                kx += pressOffset;
-                ky += pressOffset;
-            }
-
-            int borderCol = red ? COL_RED_BORDER_DARK : COL_BTN_BORDER_DARK;
-            int wallCol = red ? (isPressed ? COL_RED_SHOULDER_PRESSED : COL_RED_WALL_EXTRUSION) : (isPressed ? COL_BTN_SHOULDER_PRESSED : COL_BTN_WALL_EXTRUSION);
-            int shoulderCol = red
-                    ? (isPressed ? COL_RED_SHOULDER_PRESSED : lit ? COL_RED_SHOULDER_HOVER : COL_RED_SHOULDER_LIGHT)
-                    : (isPressed ? COL_BTN_SHOULDER_PRESSED : lit ? COL_BTN_SHOULDER_HOVER : COL_BTN_SHOULDER_LIGHT);
-
-            // 1. Dark Border with clean rounded corner steps
-            int br = Math.max(1, Math.round(w * (4f / 44f)));
-            for (int dy = 0; dy < h; dy++) {
-                int inset = (dy < br) ? (br - dy) : (dy >= h - br) ? (dy - (h - br) + 1) : 0;
-                p.fill(kx + inset, ky + dy, kx + w - inset, ky + dy + 1, borderCol);
-            }
-
-            // 2. Cap Shoulder Body (Matte PBT nhám mịn)
-            for (int dy = 1; dy < h - 1; dy++) {
-                int inset = (dy < br) ? Math.max(1, br - dy) : (dy >= h - br) ? Math.max(1, dy - (h - br) + 1) : 1;
-                int col = (dy <= 2 && !isPressed) ? shoulderCol : wallCol;
-                p.fill(kx + inset, ky + dy, kx + w - inset, ky + dy + 1, col);
-            }
-
-            int dishBaseCol = red
-                    ? (isPressed ? COL_RED_DISH_PRESSED : lit ? COL_RED_DISH_HOVER : COL_RED_DISH_BASE)
-                    : (isPressed ? COL_BTN_DISH_PRESSED : lit ? COL_BTN_DISH_HOVER : COL_BTN_DISH_BASE);
-            int dishShadow = red
-                    ? (isPressed ? COL_RED_DISH_SHADOW_PRESSED : COL_RED_DISH_SHADOW)
-                    : (isPressed ? COL_BTN_DISH_SHADOW_PRESSED : COL_BTN_DISH_SHADOW);
-            int dishLight = red
-                    ? (isPressed ? COL_RED_DISH_HIGHLIGHT_PRESSED : COL_RED_DISH_HIGHLIGHT)
-                    : (isPressed ? COL_BTN_DISH_HIGHLIGHT_PRESSED : COL_BTN_DISH_HIGHLIGHT);
-            int textCol = red
-                    ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
-                    : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
-
-            // 3. Concave Dish Bowl
-            int innerMargin = Math.max(2, Math.round(w * (3.5f / 44f)));
-            int ix = kx + innerMargin, iy = ky + innerMargin;
-            int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
-
-            if (!isPressed) {
-                p.fill(ix, iy, ix + iw, iy + 1, dishShadow);
-                p.fill(ix, iy + 1, ix + 1, iy + ih - 1, dishShadow);
-                p.fill(ix + iw - 1, iy + 1, ix + iw, iy + ih - 1, dishLight);
-                p.fill(ix, iy + ih - 1, ix + iw, iy + ih, dishLight);
-            } else {
-                p.fill(ix, iy, ix + iw, iy + 1, dishShadow);
-                p.fill(ix, iy + 1, ix + 1, iy + ih - 1, dishShadow);
-                p.fill(ix + iw - 1, iy + 1, ix + iw, iy + ih - 1, dishShadow);
-                p.fill(ix, iy + ih - 1, ix + iw, iy + ih, dishShadow);
-            }
-
-            // Dish Floor
-            p.fill(ix + 1, iy + 1, ix + iw - 1, iy + ih - 1, dishBaseCol);
-
-            // 4. Always draw LED with its live state (on or off)
+        p.rect(x, y, w, h, BACKGROUND);
+        p.outline(x, y, w, h, outlineCol);
+        if (led != null) {
             drawLamp(p);
-
-            // 5. Text / Glyph with physical press offset
-            if (mark != null) {
-                drawMark(p, kx + w / 2, ky + h / 2, w, textCol);
-            } else if (sub == null) {
-                p.label(TabletTheme.text(label).getString(), kx, ky, w, h, textCol);
-            } else {
-                p.label(TabletTheme.text(label).getString(), kx, ky, w, h / 2, textCol);
-                p.label(TabletTheme.text(sub).getString(), kx, ky + h / 2, w, h / 2, textCol);
-            }
-            return;
         }
-
-        int kx = isPressed ? x + 1 : x;
-        int ky = isPressed ? y + 1 : y;
-
-        if (nav) {
-            if (isPressed) {
-                p.rect(x, y, w, h, 0x333B82F6);
-                p.rect(x, y + h - 2, w, 2, TabletTheme.FRIENDLY);
-            } else if (selected) {
-                p.rect(x, y + h - 2, w, 2, TabletTheme.FRIENDLY);
-            } else if (lit) {
-                p.rect(x, y + h - 2, w, 2, TabletTheme.LINE);
-            }
-            p.label(TabletTheme.text(label).getString(), kx, ky, w, h,
-                    isPressed || selected || lit ? TabletTheme.TEXT : TabletTheme.MUTED);
-            return;
-        }
-
-        if (mfd) {
-            int ink = !active ? 0x667C8894 : (mfdOn || lit || isPressed) ? TabletTheme.GOOD : TabletTheme.TEXT;
-            int fill = isPressed ? 0x4400E65A : TabletTheme.OVERLAY;
-            p.rect(x, y, w, h, fill);
-            p.outline(x, y, w, h, ink);
-            p.label(TabletTheme.text(label).getString(), kx, ky, w, h, ink);
-            return;
-        }
-
         if (mark != null) {
-            int ink = !active ? 0x667C8894 : isPressed ? 0xFFFFFFFF : lit ? TabletTheme.FRIENDLY : TabletTheme.TEXT;
-            int fill = isPressed ? 0x443B82F6 : BACKGROUND;
-            p.rect(x, y, w, h, fill);
-            p.outline(x, y, w, h, isPressed ? TabletTheme.TEXT : lit ? TabletTheme.FRIENDLY : TabletTheme.LINE);
-
-            int cx = kx + (w - 1) / 2;
-            int cy = ky + (h - 1) / 2;
-            switch (mark) {
-                case PLUS -> {
-                    p.rect(cx - 2, cy, 5, 1, ink);
-                    p.rect(cx, cy - 2, 1, 5, ink);
-                }
-                case MINUS -> p.rect(cx - 2, cy, 5, 1, ink);
-                case CENTRE -> {
-                    p.rect(cx - 3, cy, 2, 1, ink);
-                    p.rect(cx + 2, cy, 2, 1, ink);
-                    p.rect(cx, cy - 3, 1, 2, ink);
-                    p.rect(cx, cy + 2, 1, 2, ink);
-                    p.rect(cx, cy, 1, 1, ink);
-                }
-            }
-            return;
+            drawMark(p, x + w / 2, y + h / 2, w, textCol);
+        } else if (sub == null) {
+            p.label(TabletTheme.text(label).getString(), x, y, w, h, textCol);
+        } else {
+            p.label(TabletTheme.text(label).getString(), x, y, w, h / 2, textCol);
+            p.label(TabletTheme.text(sub).getString(), x, y + h / 2, w, h / 2, textCol);
         }
-
-        if (menuItem) {
-            if (isPressed) {
-                p.rect(x, y, w, h, 0x553B82F6);
-            } else if (lit) {
-                p.rect(x, y, w, h, 0x334DA3FF);
-            }
-            p.label(TabletTheme.text(label).getString(), kx + Ui.GAP_SM, ky, w, h,
-                    isPressed || lit ? TabletTheme.TEXT : TabletTheme.MUTED);
-            return;
-        }
-
-        if (danger) {
-            int fill = !active ? 0x552A333D : isPressed ? 0xFF881111 : lit ? 0xFFFF7A72 : TabletTheme.HOSTILE;
-            p.rect(x, y, w, h, fill);
-            p.label(TabletTheme.text(label).getString(), kx, ky, w, h,
-                    !active ? 0x667C8894 : 0xFFFFFFFF);
-            return;
-        }
-
-        int fill = isPressed ? 0x443B82F6 : BACKGROUND;
-        p.rect(x, y, w, h, fill);
-        p.outline(x, y, w, h, !active ? 0x552A333D : isPressed ? TabletTheme.TEXT : lit ? TabletTheme.FRIENDLY : TabletTheme.LINE);
-        p.label(TabletTheme.text(label).getString(), kx, ky, w, h,
-                !active ? 0x667C8894 : isPressed ? 0xFFFFFFFF : lit ? TabletTheme.FRIENDLY : TabletTheme.TEXT);
     }
 
 }
