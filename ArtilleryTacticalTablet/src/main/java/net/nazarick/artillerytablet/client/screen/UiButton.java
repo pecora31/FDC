@@ -143,67 +143,64 @@ public class UiButton {
     private void drawMark(Paint p, int cx, int cy, int w, int color) {
         switch (mark) {
             case PLUS -> {
-                p.fill(cx - 5, cy, cx + 6, cy + 2, color);
-                p.fill(cx, cy - 5, cx + 2, cy + 6, color);
+                // Compact centered cross
+                p.fill(cx - 3, cy, cx + 4, cy + 1, color);
+                p.fill(cx, cy - 3, cx + 1, cy + 4, color);
             }
             case MINUS -> {
-                p.fill(cx - 5, cy, cx + 6, cy + 2, color);
+                // Compact centered horizontal bar
+                p.fill(cx - 3, cy, cx + 4, cy + 1, color);
             }
             case CENTRE -> {
-                p.fill(cx - 5, cy, cx + 6, cy + 2, color);
-                p.fill(cx, cy - 5, cx + 2, cy + 6, color);
-                p.outline(cx - 3, cy - 3, 7, 7, color);
+                // Compact centered crosshair & target reticle
+                p.fill(cx - 3, cy, cx + 4, cy + 1, color);
+                p.fill(cx, cy - 3, cx + 1, cy + 4, color);
+                p.outline(cx - 2, cy - 2, 5, 5, color);
             }
             case GRID -> {
                 // Slim, crisp Reticle Crosshair
-                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
-                p.fill(cx, cy - 5, cx + 1, cy + 6, color);
+                p.fill(cx - 4, cy, cx + 5, cy + 1, color);
+                p.fill(cx, cy - 4, cx + 1, cy + 5, color);
                 for (int dy = -2; dy <= 2; dy++) {
                     for (int dx = -2; dx <= 2; dx++) {
                         int d2 = dx * dx + dy * dy;
-                        if (d2 <= 5 && d2 >= 2) {
+                        if (d2 <= 4 && d2 >= 2) {
                             p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
                         }
                     }
                 }
             }
             case BRIGHT -> {
-                // Slim, refined Tactical Sun icon (nhỏ gọn, thanh mảnh)
-                // Center disc (R = 2)
-                for (int dy = -2; dy <= 2; dy++) {
-                    for (int dx = -2; dx <= 2; dx++) {
-                        if (dx * dx + dy * dy <= 4) {
-                            p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
-                        }
-                    }
-                }
-                // 4 Slim Cardinal rays (1px wide, length 3px)
-                p.fill(cx, cy - 6, cx + 1, cy - 3, color); // Top ray
-                p.fill(cx, cy + 4, cx + 1, cy + 7, color); // Bottom ray
-                p.fill(cx - 6, cy, cx - 3, cy + 1, color); // Left ray
-                p.fill(cx + 4, cy, cx + 7, cy + 1, color); // Right ray
-                // 4 Diagonal rays (1px points)
-                p.fill(cx - 4, cy - 4, cx - 3, cy - 3, color);
-                p.fill(cx + 4, cy - 4, cx + 5, cy - 3, color);
-                p.fill(cx - 4, cy + 4, cx - 3, cy + 5, color);
-                p.fill(cx + 4, cy + 4, cx + 5, cy + 5, color);
+                // Slim, elegant Tactical Sun icon (nhỏ gọn, thanh mảnh)
+                // Center disc (R = 1.5)
+                p.fill(cx - 1, cy - 1, cx + 2, cy + 2, color);
+                // 4 Cardinal rays (1px wide, length 2px)
+                p.fill(cx, cy - 4, cx + 1, cy - 2, color); // Top ray
+                p.fill(cx, cy + 3, cx + 1, cy + 5, color); // Bottom ray
+                p.fill(cx - 4, cy, cx - 2, cy + 1, color); // Left ray
+                p.fill(cx + 3, cy, cx + 5, cy + 1, color); // Right ray
+                // 4 Diagonal points
+                p.fill(cx - 3, cy - 3, cx - 2, cy - 2, color);
+                p.fill(cx + 3, cy - 3, cx + 4, cy - 2, color);
+                p.fill(cx - 3, cy + 3, cx - 2, cy + 4, color);
+                p.fill(cx + 3, cy + 3, cx + 4, cy + 4, color);
             }
             case POWER -> {
-                // Slim, elegant IEC Power icon (nhỏ, thon gọn, không béo)
-                int radius = 5;
-                int rIn2 = 3 * 3;
-                int rOut2 = 5 * 5;
+                // Slim, elegant IEC Power icon (nhỏ gọn, không béo, căn chuẩn tâm)
+                int radius = 4;
+                int rIn2 = 2 * 2;
+                int rOut2 = 4 * 4;
                 for (int dy = -radius; dy <= radius; dy++) {
                     for (int dx = -radius; dx <= radius; dx++) {
                         int d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -1 && Math.abs(dx) <= 1) continue; // Top opening gap
+                            if (dy <= -2 && Math.abs(dx) <= 1) continue; // Top opening gap
                             p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
                         }
                     }
                 }
                 // 1px slim vertical power stem
-                p.fill(cx, cy - 6, cx + 1, cy, color);
+                p.fill(cx, cy - 4, cx + 1, cy, color);
             }
         }
     }

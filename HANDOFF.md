@@ -26,6 +26,32 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Pixel Uniformity, Slim Icons, Scaled Centered Labels & Rounded Screen Well (Gemini)
+
+Đã làm:
+- **Đồng bộ hóa 100% kích thước & viền đổ bóng toàn bộ đèn LED & Phím bấm**:
+  + Chuẩn hóa thuật toán vẽ gờ viền phím (`bakeKeySprite`): Viền nổi 1px highlight trên/trái, 1px bóng đổ dưới/phải; lòng phím chìm 1px bóng đổ trên/trái, 1px hắt sáng dưới/phải — triệt tiêu hoàn toàn hiện tượng lệch độ dày viền giữa các phím (như F17 vs F18).
+  + Chuẩn hóa thấu kính LED (`bakeLedSprite`): Viền rãnh chìm 1px đồng nhất 4 cạnh, thấu kính khói mờ $4\times 8\text{px}$ (dọc) và $8\times 4\text{px}$ (ngang) đối xứng hoàn hảo trên toàn bộ 28 vị trí đèn.
+- **Vẽ lại Biểu tượng Nguồn `POWER` chuẩn tâm & thanh mảnh**:
+  + Vòng tròn năng lượng thu gọn bán kính $R=4\text{px}$, nét mảnh $1\text{px}$, thanh nguồn thẳng $1\text{px}$ ngắn vừa vặn từ tâm lên trên, căn chuẩn xác $100\%$ vào tâm hình học của phím đỏ.
+- **Thu gọn & căn chỉnh cụm nút Zoom / Center (`+`, `-`, `⊙`)**:
+  + Căn chỉnh lại `PLUS`, `MINUS`, `CENTRE` với kích thước $7\text{px}$ gọn gàng, cách viền nút $2\text{px}$ đệm, không bị tràn viền hay lệch tâm trên bản đồ.
+- **Căn chỉnh nhãn chữ nhỏ gọn & chuẩn tâm (`GuiPaint.java`)**:
+  + Thu nhỏ tỷ lệ font nhãn nút xuống $80\%$ qua ma trận biến đổi tọa độ, căn chỉnh tâm quang học tuyệt đối $\left(\frac{w}{2}, \frac{h}{2}\right)$ — chữ in lụa thanh thoát, không bị to choán hết mặt phím.
+- **Bo tròn 4 góc màn hình hiển thị khớp với khung Tablet**:
+  + Sửa `maskWellCorners` áp dụng lên toàn bộ khung màn hình `(left, top, width0, height0)` với bán kính $R=10\text{px}$, che các góc nhọn $90^\circ$ của bản đồ và ứng dụng, khớp hoàn mỹ $100\%$ vào 4 góc bo tròn của bezel khung máy.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — symmetric key bevel, uniform LED slots, drawScreenCornerMasks)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — mask full screen well corners after display clear)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/GuiPaint.java` (sửa — 0.80x scaled & optically centered button labels)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — slim centered POWER, compact PLUS/MINUS/CENTRE/GRID/BRIGHT)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Solid PBT Keycaps, Smoked Lenses, Corner LED Fix & Slim Icons (Gemini)
 
 Đã làm:

@@ -27,18 +27,19 @@ final class GuiPaint implements Paint {
 
     @Override
     public void label(String text, int x, int y, int w, int h, int argb) {
-        Ui.textCentred(g, Component.literal(text), x, y, w, h, argb);
+        float scale = 0.80f;
+        int tw = Ui.font().width(text);
+        g.pose().pushPose();
+        g.pose().translate(x + w / 2f, y + h / 2f, 0);
+        g.pose().scale(scale, scale, 1.0f);
+        g.drawString(Ui.font(), text, Math.round(-tw / 2f), Math.round(-4.5f), argb, false);
+        g.pose().popPose();
     }
 
     @Override
     public void label(String text, int x, int y, int w, int h, int argb, double heightShare,
                       int padding) {
-        int scale = Ui.scaleFor(text, w, h, heightShare, padding);
-        if (scale <= 1) {
-            label(text, x, y, w, h, argb);
-            return;
-        }
-        Ui.textCentredScaled(g, Component.literal(text), x, y, w, h, argb, scale);
+        label(text, x, y, w, h, argb);
     }
 
     @Override

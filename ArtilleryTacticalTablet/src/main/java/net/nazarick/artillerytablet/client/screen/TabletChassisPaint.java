@@ -139,6 +139,44 @@ public final class TabletChassisPaint {
                 TabletFrame.DESIGN_W, TabletFrame.DESIGN_H);
     }
 
+    public static void drawScreenCornerMasks(GuiGraphics g, TabletFrame frame) {
+        int x0 = frame.screenLeft();
+        int y0 = frame.screenTop();
+        int w = frame.screenWidth();
+        int h = frame.screenHeight();
+        int r = Math.max(3, frame.toScreenW(10f)); // Screen well inner corner radius
+
+        int colTL = 0xFF08090B;
+        int colTR = 0xFF08090B;
+        int colBL = 0xFF16181C;
+        int colBR = 0xFF202226;
+
+        for (int dy = 0; dy < r; dy++) {
+            for (int dx = 0; dx < r; dx++) {
+                // Top-Left corner
+                int dtl = (r - dx) * (r - dx) + (r - dy) * (r - dy);
+                if (dtl > r * r) {
+                    g.fill(x0 + dx, y0 + dy, x0 + dx + 1, y0 + dy + 1, colTL);
+                }
+                // Top-Right corner
+                int dtr = (dx + 1) * (dx + 1) + (r - dy) * (r - dy);
+                if (dtr > r * r) {
+                    g.fill(x0 + w - r + dx, y0 + dy, x0 + w - r + dx + 1, y0 + dy + 1, colTR);
+                }
+                // Bottom-Left corner
+                int dbl = (r - dx) * (r - dx) + (dy + 1) * (dy + 1);
+                if (dbl > r * r) {
+                    g.fill(x0 + dx, y0 + h - r + dy, x0 + dx + 1, y0 + h - r + dy + 1, colBL);
+                }
+                // Bottom-Right corner
+                int dbr = (dx + 1) * (dx + 1) + (dy + 1) * (dy + 1);
+                if (dbr > r * r) {
+                    g.fill(x0 + w - r + dx, y0 + h - r + dy, x0 + w - r + dx + 1, y0 + h - r + dy + 1, colBR);
+                }
+            }
+        }
+    }
+
     private static void bakeSteppedCorner(NativeImage img, int vx, int vy, boolean isLeft, boolean isTop,
             int cornerW, int cornerH, int rIn, int outerR, int bW) {
         int w = TabletFrame.DESIGN_W;
@@ -1054,20 +1092,8 @@ public final class TabletChassisPaint {
         img.setPixelRGBA(x, y, abgr);
     }
 
-    private static void bakeKeySprite(NativeImage img, int kx, int ky, int w, int h, int roundRadius,
-            int dropShadow, int borderDark, int wallExtrusion,
-            int shoulderLight, int rimTop, int dishBase,
-            int dishShadow, int dishHighlight, boolean pressed) {
-        // 1. Outer base drop shadow (mỏng 1px dưới chân phím)
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                if (isInsideRounded(x, y, w, h, roundRadius)) {
-                    setPixel(img, kx + x, ky + y + 1, dropShadow);
-                }
-            }
-        }
-
-        // 2. 1px dark outer socket border
+    private static void bakeKeySprite(NativeImage img, int kx, int ky, int w, int h, int roundRadius, int dropShadow, int borderDark, int wallExtrusion, int shoulderLight, int rimTop, int dishBase, int dishShadow, int dishHighlight, boolean pressed) {
+        // 1. 1px dark outer socket border (Uniform on all keys)
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRounded(x, y, w, h, roundRadius)) {
@@ -1076,37 +1102,30 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 3. Raised outer rim body (Viền nút nổi cao hơn bề mặt chứa chữ)
+        // 2. Raised outer rim body (Symmetric 1px bevel on top/left/right/bottom)
         for (int y = 1; y < h - 1; y++) {
-            int rimCol = dishBase;
-            if (y <= 2)
-                rimCol = shoulderLight;
-            else if (y <= 4)
-                rimCol = rimTop;
-            else if (y >= h - 3)
-                rimCol = wallExtrusion;
-
             for (int x = 1; x < w - 1; x++) {
                 if (isInsideRounded(x - 1, y - 1, w - 2, h - 2, roundRadius - 1)) {
+                    int rimCol = rimTop;
+                    if (y == 1 || x == 1) {
+                        rimCol = shoulderLight; // 1px Top & Left light highlight
+                    } else if (y == h - 2 || x == w - 2) {
+                        rimCol = wallExtrusion; // 1px Bottom & Right shadow
+                    }
                     setPixel(img, kx + x, ky + y, rimCol);
                 }
             }
         }
 
-        // 4. Highlight on top outer rim edge
-        for (int x = roundRadius; x < w - roundRadius; x++) {
-            setPixel(img, kx + x, ky + 1, shoulderLight);
-        }
-
-        // 5. Deep Recessed Dish Floor (Bề mặt chứa chữ chìm sâu bên trong viền)
+        // 3. Recessed Dish Floor
         int rimThickness = 4;
         int dishW = w - rimThickness * 2;
         int dishH = h - rimThickness * 2;
         int dishX = kx + rimThickness;
-        int dishY = ky + (pressed ? rimThickness + 1 : rimThickness);
+        int dishY = ky + rimThickness;
         int innerRadius = Math.max(2, roundRadius - rimThickness + 1);
 
-        // 5a. Fill recessed dish floor
+        // 3a. Fill recessed dish floor
         for (int y = 0; y < dishH; y++) {
             for (int x = 0; x < dishW; x++) {
                 if (isInsideRounded(x, y, dishW, dishH, innerRadius)) {
@@ -1115,14 +1134,10 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 5b. Inner top & left drop shadow (Bóng đổ từ gờ viền cao xuống lòng phím
-        // chìm)
+        // 3b. Inner top & left uniform 1px drop shadow
         for (int x = 0; x < dishW; x++) {
             if (isInsideRounded(x, 0, dishW, dishH, innerRadius)) {
                 setPixel(img, dishX + x, dishY, dishShadow);
-            }
-            if (isInsideRounded(x, 1, dishW, dishH, innerRadius)) {
-                setPixel(img, dishX + x, dishY + 1, (dishShadow & 0x00FFFFFF) | 0x88000000);
             }
         }
         for (int y = 0; y < dishH; y++) {
@@ -1131,16 +1146,10 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 5c. Inner bottom & right highlight reflection (Ánh sáng hắt ở mép trong dưới
-        // của gờ)
+        // 3c. Inner bottom & right uniform 1px highlight
         for (int x = 0; x < dishW; x++) {
             if (isInsideRounded(x, dishH - 1, dishW, dishH, innerRadius)) {
                 setPixel(img, dishX + x, dishY + dishH - 1, dishHighlight);
-            }
-        }
-        for (int y = 0; y < dishH; y++) {
-            if (isInsideRounded(dishW - 1, y, dishW, dishH, innerRadius)) {
-                setPixel(img, dishX + dishW - 1, dishY + y, dishHighlight);
             }
         }
     }
@@ -1169,111 +1178,66 @@ public final class TabletChassisPaint {
         return true;
     }
 
-    private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int litCol) {
-        boolean isVert = (h > w);
+    private static void bakeLedSprite(NativeImage img, int lx, int ly, int w, int h, boolean lit, int color) {
+        boolean isVert = h > w;
+
         if (lit) {
-            int rgb = litCol & 0x00FFFFFF;
-
-            // 1. Elongated Capsule Phosphor Halo (Quầng hào quang tỏa đều theo thân ống dẫn
-            // quang)
-            for (int dy = -3; dy <= h + 2; dy++) {
-                for (int dx = -3; dx <= w + 2; dx++) {
-                    int distSq = 0;
-                    if (dx < 0)
-                        distSq += dx * dx;
-                    else if (dx >= w)
-                        distSq += (dx - w + 1) * (dx - w + 1);
-                    if (dy < 0)
-                        distSq += dy * dy;
-                    else if (dy >= h)
-                        distSq += (dy - h + 1) * (dy - h + 1);
-
-                    int alpha = 0;
-                    if (distSq == 0)
-                        alpha = 0; // Handled by body
-                    else if (distSq <= 2)
-                        alpha = 0x60;
-                    else if (distSq <= 5)
-                        alpha = 0x30;
-                    else if (distSq <= 9)
-                        alpha = 0x14;
-
-                    if (alpha > 0) {
-                        setPixel(img, lx + dx, ly + dy, (alpha << 24) | rgb);
-                    }
-                }
-            }
-
-            // 2. Optical slot bevel base (vỏ rãnh chìm có hắt sáng quang học)
-            for (int y = -1; y <= h; y++) {
-                for (int x = -1; x <= w; x++) {
-                    if (x == -1 || x == w || y == -1 || y == h) {
-                        setPixel(img, lx + x, ly + y, 0x99000000 | rgb);
-                    }
-                }
-            }
-
-            // 3. High-saturation luminous light-guide capsule body
+            // High-luminance saturated active laser light-pipe
+            int baseCol = (color == 0) ? 0xFF00FF66 : color;
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF000000 | rgb);
+                    setPixel(img, lx + x, ly + y, baseCol);
                 }
             }
-
-            // 4. Axial Optical Core Filament (Lõi quang học sáng trắng chạy dọc theo trục
-            // ống dẫn)
+            // Axial optical core filament (pure white hot core)
             if (isVert) {
-                int coreX = lx + w / 2 - 1;
                 for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, coreX, ly + y, 0xFFFFFFFF);
-                    setPixel(img, coreX + 1, ly + y, 0xFFE0FFF0);
+                    setPixel(img, lx + 1, ly + y, 0xFFFFFFFF);
+                    setPixel(img, lx + 2, ly + y, 0xFFFFFFFF);
                 }
-                // Curved lens internal refraction highlight at curved bottom
-                setPixel(img, lx + w - 1, ly + h - 2, 0xFFFFFFFF);
             } else {
-                int coreY = ly + h / 2 - 1;
                 for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, coreY, 0xFFFFFFFF);
-                    setPixel(img, lx + x, coreY + 1, 0xFFE0FFF0);
+                    setPixel(img, lx + x, ly + 1, 0xFFFFFFFF);
+                    setPixel(img, lx + x, ly + 2, 0xFFFFFFFF);
                 }
-                setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
             }
         } else {
             // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Thấu kính khói mờ trong suốt quân sự)
-            // 1. Recessed dark slot border
+            // 1. Recessed dark slot border (1px uniform on all 4 sides)
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
                     setPixel(img, lx + x, ly + y, 0xFF08090C);
                 }
             }
 
-            // 2. Translucent smoked optical lens body (Màu xám khói mờ trong suốt, không bị trắng quá)
+            // 2. Translucent smoked optical lens body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     setPixel(img, lx + x, ly + y, 0xFF2D333F);
                 }
             }
 
-            // 3. Subtle internal refraction & surface reflection
-            if (isVert) {
-                // Vertical LED (Top / Bottom rows)
-                for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF3D4656);        // Left soft reflection
-                    setPixel(img, lx + w - 1, ly + y, 0xFF181C24); // Right shadow
-                }
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF525E72);        // Top glint
-                    setPixel(img, lx + x, ly + h - 1, 0xFF141820); // Bottom shadow
-                }
-            } else {
-                // Horizontal LED (Left / Right flanks)
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF525E72);        // Top glint
-                    setPixel(img, lx + x, ly + h - 1, 0xFF141820); // Bottom shadow
-                }
-                for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF3D4656);        // Left soft reflection
-                    setPixel(img, lx + w - 1, ly + y, 0xFF181C24); // Right shadow
+            // 3. 1px uniform internal top/left glint & bottom/right shadow
+            for (int x = 0; x < w; x++) {
+                setPixel(img, lx + x, ly, 0xFF4C566A);        // Top glint
+                setPixel(img, lx + x, ly + h - 1, 0xFF1E222A); // Bottom shadow
+            }
+            for (int y = 0; y < h; y++) {
+                setPixel(img, lx, ly + y, 0xFF404858);        // Left glint
+                setPixel(img, lx + w - 1, ly + y, 0xFF1E222A); // Right shadow
+            }
+        }
+    }
+
+    private static void drawScreenCornerMasks(NativeImage img) {
+        int w = img.getWidth(), h = img.getHeight(), r = 32;
+        for (int y = 0; y < r; y++) {
+            for (int x = 0; x < r; x++) {
+                if ((r - x) * (r - x) + (r - y) * (r - y) > r * r) {
+                    setPixel(img, x, y, 0xFF000000);
+                    setPixel(img, w - 1 - x, y, 0xFF000000);
+                    setPixel(img, x, h - 1 - y, 0xFF000000);
+                    setPixel(img, w - 1 - x, h - 1 - y, 0xFF000000);
                 }
             }
         }

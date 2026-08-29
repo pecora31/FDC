@@ -1189,9 +1189,8 @@ public class TabletScreen extends Screen {
             rebuild();
         }
 
-        maskWellCorners(g, area[0], area[1], area[2], area[3]);
-
         TabletDisplay.clear(g);
+        maskWellCorners(g, left, top, width0, height0);
         renderControls(g, px, py);
     }
 
@@ -1206,24 +1205,24 @@ public class TabletScreen extends Screen {
      * the last thing drawn into it says so.
      */
     private void maskWellCorners(GuiGraphics g, int x, int y, int w, int h) {
-        int r = frame.toScreenW(10);
+        int r = Math.max(3, frame.toScreenW(10));
         if (r <= 0) {
             return;
         }
         // Matches TabletChassisPaint's own four corner tones for the same bezel band (darkest at
         // top-left, lightest at bottom-right) rather than one flat colour, so the patch disappears
         // into the baked chassis instead of standing out as a slightly different grey.
-        maskCorner(g, x, y, r, false, false, 0xFF070809);
-        maskCorner(g, x + w - r, y, r, true, false, 0xFF1A1C1F);
-        maskCorner(g, x, y + h - r, r, false, true, 0xFF1A1C1F);
-        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF24262A);
+        maskCorner(g, x, y, r, false, false, 0xFF08090B);
+        maskCorner(g, x + w - r, y, r, true, false, 0xFF0D0E11);
+        maskCorner(g, x, y + h - r, r, false, true, 0xFF16181C);
+        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF202226);
     }
 
     private void maskCorner(GuiGraphics g, int x, int y, int r, boolean right, boolean bottom, int colour) {
         for (int cy = 0; cy < r; cy++) {
             for (int cx = 0; cx < r; cx++) {
-                int dx = right ? cx : r - 1 - cx;
-                int dy = bottom ? cy : r - 1 - cy;
+                int dx = right ? (cx + 1) : (r - cx);
+                int dy = bottom ? (cy + 1) : (r - cy);
                 if (dx * dx + dy * dy > r * r) {
                     g.fill(x + cx, y + cy, x + cx + 1, y + cy + 1, colour);
                 }
