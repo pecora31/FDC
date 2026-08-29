@@ -95,11 +95,11 @@ public final class BlockPalette {
      */
     private static final Map<Block, Integer> FIXED_COLOURS = Map.of(
             Blocks.LAVA, packed(0xFF6600),
-            Blocks.BIRCH_LEAVES, packed(0x80A755),
-            Blocks.SPRUCE_LEAVES, packed(0x619961),
-            Blocks.CHERRY_LEAVES, packed(0xFBB3D1),
-            Blocks.AZALEA_LEAVES, packed(0x77AB2F),
-            Blocks.FLOWERING_AZALEA_LEAVES, packed(0x77AB2F)
+            Blocks.BIRCH_LEAVES, packed(0x4A6232),
+            Blocks.SPRUCE_LEAVES, packed(0x355435),
+            Blocks.CHERRY_LEAVES, packed(0xD494AF),
+            Blocks.AZALEA_LEAVES, packed(0x415E1A),
+            Blocks.FLOWERING_AZALEA_LEAVES, packed(0x415E1A)
     );
 
     /** A plain 0xRRGGBB in the byte order the rest of this map works in — blue high, red low. */

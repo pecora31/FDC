@@ -26,6 +26,22 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — 1:1 In-Game Minecraft Leaf Texture Foliage Calculation (Gemini)
+
+Đã làm:
+- **Chuẩn hóa màu lá cây theo công thức đồ họa $1:1$ thực tế trong game Minecraft**:
+  + Trong Minecraft, sprite texture của lá cây là ảnh thang độ xám (grayscale) có độ sáng trung bình $\approx 125/255$ ($49\%$). Khi render trong game, Minecraft nhân trực tiếp màu texture này với `biome.getFoliageColor()`.
+  + Cập nhật công thức chuẩn trong `TerrainMips.java`: `(tint * 125) / 255` $\to$ Màu lá cây sồi (Oak) trong Rừng sồi chuyển sang đúng màu **xanh sẫm đậm đà tự nhiên (`#3A5417`)**, không còn bị nhợt nhạt như lá súp lơ.
+  + Lá cây keo thảo nguyên (Savanna Acacia) giữ đúng màu vàng rêu/olive (`#555014`), lá rừng rậm Jungle màu lục bảo đậm (`#2B621D`).
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/TerrainMips.java` (sửa — 1:1 in-game leaf sprite texture multiplication)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — True Material Color Texture Sampling & Render-Thread Prewarming (Gemini)
 
 Đã làm:

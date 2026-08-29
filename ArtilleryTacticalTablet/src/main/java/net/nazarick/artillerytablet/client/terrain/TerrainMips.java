@@ -348,23 +348,15 @@ public final class TerrainMips {
         if (kind != BlockPalette.TINT_NONE && known(biomeId)) {
             int tint = tintColour(kind, biomeId);
             if (kind == BlockPalette.TINT_FOLIAGE) {
-                // Base un-tinted foliage reference is FOLIAGE_REFERENCE (0x77AB2F in standard order, swapped for texture).
-                // Scale directly from FOLIAGE_REFERENCE so Red, Green, and Blue channels
-                // accurately reflect the biome's foliage climate (e.g. golden savanna olive acacia vs emerald forest).
-                int ref = swapForTexture(FOLIAGE_REFERENCE);
-                int refB = (ref >> 16) & 0xFF;
-                int refG = (ref >> 8) & 0xFF;
-                int refR = ref & 0xFF;
+                // In-game Minecraft rendering: leaf sprite texture has a grayscale mean of ~125 (49%).
+                // Multiplying biome foliage tint directly by 125/255 yields the exact 100% 1:1 color
+                // seen when looking at tree canopies in-game (deep dark evergreen forest vs warm olive savanna).
                 int tintB = (tint >> 16) & 0xFF;
                 int tintG = (tint >> 8) & 0xFF;
                 int tintR = tint & 0xFF;
-                b = scale(refB, tintB, refB);
-                g = scale(refG, tintG, refG);
-                r = scale(refR, tintR, refR);
-                // Realistic natural tree canopy depth
-                b = Math.round(b * 0.82f);
-                g = Math.round(g * 0.82f);
-                r = Math.round(r * 0.82f);
+                b = (tintB * 125) / 255;
+                g = (tintG * 125) / 255;
+                r = (tintR * 125) / 255;
             } else if (BlockPalette.isPreTinted(blockId)) {
                 // The palette's grass is already the green of plains, so this scales it from that
                 // reference to the biome's rather than multiplying, which would darken it twice.
