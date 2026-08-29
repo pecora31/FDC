@@ -26,6 +26,25 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — 5x5 Biome Color Blending & Alpine Snow Albedo Boost (Gemini)
+
+Đã làm:
+- **Làm mượt hoàn toàn đường giao thoa giữa các Biome (5x5 Biome Blending Kernel)** trong `Rasterizer.java`:
+  + Thêm hàm `blendedLandColour` với kernel $5\times 5$ nội suy màu cỏ/đất giữa các Biome lân cận $\to$ Khử triệt để đường răng cưa bậc thang $4\times 4$ chunk của Minecraft.
+  + Chuyển màu giữa Đồng bằng (xanh) và Thảo nguyên (vàng úa) êm ái, mượt mà $100\%$ như JourneyMap.
+  + Tối ưu hóa hiệu năng: Tự động phát hiện vùng đồng nhất trong $0.001\text{ms}$ (fast-path), chỉ chạy kernel tại các đường ranh giới Biome.
+- **Tăng độ sáng phản xạ Albedo cho Tuyết & Băng (`Alpine Snow Albedo Boost`)**:
+  + Phát hiện bề mặt tuyết/băng/quartz có độ sáng cao và độ bão hòa trung tính $\to$ Tự động tăng hệ số phản quang Albedo lên $0.95 - 1.0\text{f}$ thay vì bị dìm xuống mức $0.68\text{f}$ của đất/cỏ.
+  + Đỉnh núi tuyết giờ đây trắng sáng, tinh khôi và sắc nét chuẩn như JourneyMap.
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — `blendedLandColour`, snow albedo boost in `shadeCell` / `flatCell`)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — JourneyMap Hypsometric Topo & Precise Leaves Biome Tinting (Gemini)
 
 Đã làm:

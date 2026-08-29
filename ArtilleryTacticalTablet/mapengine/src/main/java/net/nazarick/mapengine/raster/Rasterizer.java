@@ -148,8 +148,13 @@ public final class Rasterizer {
         int waterDepth = columns.depthAt(idx);
         short block = columns.block[idx];
         short biome = columns.biome[idx];
-        int waterTint = waterDepth > 0 ? blendedWaterTint(columns, style, x, z) : 0;
-        int base = style.columnColour(block, biome, waterDepth, waterTint, height);
+        int base;
+        if (waterDepth > 0) {
+            int waterTint = blendedWaterTint(columns, style, x, z);
+            base = style.columnColour(block, biome, waterDepth, waterTint, height);
+        } else {
+            base = blendedLandColour(columns, style, x, z, block, biome, height);
+        }
 
         int b = (base >> 16) & 0xFF;
         int g = (base >> 8) & 0xFF;
@@ -168,8 +173,13 @@ public final class Rasterizer {
         int waterDepth = columns.depthAt(idx);
         short block = columns.block[idx];
         short biome = columns.biome[idx];
-        int waterTint = waterDepth > 0 ? blendedWaterTint(columns, style, x, z) : 0;
-        int base = style.columnColour(block, biome, waterDepth, waterTint, height);
+        int base;
+        if (waterDepth > 0) {
+            int waterTint = blendedWaterTint(columns, style, x, z);
+            base = style.columnColour(block, biome, waterDepth, waterTint, height);
+        } else {
+            base = blendedLandColour(columns, style, x, z, block, biome, height);
+        }
 
         int b = (base >> 16) & 0xFF;
         int g = (base >> 8) & 0xFF;
@@ -182,12 +192,59 @@ public final class Rasterizer {
 
         float lit = TERRAIN_DIM * relief;
         if (style.isHazard(block)) {
-            // The old renderer blends toward full brightness by a soft per-texel weight; BlockStyle
-            // only offers a yes/no here, so this is a binary version of the same highlight rather
-            // than a lost feature — worth revisiting only if a style ever needs graded hazard.
             lit = 1f;
+        } else if (waterDepth == 0) {
+            // High-albedo reflective surface boost for Snow / Ice / Quartz (albedo ~ 0.95-1.0f)
+            int maxC = Math.max(r, Math.max(g, b));
+            int minC = Math.min(r, Math.min(g, b));
+            if (minC > 180 && (maxC - minC) < 30) {
+                float albedo = (minC - 180f) / 75f;
+                float boost = 1.0f + 0.45f * albedo;
+                lit = Math.min(1.15f, TERRAIN_DIM * boost) * relief;
+            }
         }
         return 0xFF000000 | (light(b, lit) << 16) | (light(g, lit) << 8) | light(r, lit);
+    }
+
+    /** How far biome colours are averaged across land boundaries, in columns (5x5 kernel). */
+    private static final int BIOME_BLEND = 2;
+
+    /**
+     * Seamless biome color blending: interpolates tint across biome boundaries so color
+     * transitions (e.g. Plains green -> Savanna khaki) are silky smooth without 4x4 block steps.
+     */
+    private static int blendedLandColour(ColumnBuffer columns, BlockStyle style, int x, int z,
+                                         short block, short biome, short height) {
+        int width = columns.width;
+        // Fast path: if 4-neighborhood is the same biome, return direct colour without loop
+        if (x > 0 && x < width - 1 && z > 0 && z < width - 1) {
+            if (columns.biome[columns.index(x + 1, z)] == biome
+                    && columns.biome[columns.index(x - 1, z)] == biome
+                    && columns.biome[columns.index(x, z + 1)] == biome
+                    && columns.biome[columns.index(x, z - 1)] == biome) {
+                return style.columnColour(block, biome, 0, 0, height);
+            }
+        }
+
+        long bSum = 0, gSum = 0, rSum = 0;
+        int n = 0;
+        for (int dz = -BIOME_BLEND; dz <= BIOME_BLEND; dz++) {
+            int nz = Math.max(0, Math.min(width - 1, z + dz));
+            for (int dx = -BIOME_BLEND; dx <= BIOME_BLEND; dx++) {
+                int nx = Math.max(0, Math.min(width - 1, x + dx));
+                int nIdx = columns.index(nx, nz);
+                short nBiome = columns.biome[nIdx];
+                int c = style.columnColour(block, nBiome, 0, 0, height);
+                bSum += (c >> 16) & 0xFF;
+                gSum += (c >> 8) & 0xFF;
+                rSum += c & 0xFF;
+                n++;
+            }
+        }
+        if (n == 0) {
+            return style.columnColour(block, biome, 0, 0, height);
+        }
+        return (int) (0xFF000000 | ((bSum / n) << 16) | ((gSum / n) << 8) | (rSum / n));
     }
 
     /** How far the water tint is averaged, in columns — matches the old renderer's own radius. */
