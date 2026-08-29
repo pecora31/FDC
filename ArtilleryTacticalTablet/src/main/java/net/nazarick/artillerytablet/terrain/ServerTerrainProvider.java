@@ -223,8 +223,7 @@ public final class ServerTerrainProvider {
                 int groundY = blockY;
                 pos.set(worldX, groundY, worldZ);
                 BlockState groundState = chunk.getBlockState(pos);
-                while ((groundState.is(BlockTags.LEAVES) || isBlank(groundState, level, pos)
-                        || isClutter(groundState))
+                while ((isNonTerrain(groundState) || isBlank(groundState, level, pos))
                         && groundY > level.getMinBuildHeight()) {
                     pos.set(worldX, --groundY, worldZ);
                     groundState = chunk.getBlockState(pos);
@@ -232,6 +231,37 @@ public final class ServerTerrainProvider {
                 tile.groundHeight[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, groundY));
             }
         }
+    }
+
+    /**
+     * Identifies non-terrain surface features (canopy, tree logs, plants, and man-made structures)
+     * so groundHeight records the true geological bare-earth DEM for clean contour isolines.
+     */
+    public static boolean isNonTerrain(BlockState state) {
+        if (state == null || state.isAir()) {
+            return true;
+        }
+        // Trees, canopies, logs, mushrooms
+        if (state.is(BlockTags.LEAVES) || state.is(BlockTags.LOGS) || state.is(BlockTags.WART_BLOCKS)) {
+            return true;
+        }
+        // Plants, crops, flowers, clutter
+        if (state.getBlock() instanceof BushBlock || state.is(BlockTags.FLOWERS)
+                || state.is(BlockTags.CROPS) || state.is(BlockTags.SAPLINGS)) {
+            return true;
+        }
+        // Man-made structures: planks, stairs, slabs, fences, walls, doors, carpets, glass, wool, beds
+        return state.is(BlockTags.PLANKS)
+                || state.is(BlockTags.WOODEN_STAIRS) || state.is(BlockTags.WOODEN_SLABS)
+                || state.is(BlockTags.WOODEN_FENCES) || state.is(BlockTags.WOODEN_DOORS)
+                || state.is(BlockTags.WOODEN_TRAPDOORS) || state.is(BlockTags.WOODEN_PRESSURE_PLATES)
+                || state.is(BlockTags.STAIRS) || state.is(BlockTags.SLABS)
+                || state.is(BlockTags.WALLS) || state.is(BlockTags.FENCES) || state.is(BlockTags.FENCE_GATES)
+                || state.is(BlockTags.DOORS) || state.is(BlockTags.TRAPDOORS)
+                || state.is(BlockTags.WOOL) || state.is(BlockTags.WOOL_CARPETS)
+                || state.is(BlockTags.BEDS) || state.is(BlockTags.CANDLES)
+                || state.is(BlockTags.BANNERS) || state.is(BlockTags.SIGNS)
+                || state.is(BlockTags.IMPERMEABLE);
     }
 
     /** Whether a block contributes no colour at all, so the sample should look beneath it. */

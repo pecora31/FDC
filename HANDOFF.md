@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Bare-Earth DEM Topo Contour Filtering: Remove Tree Trunks & Structure Artifacts (Gemini)
+
+Đã làm:
+- **Lọc sạch $100\%$ công trình và thân cây khỏi đường đồng mức Map TOPO**:
+  + Tìm ra nguyên nhân: Trước đó `groundHeight` chỉ bỏ qua lá cây (`BlockTags.LEAVES`) và hoa cỏ, nhưng dừng lại khi gặp thân cây gỗ (`BlockTags.LOGS`) và các khối công trình nhân tạo (mái nhà, bậc thang, tường làng mạc, hàng rào, kính, thảm, v.v.). Điều này làm xuất hiện các đường vòng tròn nhân tạo quanh gốc cây và vết răng cưa quanh nhà dân.
+  + Thêm bộ lọc toàn diện `isNonTerrain`: `groundHeight` giờ đây bỏ qua toàn bộ tán lá, thân cây, nấm khổng lồ, dây leo, mái nhà, bậc thang, tường nhà, hàng rào, ván gỗ, kính, thảm... và **chạm đúng $100\%$ bề mặt địa chất thực tế của mặt đất (Bare-Earth DEM)**.
+  + Đường đồng mức trên Map TOPO giờ đây uốn lượn mượt mà theo đúng sườn đồi, thung lũng tự nhiên của địa hình, không còn bị biến dạng bởi cây cối hay công trình làng mạc.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/terrain/ServerTerrainProvider.java` (sửa — `isNonTerrain` filter)
+- `src/main/java/net/nazarick/artillerytablet/terrain/ChunkNbtSampler.java` (sửa — `isNonTerrain` filter)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — 1:1 In-Game Minecraft Leaf Texture Foliage Calculation (Gemini)
 
 Đã làm:

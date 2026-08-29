@@ -164,7 +164,7 @@ public final class ChunkNbtSampler {
                     int groundY = blockY;
                     BlockState groundState = stateAt(sections, x, groundY, z);
                     while (groundState != null
-                            && (groundState.is(BlockTags.LEAVES) || mapColourOf(groundState) == MapColor.NONE || isClutter(groundState))
+                            && (ServerTerrainProvider.isNonTerrain(groundState) || mapColourOf(groundState) == MapColor.NONE)
                             && groundY > minY) {
                         BlockState below = stateAt(sections, x, groundY - 1, z);
                         if (below == null) {
