@@ -1732,7 +1732,7 @@ public final class TerrainImage {
      * <p>The one number behind the look of the ground. Lower it and the terrain recedes further
      * behind the symbols; raise it towards one and the map becomes the game's own map item.
      */
-    private static final float TERRAIN_DIM = 0.62f;
+    private static final float TERRAIN_DIM = 0.78f;
 
     /** A channel taken to however lit this cell ended up being. */
     private static int light(int channel, float lit) {

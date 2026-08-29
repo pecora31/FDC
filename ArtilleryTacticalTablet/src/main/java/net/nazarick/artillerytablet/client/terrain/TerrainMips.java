@@ -281,10 +281,10 @@ public final class TerrainMips {
     private static final int WATER_OPAQUE_AT = 8;
 
     /** How much water colour even the shallowest water carries. */
-    private static final float WATER_MIN_MIX = 0.6f;
+    private static final float WATER_MIN_MIX = 0.45f;
 
     /** How much deep water darkens on top of that, so an ocean has a near edge and a far one. */
-    private static final float WATER_DARKEN = 0.35f;
+    private static final float WATER_DARKEN = 0.40f;
 
     /** The biome colours the map palette already has baked into it — plains grass and plains leaf. */
     private static final int GRASS_REFERENCE = 0x91BD59;
