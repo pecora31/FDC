@@ -40,16 +40,14 @@ public final class MapCheck {
 
         // Assertions first, picture last. The assertions are quick and they fail loudly, so there is
         // no sense spending a second and a half drawing a preview of code that is already broken.
-        Limits.run();
+        //
+        // Limits/Bounds/Relief/Evict/Zooms/TileRender/Patch/Store all tested the old tile-and-sheet
+        // renderer (TerrainImage, TerrainClientCache, TerrainDisk, TileFiles, the server-side survey
+        // path) — retired this session in favour of the mapengine module, which has its own,
+        // considerably more thorough benchmark/correctness suite: run `./gradlew :mapengine:bench`.
+        // What remains here (RoundTrip, Splash) tests things that did not move: TerrainTile's own
+        // wire format, and the boot-splash art, neither of which mapengine has any part in.
         RoundTrip.run();
-        Bounds.run();
-        Relief.run();
-        Evict.run();
-        Zooms.run();
-        TileRender.run(new File(out, "map-preview.png"));
-        // Last, because both need ground in the cache and the render above is what lays it down.
-        Patch.run();
-        Store.run();
         Splash.run(new File(out, "boot-splash.png"));
 
         System.out.println();

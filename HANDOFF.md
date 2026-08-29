@@ -28,6 +28,37 @@ Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 
 ---
 
+## 2026-08-29 — QUAN TRỌNG: hệ thống map cũ (`TerrainImage.java`...) đã bị xoá thật trong lần push này (Claude)
+
+Đã làm:
+- Toàn bộ module `mapengine/` mới (đã xây từ đầu phiên trước, gồm `Rasterizer.java` — nơi vẽ
+  Ground/Topo hiện tại) **lần đầu tiên được commit + push lên GitHub trong lần này**. Trước đó nó
+  chỉ tồn tại local trên máy Claude, chưa bao giờ lên GitHub — dù `MAP_RENDERING_GUIDE.md` (push
+  trước đó 1 commit) đã mô tả nó như thể nó đã có sẵn.
+- Cùng lúc, các file thuộc hệ thống map CŨ bị xoá thật trong lần push này: `TerrainImage.java`,
+  `TerrainClientCache.java`, `TerrainDisk.java`, `TileArrayPool.java`, `RequestTerrainTilesMessage`,
+  `TerrainTileMessage`, `ServerTileStore`/`ServerTileCache`/`ServerSurveyBudget`/`ServerTerrainWarmer`,
+  `TileFiles`, và mấy file check cũ trong `mapcheck/`.
+
+**Vì sao ghi mục này**: commit `389beea` (Gemini, "Dual-Radius Hillshading...") sửa
+`client/terrain/TerrainImage.java` — đúng lúc file đó vẫn còn tồn tại trên GitHub (do Claude quên
+push phần xoá). Sau lần push này, `TerrainImage.java` **không còn tồn tại nữa** — ý tưởng "Dual-Radius
+Hillshading, lấy mẫu chéo 315 độ NW" trong commit đó rất đúng hướng (khớp với gợi ý ở mục 4 của
+`MAP_RENDERING_GUIDE.md`), chỉ là làm nhầm chỗ.
+
+Bên kia cần làm gì:
+- Pull về, xác nhận `TerrainImage.java` đã mất — đây là chủ đích, không phải xung đột cần giải quyết.
+- Port lại đúng ý tưởng "Dual-Radius Hillshading" (lấy mẫu 2 bán kính, hướng chéo 315°/NW) sang
+  `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java`, cụ thể là hàm
+  `reliefOf()`/`slopeOf()` — xem mục 4 của `MAP_RENDERING_GUIDE.md` để biết đúng vướng mắc cần giải
+  quyết (đổ bóng đủ nhạy thấy hình khối nhưng không bắt nhiễu per-block).
+- Từ giờ `mapengine/` là hệ thống map thật duy nhất — mọi sửa đổi map nên nhắm vào đó, không phải
+  `client/terrain/*` (những file còn lại ở đó là logic khảo sát dữ liệu/backend, không phải rendering).
+
+Trạng thái: Cần Gemini port lại ý tưởng sang file đúng.
+
+---
+
 ## 2026-08-29 — Drone Control App: thiết kế xong, backend chưa bắt đầu (Claude)
 
 Đã làm:

@@ -48,10 +48,17 @@ import java.util.Map;
  *
  * <p><b>Lifetime.</b> Block ids are handed out by the server at login, so this must be forgotten
  * when the world changes or one world's ids would colour another world's ground. That is done from
- * {@link TerrainClientCache#checkWorld()}, beside the biome memo, which has the same problem.
+ * {@link WorldGeneration#checkWorld()}, beside the biome memo, which has the same problem.
  */
 @OnlyIn(Dist.CLIENT)
 public final class BlockPalette {
+    /**
+     * Guards the tables below against concurrent access from the mapengine bridge's background
+     * rasterize/pyramid work — moved here from the old tile cache's own lock when that class was
+     * retired; the lock's job never had anything to do with tiles.
+     */
+    private static final Object LOCK = new Object();
+
     /** No biome tint: the texture is already the colour it should be. */
     public static final byte TINT_NONE = 0;
     public static final byte TINT_GRASS = 1;
@@ -101,23 +108,37 @@ public final class BlockPalette {
     private static boolean[] hazard = new boolean[0];
     private static boolean[] resolved = new boolean[0];
 
+    /**
+     * The same block, in the coarse ~62-colour map palette rather than its own averaged texture —
+     * every kind of leaves one green, every kind of stone one grey. Kept alongside {@link #colour}
+     * rather than replacing it: the fine palette still exists for other filters, this one exists
+     * only because the Ground layer's own per-block colour variety was found to visually compete
+     * with its hillshade, burying the relief "grain" JourneyMap's flatter satellite palette lets
+     * show through. Always the map-palette style of tint ({@link #tintFor}'s {@code fromPalette}
+     * case) since this array is never anything but a map-colour swatch.
+     */
+    private static int[] simpleColour = new int[0];
+    private static byte[] simpleTint = new byte[0];
+
     private BlockPalette() {
     }
 
     /** Throws away everything learned. Called when a change of world makes an id mean something else. */
     public static void forget() {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (LOCK) {
             colour = new int[0];
             tint = new byte[0];
             preTinted = new boolean[0];
             hazard = new boolean[0];
             resolved = new boolean[0];
+            simpleColour = new int[0];
+            simpleTint = new byte[0];
         }
     }
 
     /** The colour of a block seen from above, packed the way the map palette packs one. */
     public static int colourOf(int blockId) {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (LOCK) {
             resolve(blockId);
             return colour[blockId];
         }
@@ -125,9 +146,25 @@ public final class BlockPalette {
 
     /** Which biome colour, if any, this block's texture is waiting to be multiplied by. */
     public static byte tintOf(int blockId) {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (LOCK) {
             resolve(blockId);
             return tint[blockId];
+        }
+    }
+
+    /** {@link #colourOf}, but the coarse map-palette swatch instead of the averaged texture. */
+    public static int simpleColourOf(int blockId) {
+        synchronized (LOCK) {
+            resolve(blockId);
+            return simpleColour[blockId];
+        }
+    }
+
+    /** {@link #tintOf}, matching {@link #simpleColourOf} — always the map-palette style of tint. */
+    public static byte simpleTintOf(int blockId) {
+        synchronized (LOCK) {
+            resolve(blockId);
+            return simpleTint[blockId];
         }
     }
 
@@ -141,7 +178,7 @@ public final class BlockPalette {
      * left from one pit to the next, according to which way the ground beside it happens to lean.
      */
     public static boolean isHazard(int blockId) {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (LOCK) {
             resolve(blockId);
             return hazard[blockId];
         }
@@ -156,7 +193,7 @@ public final class BlockPalette {
      * which is why the two are distinguished rather than assumed.
      */
     public static boolean isPreTinted(int blockId) {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (LOCK) {
             resolve(blockId);
             return preTinted[blockId];
         }
@@ -174,7 +211,7 @@ public final class BlockPalette {
      * background bake threads as well as from the render thread.
      */
     private static void resolve(int blockId) {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (LOCK) {
             if (blockId >= resolved.length) {
                 grow(blockId + 1);
             }
@@ -191,6 +228,8 @@ public final class BlockPalette {
                 preTinted[blockId] = false;
                 tint[blockId] = TINT_NONE;
                 hazard[blockId] = true;
+                simpleColour[blockId] = fixed;
+                simpleTint[blockId] = TINT_NONE;
                 resolved[blockId] = true;
                 return;
             }
@@ -203,15 +242,22 @@ public final class BlockPalette {
             preTinted[blockId] = true;
             tint[blockId] = tintFor(mapColour, true);
 
+            // Captured now, before colour[]/tint[] potentially get overwritten below by a texture
+            // average — this pair never changes again for this block id, unlike the fine ones.
+            simpleColour[blockId] = colour[blockId];
+            simpleTint[blockId] = tint[blockId];
+
             // Everything above needs no client at all — it is registry data. Everything below reads
             // the baked models and the texture atlas, and those belong to the render thread: a
             // resource reload swaps the model manager and closes every sprite, so a background bake
             // reading one mid-reload is reading freed memory.
             //
-            // So the fallback stands, and the id is deliberately left UNRESOLVED. The render thread
-            // warms every block a tile mentions the moment that tile lands (see
-            // TerrainClientCache.accept), which is why this is expected to be dead code — the log
-            // line is there because "expected to be dead" is a claim, not a fact.
+            // So the fallback stands, and the id is deliberately left UNRESOLVED. This used to be
+            // dead code in practice — the old tile cache warmed every block a tile mentioned on the
+            // render thread the moment it landed — but the mapengine bridge (ForgeBlockStyle) does
+            // not yet call prewarm() at all (a deliberate scope cut, see that class's own doc), so
+            // this fallback is presently the common path there, not a rare one. Real, not wrong: the
+            // colour returned is just the coarser map-colour approximation until prewarming is wired.
             if (!onRenderThread()) {
                 warnOffThreadOnce(block);
                 return;
@@ -423,6 +469,8 @@ public final class BlockPalette {
         preTinted = java.util.Arrays.copyOf(preTinted, size);
         hazard = java.util.Arrays.copyOf(hazard, size);
         resolved = java.util.Arrays.copyOf(resolved, size);
+        simpleColour = java.util.Arrays.copyOf(simpleColour, size);
+        simpleTint = java.util.Arrays.copyOf(simpleTint, size);
     }
 
 }

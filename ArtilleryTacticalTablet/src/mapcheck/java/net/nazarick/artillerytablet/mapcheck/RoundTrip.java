@@ -30,6 +30,7 @@ final class RoundTrip {
         for (int i = 0; i < TerrainTile.COLUMNS; i++) {
             out.block[i] = (short) rng.nextInt(65536);
             out.height[i] = (short) (rng.nextInt(400) - 64);
+            out.groundHeight[i] = (short) (rng.nextInt(400) - 64);
             out.depth[i] = (byte) rng.nextInt(256);       // exercises the unsigned range
             out.biome[i] = (short) rng.nextInt(600);
         }
@@ -43,6 +44,7 @@ final class RoundTrip {
         for (int i = 0; i < TerrainTile.COLUMNS; i++) {
             check(in.block[i] == out.block[i], "block " + i);
             check(in.height[i] == out.height[i], "height " + i);
+            check(in.groundHeight[i] == out.groundHeight[i], "groundHeight " + i);
             check(in.depth[i] == out.depth[i], "depth " + i);
             check(in.biome[i] == out.biome[i], "biome " + i);
             check(in.depthAt(i) == (out.depth[i] & 0xFF), "depthAt " + i);

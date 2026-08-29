@@ -1,8 +1,8 @@
 package net.nazarick.artillerytablet.client.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.nazarick.artillerytablet.client.terrain.TerrainClientCache;
 import net.nazarick.artillerytablet.client.terrain.TerrainMips;
+import net.nazarick.artillerytablet.client.terrain.mapengine.MapEngineOverlay;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -116,7 +116,7 @@ final class TabletDisplay {
         TerrainMips.Filter[] all = TerrainMips.Filter.values();
         filter = all[(filter.ordinal() + 1) % all.length];
         TerrainMips.filter(filter);
-        TerrainClientCache.repaint();
+        MapEngineOverlay.shared().repaint();
     }
 
     /**

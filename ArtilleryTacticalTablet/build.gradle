@@ -31,6 +31,21 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
+// mapengine's own sources, compiled directly into this project's main source set — not a project
+// dependency. Two things were tried and both failed a real runClient launch before this: `implementation
+// project(':mapengine')` (classes resolve fine for compileJava, but Forge's dev-run classloader — the
+// one that actually loads mod code in-game — only scans locations explicitly registered as this mod's
+// own, not the ordinary Gradle runtime classpath, so this alone produced a clean compile and a
+// NoClassDefFoundError at the first mapengine class touched at runtime); and additionally registering
+// `runs { ... mods { "${mod_id}" { source project(':mapengine').sourceSets.main } } }`, ForgeGradle's
+// own documented mechanism for exactly this (an extra source set contributing to one mod) — which
+// compiled and *should* have worked, but the crash reproduced identically after a full daemon restart
+// and a from-scratch prepareRunClient, so whatever collects run-time mod locations was not honouring
+// it (unconfirmed why; not worth more time chasing given the fix below sidesteps the whole mechanism).
+// Adding the directory here means mapengine's classes are, as far as either compileJava or runClient
+// can tell, this project's own code — no separate registration of any kind can go stale or be missed.
+sourceSets.main.java.srcDir 'mapengine/src/main/java'
+
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
 
@@ -154,6 +169,11 @@ dependencies {
     runtimeOnly fg.deobf("${ferritecore_curse_file}")
     runtimeOnly fg.deobf("${modernfix_curse_file}")
     runtimeOnly fg.deobf("${canary_curse_file}")
+
+    // No dependency line for mapengine — see the `sourceSets.main.java.srcDir` call near the top of
+    // this file. Its sources are compiled directly as part of sourceSets.main now, which is what
+    // actually made runClient stop throwing NoClassDefFoundError; a `project(':mapengine')` dependency
+    // here would just recompile the same classes a second time under a name nothing else references.
 }
 
 tasks.named('processResources', ProcessResources).configure {
@@ -171,6 +191,9 @@ tasks.named('processResources', ProcessResources).configure {
 }
 
 tasks.named('jar', Jar).configure {
+    // No special handling needed for mapengine's classes here any more — they are compiled as part
+    // of sourceSets.main (see the srcDir call near the top of this file), so this task already
+    // packages them exactly as it packages every other class in this project.
     manifest {
         attributes(["Specification-Title"     : mod_id,
                     "Specification-Vendor"    : mod_authors,

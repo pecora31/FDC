@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.world.level.EmptyBlockGetter;
@@ -38,6 +39,32 @@ public final class ChunkNbtSampler {
     private static final int BIOME_VOLUME = 4 * 4 * 4;
 
     private ChunkNbtSampler() {
+    }
+
+    /**
+     * Surface height of one column of a saved chunk, without decoding any block or biome data.
+     *
+     * <p>For a ballistic line query, which wants a handful of columns scattered across many chunks
+     * rather than a whole tile — reading the heightmap alone skips the palette and section decoding
+     * {@link #sample} does for the map's colour, which this has no use for.
+     *
+     * @return the height, or {@link TerrainTile#NO_DATA} where the chunk has nothing usable
+     */
+    public static short sampleHeight(CompoundTag chunk, int minY, int levelHeight, int localX, int localZ) {
+        try {
+            CompoundTag heightmaps = chunk.getCompound("Heightmaps");
+            long[] packed = heightmaps.getLongArray("WORLD_SURFACE");
+            if (packed.length == 0) {
+                return TerrainTile.NO_DATA;
+            }
+            int bits = Math.max(1, 32 - Integer.numberOfLeadingZeros(levelHeight));
+            SimpleBitStorage heights = new SimpleBitStorage(bits, 256, packed);
+            int surfaceY = heights.get(localZ * 16 + localX) + minY;
+            int blockY = surfaceY - 1;
+            return (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, blockY));
+        } catch (Throwable t) {
+            return TerrainTile.NO_DATA;
+        }
     }
 
     /**
@@ -129,6 +156,24 @@ public final class ChunkNbtSampler {
                     tile.height[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, blockY));
                     tile.depth[index] = (byte) depth;
                     tile.biome[index] = biomeAt(sections, biomes, x, blockY, z);
+
+                    // The ground's own elevation — see ServerTerrainProvider.sampleLive's own note for
+                    // why leaves and clutter are walked through together rather than as two passes, and
+                    // ColumnBuffer#groundHeight's for why this is a second field, not a replacement.
+                    int groundY = blockY;
+                    BlockState groundState = stateAt(sections, x, groundY, z);
+                    while (groundState != null
+                            && (groundState.is(BlockTags.LEAVES) || mapColourOf(groundState) == MapColor.NONE)
+                            && groundY > minY) {
+                        BlockState below = stateAt(sections, x, groundY - 1, z);
+                        if (below == null) {
+                            break;
+                        }
+                        groundY--;
+                        groundState = below;
+                    }
+                    tile.groundHeight[index] = (short) Math.max(Short.MIN_VALUE + 1,
+                            Math.min(Short.MAX_VALUE, groundY));
                 }
             }
             return true;

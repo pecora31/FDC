@@ -35,7 +35,7 @@ public final class ModNetwork {
      * handshake changes by construction whenever the tile layout does. The hand-written half is for
      * every other packet, and still has to be bumped by hand when one of those changes.
      */
-    private static final String PROTOCOL_VERSION = "1." + TerrainTile.FORMAT_VERSION;
+    private static final String PROTOCOL_VERSION = "2." + TerrainTile.FORMAT_VERSION;
 
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(ArtilleryTablet.MODID, "main"),
@@ -81,13 +81,12 @@ public final class ModNetwork {
         CHANNEL.registerMessage(id++, TargetReachabilityMessage.class,
                 TargetReachabilityMessage::encode, TargetReachabilityMessage::decode,
                 TargetReachabilityMessage::handle);
-        CHANNEL.registerMessage(id++, RequestTerrainTilesMessage.class,
-                RequestTerrainTilesMessage::encode, RequestTerrainTilesMessage::decode,
-                RequestTerrainTilesMessage::handle);
-        CHANNEL.registerMessage(id++, TerrainTileMessage.class,
-                TerrainTileMessage::encode, TerrainTileMessage::decode, TerrainTileMessage::handle);
         CHANNEL.registerMessage(id++, AbortMissionMessage.class,
                 AbortMissionMessage::encode, AbortMissionMessage::decode, AbortMissionMessage::handle);
+        CHANNEL.registerMessage(id++, RequestFireLineMessage.class,
+                RequestFireLineMessage::encode, RequestFireLineMessage::decode, RequestFireLineMessage::handle);
+        CHANNEL.registerMessage(id++, FireLineProfileMessage.class,
+                FireLineProfileMessage::encode, FireLineProfileMessage::decode, FireLineProfileMessage::handle);
 
         ArtilleryTablet.LOGGER.info("Artillery Tactical Tablet: registered {} packets", id);
     }

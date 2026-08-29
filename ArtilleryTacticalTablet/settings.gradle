@@ -16,3 +16,10 @@ plugins {
 }
 
 rootProject.name = 'artillerytablet'
+
+// The map engine, deliberately a project of its own and deliberately plain Java: nothing under
+// mapengine/ may import Minecraft or Forge. That is not tidiness — it is what lets its tests and
+// benchmarks run in seconds against synthetic terrain instead of launching the game and judging a
+// screen by eye. Still bundled into this mod's jar (see the root build.gradle dependency), so
+// players install one mod exactly as before.
+include 'mapengine'

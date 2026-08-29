@@ -8,8 +8,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.nazarick.artillerytablet.client.terrain.TerrainClientCache;
-import net.nazarick.artillerytablet.client.terrain.TerrainImage;
+import net.nazarick.artillerytablet.client.terrain.WorldGeneration;
+import net.nazarick.artillerytablet.client.terrain.mapengine.MapEngineOverlay;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -46,11 +46,11 @@ class MapPanel {
     private static final int[] ZOOM_SPANS = {250, 500, 1000, 2000, 4000, 8000, 16000, 32000};
 
     /**
-     * Not this panel's to own. The sheets outlive the screen deliberately — see
-     * {@link TerrainImage#shared()} for why keeping them is the whole fix for a map that started
-     * black on every open.
+     * Not this panel's to own. The engine's regions and textures outlive the screen deliberately —
+     * see {@link MapEngineOverlay#shared()} for why keeping them is the whole fix for a map that
+     * started black on every open.
      */
-    private final TerrainImage terrain = TerrainImage.shared();
+    private final MapEngineOverlay terrain = MapEngineOverlay.shared();
 
     private boolean terrainShown;
 
@@ -187,7 +187,8 @@ class MapPanel {
      * How long the boot screen stays up.
      *
      * <p>Pure animation, deliberately — a fixed length rather than a wait on the map being ready.
-     * It used to hold until {@code !TerrainClientCache.isWaiting() && terrain.isComplete()}, with a
+     * It used to hold until {@code !TerrainClientCache.isWaiting() && terrain.isComplete()} (the old
+     * tile cache and renderer, both since retired), with a
      * floor so switching the display off and straight back on (every tile already cached) still
      * showed a moment of "coming up" rather than looking like the device had never been off, and a
      * ceiling so one slow corner of the world didn't hide a map that was nine tenths drawn and
@@ -205,7 +206,7 @@ class MapPanel {
         // A remembered centre is a set of coordinates in a world that may no longer be the one we
         // are in. Watched here the same way the terrain layer watches it, rather than by having the
         // cache reach up into the screen to tell it.
-        int generation = TerrainClientCache.generation();
+        int generation = WorldGeneration.generation();
         if (generation != viewGeneration) {
             viewGeneration = generation;
             centreFollowsPlayer = true;

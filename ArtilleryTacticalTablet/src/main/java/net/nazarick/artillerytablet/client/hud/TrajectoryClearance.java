@@ -2,7 +2,6 @@ package net.nazarick.artillerytablet.client.hud;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.nazarick.artillerytablet.client.terrain.TerrainClientCache;
 import net.nazarick.artillerytablet.fire.FlightProfile;
 import net.nazarick.artillerytablet.item.TargetEntry;
 import net.nazarick.artillerytablet.terrain.TerrainTile;
@@ -59,6 +58,13 @@ public final class TrajectoryClearance {
             return CLEAR;
         }
 
+        short[] ground = FireLineCache.groundFor(profile.gunX, profile.gunZ, target.x, target.z);
+        if (ground == null) {
+            // The line hasn't been answered yet. surveyLine() already asked; this just isn't a
+            // clear-path answer this codebase is willing to give before the ground is actually known.
+            return UNKNOWN;
+        }
+
         boolean sawGap = false;
         for (int i = 0; i < FlightProfile.SAMPLES; i++) {
             double fraction = i / (double) (FlightProfile.SAMPLES - 1);
@@ -66,16 +72,12 @@ public final class TrajectoryClearance {
                 continue;
             }
 
-            int x = (int) Math.round(profile.gunX + dx * fraction);
-            int z = (int) Math.round(profile.gunZ + dz * fraction);
-
-            short ground = TerrainClientCache.heightAt(x, z);
-            if (ground == TerrainTile.NO_DATA) {
+            if (ground[i] == TerrainTile.NO_DATA) {
                 sawGap = true;
                 continue;
             }
 
-            if (ground + CLEARANCE_BLOCKS >= profile.altitude[i]) {
+            if (ground[i] + CLEARANCE_BLOCKS >= profile.altitude[i]) {
                 return (int) Math.round(groundRange * fraction);
             }
         }
@@ -87,14 +89,15 @@ public final class TrajectoryClearance {
     /**
      * Makes sure the ground under a firing line gets surveyed.
      *
-     * <p>Without this the check would only ever work for paths that happened to cross the visible
-     * map. The corridor is requested at a lower priority than the view itself, so looking at the map
-     * never waits behind a line check.
+     * <p>Without this the check would only ever work for ground the rendered map happens to hold —
+     * and the map is client-side only now, so it holds nothing the player hasn't personally walked
+     * near. This asks the server directly for just the line, one column per sample point, regardless
+     * of what's on screen.
      */
     public static void surveyLine(FlightProfile profile, TargetEntry target) {
         if (profile == null) {
             return;
         }
-        TerrainClientCache.ensureLineCovered(profile.gunX, profile.gunZ, target.x, target.z);
+        FireLineCache.request(profile.gunX, profile.gunZ, target.x, target.z);
     }
 }

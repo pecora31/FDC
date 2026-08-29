@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+// No ForgeGradle here on purpose. The root project applies it; this one must stay plain Java so its
+// checks run without a Minecraft classpath, a mappings download, or a game launch.
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
+sourceSets {
+    bench {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+tasks.register('bench', JavaExec) {
+    group = 'verification'
+    description = 'Times the map engine against synthetic terrain and writes PNGs to build/mapengine'
+
+    classpath = sourceSets.bench.runtimeClasspath
+    mainClass = 'net.nazarick.mapengine.bench.Bench'
+    args project.layout.buildDirectory.dir('mapengine').get().asFile.absolutePath
+
+    javaLauncher = javaToolchains.launcherFor(java.toolchain)
+}

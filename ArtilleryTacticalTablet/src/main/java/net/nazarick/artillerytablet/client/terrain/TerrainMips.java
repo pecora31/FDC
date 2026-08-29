@@ -307,9 +307,16 @@ public final class TerrainMips {
     /** Zero unresolved, 1 resolved and usable, -1 resolved and not usable. */
     private static byte[] tintState = new byte[0];
 
+    /**
+     * Guards the biome tint tables above against concurrent access from the mapengine bridge's
+     * background rasterize/pyramid work — the same reason the old tile cache had a lock here, just
+     * owned by this class now that the old cache is gone.
+     */
+    private static final Object BIOME_LOCK = new Object();
+
     /** Forgets the table, for when a change of world makes a biome id mean something else. */
     public static void forgetBiomes() {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (BIOME_LOCK) {
             tintGrass = new int[0];
             tintFoliage = new int[0];
             tintWater = new int[0];
@@ -323,15 +330,24 @@ public final class TerrainMips {
      */
     public static int groundColour(int blockId, short biomeId, int depth, int waterTint,
                                    int surfaceY) {
-        int packed = BlockPalette.colourOf(blockId);
+        // The Ground layer draws the coarse map-palette swatch rather than each block's own averaged
+        // texture: grass/dirt, stone, gravel, sand and wood/leaves each collapse to one tone apiece
+        // (the map palette's own sixty-two categories, still biome-tinted), rather than every distinct
+        // block having its own shade — different materials stay visually distinct from one another
+        // (ground vs. stone vs. trees), just not distinct *within* a material. That leaves the
+        // hillshade term (applied afterwards, in Rasterizer) as the only thing varying brightness
+        // cell-to-cell within one material, reading as terrain relief instead of getting lost among
+        // block-to-block colour noise. Every other filter keeps the fine per-texture colour.
+        boolean simple = filter == Filter.NONE;
+        int packed = simple ? BlockPalette.simpleColourOf(blockId) : BlockPalette.colourOf(blockId);
         int b = (packed >> 16) & 0xFF;
         int g = (packed >> 8) & 0xFF;
         int r = packed & 0xFF;
 
-        byte kind = BlockPalette.tintOf(blockId);
+        byte kind = simple ? BlockPalette.simpleTintOf(blockId) : BlockPalette.tintOf(blockId);
         if (kind != BlockPalette.TINT_NONE && known(biomeId)) {
             int tint = tintColour(kind, biomeId);
-            if (BlockPalette.isPreTinted(blockId)) {
+            if (simple || BlockPalette.isPreTinted(blockId)) {
                 // The palette's grass is already the green of plains, so this scales it from that
                 // reference to the biome's rather than multiplying, which would darken it twice.
                 b = scale(b, (tint >> 16) & 0xFF, reference(kind, 16));
@@ -411,7 +427,7 @@ public final class TerrainMips {
 
     /**
      * Switches the palette. The caller is responsible for throwing away what was coloured under the
-     * old one — see {@code TerrainClientCache.repaint()}, which is the only sane way to do it.
+     * old one — see {@code MapEngineOverlay.repaint()}, which is the only sane way to do it.
      */
     public static void filter(Filter value) {
         filter = value;
@@ -590,7 +606,8 @@ public final class TerrainMips {
         return rgb == 0 ? 0 : (swapForTexture(rgb) >> shift) & 0xFF;
     }
 
-    private static int waterTint(short biomeId) {
+    /** Widened from private for the mapengine bridge ({@code ForgeBlockStyle}) — same pure lookup. */
+    public static int waterTint(short biomeId) {
         return known(biomeId) ? tintWater[biomeId]
                 : MapColor.WATER.calculateRGBColor(MapColor.Brightness.NORMAL);
     }
@@ -684,7 +701,7 @@ public final class TerrainMips {
     }
 
     private static boolean resolve(short biomeId) {
-        synchronized (TerrainClientCache.TILE_LOCK) {
+        synchronized (BIOME_LOCK) {
             // Double-check inside lock: another thread may have resolved this biome while we waited.
             if (biomeId < tintState.length && tintState[biomeId] != 0) {
                 return tintState[biomeId] > 0;

@@ -6,7 +6,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -87,6 +89,46 @@ public final class ServerTerrainProvider {
         return CompletableFuture.allOf(pending.toArray(new CompletableFuture[0])).thenApply(ignored -> tile);
     }
 
+    /**
+     * Surface height of one block column, live chunk first and a disk read only when it isn't loaded.
+     *
+     * <p>Deliberately lighter than {@link #buildTile}: a fire mission's line query wants a scattered
+     * handful of columns across whatever chunks the line happens to cross, not a whole tile's worth
+     * of neighbours it never asked about. Reusing {@code buildTile} for this would mean reading up to
+     * sixteen chunks to answer for one, over and over along a long firing line.
+     *
+     */
+    public static CompletableFuture<Short> sampleColumnHeight(ServerLevel level, int worldX, int worldZ) {
+        int chunkX = worldX >> 4;
+        int chunkZ = worldZ >> 4;
+        int localX = worldX & 15;
+        int localZ = worldZ & 15;
+
+        LevelChunk live = level.getChunkSource().getChunkNow(chunkX, chunkZ);
+        if (live != null) {
+            return CompletableFuture.completedFuture(
+                    (short) live.getHeight(Heightmap.Types.WORLD_SURFACE, localX, localZ));
+        }
+
+        int minY = level.getMinBuildHeight();
+        int levelHeight = level.getHeight();
+        try {
+            return TerrainChunkReader.read(level, new ChunkPos(chunkX, chunkZ))
+                    .thenApply(saved -> saved.map(nbt ->
+                                    ChunkNbtSampler.sampleHeight(nbt, minY, levelHeight, localX, localZ))
+                            .orElse(TerrainTile.NO_DATA))
+                    .exceptionally(t -> {
+                        ArtilleryTablet.LOGGER.warn("Terrain height read failed for chunk {},{}",
+                                chunkX, chunkZ, t);
+                        return TerrainTile.NO_DATA;
+                    });
+        } catch (Throwable t) {
+            ArtilleryTablet.LOGGER.warn("Terrain height read could not be started for chunk {},{}",
+                    chunkX, chunkZ, t);
+            return CompletableFuture.completedFuture(TerrainTile.NO_DATA);
+        }
+    }
+
     private static CompletableFuture<?> readFromDisk(ServerLevel level, TerrainTile tile,
                                                      int chunkX, int chunkZ, int minY, int levelHeight,
                                                      Registry<Biome> biomes) {
@@ -140,8 +182,14 @@ public final class ServerTerrainProvider {
                 // nothing, then down through water to the floor. These two paths feed the same tile
                 // and a column sampled by one must be indistinguishable from a column sampled by the
                 // other, or the map would change appearance along the edge of the loaded area.
+                //
+                // Also down past ground clutter — grass tufts, ferns, flowers, saplings, dead bush —
+                // to whatever real ground they are standing on. BushBlock is every one of those in
+                // vanilla and nothing else (leaves are a separate class hierarchy entirely, so a tree
+                // still reads as itself); this was asked for by name, not a guess at what "looks messy".
                 int solidY = blockY;
-                while (isBlank(state, level, pos) && solidY > level.getMinBuildHeight()) {
+                while ((isBlank(state, level, pos) || state.getBlock() instanceof BushBlock)
+                        && solidY > level.getMinBuildHeight()) {
                     pos.set(worldX, --solidY, worldZ);
                     state = chunk.getBlockState(pos);
                 }
@@ -162,6 +210,25 @@ public final class ServerTerrainProvider {
                 tile.height[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, blockY));
                 tile.depth[index] = (byte) depth;
                 tile.biome[index] = biomeIdOf(level, chunk, worldX, blockY, worldZ);
+
+                // The ground's own elevation, computed separately from height above rather than by
+                // post-processing it: leaves and clutter (tall grass, flowers, saplings...) are walked
+                // through together, not as two passes that can each stop at what the other was meant
+                // to skip (real canopy is routinely several layers deep with air gaps between them —
+                // a leaves-only pass stopping at the first gap, leaving a blank-only pass to stop right
+                // back at the next leaf layer down, never reaches the ground at all). See
+                // ColumnBuffer#groundHeight's own doc for why this stays a second field instead of
+                // replacing height above — the Ground layer draws canopy as itself, on purpose.
+                int groundY = blockY;
+                pos.set(worldX, groundY, worldZ);
+                BlockState groundState = chunk.getBlockState(pos);
+                while ((groundState.is(BlockTags.LEAVES) || isBlank(groundState, level, pos)
+                        || groundState.getBlock() instanceof BushBlock)
+                        && groundY > level.getMinBuildHeight()) {
+                    pos.set(worldX, --groundY, worldZ);
+                    groundState = chunk.getBlockState(pos);
+                }
+                tile.groundHeight[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, groundY));
             }
         }
     }

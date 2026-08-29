@@ -41,7 +41,7 @@ public final class TerrainTile {
      * network channel folds it into its own version, so mismatched builds are turned away at the
      * handshake and never get as far as sending a tile at all.
      */
-    public static final byte FORMAT_VERSION = 2;
+    public static final byte FORMAT_VERSION = 3;
 
     /** Blocks along one edge of a tile. Sized so one tile is a comfortable packet, ~12 KB raw. */
     public static final int SIDE = 64;
@@ -87,6 +87,16 @@ public final class TerrainTile {
      */
     public final short[] height;
 
+    /**
+     * The ground's own elevation per column, or {@link #NO_DATA} — leaves and clutter (tall grass,
+     * flowers, saplings...) read straight through to whatever is really underneath, unlike
+     * {@link #height}, which draws a forest's canopy as the surface on purpose (see
+     * {@link ChunkNbtSampler}/{@code ServerTerrainProvider}'s own notes on why both are computed and
+     * kept, not one replacing the other). This is what a contour line traces and what a crest-clearance
+     * query should read for "the ground", not the top of whatever is standing on it.
+     */
+    public final short[] groundHeight;
+
     /** Blocks of water above the floor, 0 where there is none. Capped at {@link #MAX_DEPTH}. */
     public final byte[] depth;
 
@@ -104,14 +114,16 @@ public final class TerrainTile {
     public final short[] biome;
 
     public TerrainTile(int tileX, int tileZ) {
-        this(tileX, tileZ, new short[COLUMNS], newHeights(), new byte[COLUMNS], newBiomes());
+        this(tileX, tileZ, new short[COLUMNS], newHeights(), newHeights(), new byte[COLUMNS], newBiomes());
     }
 
-    public TerrainTile(int tileX, int tileZ, short[] block, short[] height, byte[] depth, short[] biome) {
+    public TerrainTile(int tileX, int tileZ, short[] block, short[] height, short[] groundHeight,
+                        byte[] depth, short[] biome) {
         this.tileX = tileX;
         this.tileZ = tileZ;
         this.block = block;
         this.height = height;
+        this.groundHeight = groundHeight;
         this.depth = depth;
         this.biome = biome;
     }
@@ -154,7 +166,9 @@ public final class TerrainTile {
     private static final int BLOCK_LO = BLOCK_HI + COLUMNS;
     private static final int HEIGHT_HI = BLOCK_LO + COLUMNS;
     private static final int HEIGHT_LO = HEIGHT_HI + COLUMNS;
-    private static final int DEPTH = HEIGHT_LO + COLUMNS;
+    private static final int GROUND_HEIGHT_HI = HEIGHT_LO + COLUMNS;
+    private static final int GROUND_HEIGHT_LO = GROUND_HEIGHT_HI + COLUMNS;
+    private static final int DEPTH = GROUND_HEIGHT_LO + COLUMNS;
     private static final int BIOME_HI = DEPTH + COLUMNS;
     private static final int BIOME_LO = BIOME_HI + COLUMNS;
 
@@ -205,6 +219,8 @@ public final class TerrainTile {
             raw[BLOCK_LO + i] = (byte) block[i];
             raw[HEIGHT_HI + i] = (byte) (height[i] >> 8);
             raw[HEIGHT_LO + i] = (byte) height[i];
+            raw[GROUND_HEIGHT_HI + i] = (byte) (groundHeight[i] >> 8);
+            raw[GROUND_HEIGHT_LO + i] = (byte) groundHeight[i];
             raw[DEPTH + i] = depth[i];
             raw[BIOME_HI + i] = (byte) (biome[i] >> 8);
             raw[BIOME_LO + i] = (byte) biome[i];
@@ -267,15 +283,17 @@ public final class TerrainTile {
 
         short[] block = new short[COLUMNS];
         short[] height = new short[COLUMNS];
+        short[] groundHeight = new short[COLUMNS];
         byte[] depth = new byte[COLUMNS];
         short[] biome = new short[COLUMNS];
         for (int i = 0; i < COLUMNS; i++) {
             block[i] = (short) ((raw[BLOCK_HI + i] << 8) | (raw[BLOCK_LO + i] & 0xFF));
             height[i] = (short) ((raw[HEIGHT_HI + i] << 8) | (raw[HEIGHT_LO + i] & 0xFF));
+            groundHeight[i] = (short) ((raw[GROUND_HEIGHT_HI + i] << 8) | (raw[GROUND_HEIGHT_LO + i] & 0xFF));
             depth[i] = raw[DEPTH + i];
             biome[i] = (short) ((raw[BIOME_HI + i] << 8) | (raw[BIOME_LO + i] & 0xFF));
         }
-        return new TerrainTile(tileX, tileZ, block, height, depth, biome);
+        return new TerrainTile(tileX, tileZ, block, height, groundHeight, depth, biome);
     }
 
     /**
@@ -309,6 +327,9 @@ public final class TerrainTile {
         }
         for (short h : height) {
             hash = hash * 31 + h;
+        }
+        for (short g : groundHeight) {
+            hash = hash * 31 + g;
         }
         // Depth and biome belong in here too. Leaving either out would let the server answer
         // "unchanged" to a tile that had in fact changed in the only way the client could see.
