@@ -26,6 +26,31 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Dynamic Zoom Contour Intervals, Spot Extrema & Depression Hachures (Gemini)
+
+Đã làm:
+- **Tích hợp Bước nhảy cao độ thích ứng theo Zoom (Dynamic Contour Spacing)**:
+  + Level 0 ($1:1$ zoom gần): Interval = $4\text{m}$ (chi tiết từng gờ đất, thềm dốc).
+  + Level 1 ($2\times$ zoom trung bình): Interval = $6\text{m}$.
+  + Level 2 ($4\times$ zoom xa): Interval = $12\text{m}$.
+  + Level 3+ ($8\times+$ zoom toàn cảnh): Interval = $20\text{m}$ (chống bết dính trắng xóa ở núi cao).
+- **Phân biệt Đồi núi vs Hố trũng / Vực sâu / Hang động (Depression Hachures)**:
+  + Vùng trũng/hố sụt/lòng chảo: Bổ sung **vạch chỉ hướng dốc (Hachures)** chĩa vuông góc hướng vào phía trong lòng hố.
+  + Đồi núi: Đường đồng mức trơn nhẵn nguyên bản.
+  + Vực thẳm/Hang động ăn sâu vào lòng đất: Shading màu vực thẳm `#080A0D`.
+- **Đánh dấu Điểm cao khống chế & Điểm trũng (Spot Elevations & Depressions)**:
+  + 🏔️ Đỉnh đồi/núi: Ký hiệu tam giác và cao độ mét `▲ 184` (màu bạc sáng).
+  + 🕳️ Đáy hố/vực: Ký hiệu tam giác và cao độ mét `▼ 32` (màu xám xanh).
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — dynamic intervals, spot extrema stamping, depression hachures)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/mapengine/MapEngineOverlay.java` (sửa — pass level to rasterizeHypsometric)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Bare-Earth DEM Topo Contour Filtering: Remove Tree Trunks & Structure Artifacts (Gemini)
 
 Đã làm:

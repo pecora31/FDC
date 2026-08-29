@@ -361,7 +361,7 @@ public final class MapEngineOverlay {
             return null;
         }
         return switch (TerrainMips.filter()) {
-            case RELIEF -> Rasterizer.rasterizeHypsometric(columns);
+            case RELIEF -> Rasterizer.rasterizeHypsometric(columns, level);
             case THERMAL -> Rasterizer.rasterizeThermal(columns, style, level);
             case NONE -> Rasterizer.rasterize(columns, style, level);
         };
