@@ -195,7 +195,9 @@ public final class TerrainImage {
      * fall, and how steeply</em> — which has many answers rather than three, and which is the
      * question someone siting a gun or judging dead ground is actually asking.
      */
-    private static final int RELIEF_RUN = 3;
+    private static final int RELIEF_MACRO_RUN = 6;
+    private static final int RELIEF_MICRO_RUN = 1;
+    private static final int RELIEF_RUN = RELIEF_MACRO_RUN;
 
     /**
      * Samples either side of a sheet that the drawing reaches into.
@@ -1577,8 +1579,8 @@ public final class TerrainImage {
      * narrow comparison alone is the noise this whole scheme was written to escape. Added together,
      * the wide one carries the form and the narrow one puts the grain back on it.
      */
-    private static final float RELIEF_MACRO = 0.34f;
-    private static final float RELIEF_MICRO = 0.18f;
+    private static final float RELIEF_MACRO = 0.42f;
+    private static final float RELIEF_MICRO = 0.14f;
 
     /**
      * The slope, in blocks of rise per block of run, that uses up most of that range.
@@ -1586,7 +1588,7 @@ public final class TerrainImage {
      * <p>Anything steeper is compressed rather than clipped, so a cliff and a mountainside stay
      * distinguishable instead of both saturating to white.
      */
-    private static final float RELIEF_SOFTNESS = 0.35f;
+    private static final float RELIEF_SOFTNESS = 0.28f;
 
     /**
      * Lights the ground from the north-west and shades it by how the surface leans.
@@ -1633,8 +1635,8 @@ public final class TerrainImage {
      * rather than counted as flat, which would drag every edge of the known ground towards grey.
      */
     private static float reliefOf(BakeWorkspace ws, int cell, int stride) {
-        float macro = slopeOf(ws, cell, RELIEF_RUN, stride * RELIEF_RUN);
-        float micro = slopeOf(ws, cell, 1, stride);
+        float macro = slopeOf(ws, cell, RELIEF_MACRO_RUN, stride * RELIEF_MACRO_RUN);
+        float micro = slopeOf(ws, cell, RELIEF_MICRO_RUN, stride * RELIEF_MICRO_RUN);
         // The block-scale term is dropped under the relief filter. It exists to put the grain of the
         // surface back on — every one-block terrace as a fine line — and grain is the whole of what
         // a canopy contributes to a height field. On a sheet that reports bands rather than blocks,
@@ -1647,22 +1649,27 @@ public final class TerrainImage {
         short here = ws.fieldFloor[cell];
         short north = ws.fieldFloor[cell - samples * FIELD];
         short west = ws.fieldFloor[cell - samples];
+        short northWest = ws.fieldFloor[cell - samples * FIELD - samples];
 
         float rise = 0f;
-        int axes = 0;
+        float weights = 0f;
         if (north != TerrainTile.NO_DATA) {
-            rise += here - north;
-            axes++;
+            rise += (here - north);
+            weights += 1.0f;
         }
         if (west != TerrainTile.NO_DATA) {
-            rise += here - west;
-            axes++;
+            rise += (here - west);
+            weights += 1.0f;
         }
-        if (axes == 0) {
+        if (northWest != TerrainTile.NO_DATA) {
+            rise += (here - northWest) * 0.7071f;
+            weights += 0.7071f;
+        }
+        if (weights == 0f) {
             return 0f;
         }
 
-        return squash(rise / (axes * (float) run) / RELIEF_SOFTNESS);
+        return squash((rise / weights) / ((float) run * RELIEF_SOFTNESS));
     }
 
     /**
