@@ -555,6 +555,16 @@ public final class Rasterizer {
      * with white ink it would only fight the line for attention, so it goes with the ramp it was
      * built for rather than being adapted to a look it was never meant for.
      */
+    // JourneyMap Topo Hypsometric Stops
+    private static final int TOPO_RAMP_LOW = 0xFF284822;     // Sea level / Lowland forest-plains green
+    private static final int TOPO_RAMP_MID = 0xFF566548;     // Mid elevation olive-tan
+    private static final int TOPO_RAMP_HIGH = 0xFF82929E;    // Mountain slate gray
+    private static final int TOPO_RAMP_PEAK = 0xFFC8D6E0;    // High alpine peak
+    private static final int TOPO_WATER = 0xFF081878;        // Deep cartographic blue
+    private static final int TOPO_COAST = 0xFFD8E4F0;        // Crisp coastal edge line
+    private static final int TOPO_LINE_DARK = 0xFF14181C;    // Dark crisp contour isolines
+    private static final int TOPO_LINE_INDEX_DARK = 0xFF000000; // Bold index contour
+
     private static int hypsoCell(ColumnBuffer columns, float[] smoothed, int x, int z, int width) {
         int idx = columns.index(x, z);
         if (columns.height[idx] == ColumnBuffer.NO_DATA) {
@@ -568,30 +578,44 @@ public final class Rasterizer {
                 coastLineStrength(columns, x - 1, z, width, waterHere));
 
         if (waterHere) {
-            int waterBase = 0xFF0E141B;
             if (coast > 0) {
-                return 0xFFD8E0E8;
+                return TOPO_COAST;
             }
-            return isWaterStipple(x, z) ? 0xFF1C2834 : waterBase;
+            return TOPO_WATER;
         }
 
-        // Hypsometric depth gradient (Dark charcoal at sea level -> lighter gray on high ground)
-        float t = Math.max(0f, Math.min(1f, (height - TOPO_SEA_LEVEL) / 180f));
-        int g = Math.round(0x18 + 0x2A * t);
-        // Add subtle 3D relief so hills and valleys are instantly readable
+        // 1. Calculate Hypsometric Background Colour based on height
+        float t = Math.max(0f, Math.min(1f, (height - TOPO_SEA_LEVEL) / 160f));
+        int baseColour;
+        if (t < 0.35f) {
+            baseColour = lerpColour(TOPO_RAMP_LOW, TOPO_RAMP_MID, t / 0.35f);
+        } else if (t < 0.75f) {
+            baseColour = lerpColour(TOPO_RAMP_MID, TOPO_RAMP_HIGH, (t - 0.35f) / 0.40f);
+        } else {
+            baseColour = lerpColour(TOPO_RAMP_HIGH, TOPO_RAMP_PEAK, (t - 0.75f) / 0.25f);
+        }
+
+        // 2. Modulate with subtle 3D hillshading (NW 315° lighting)
         float step = slopeOf(columns, x, z, 1, 1);
         float lit = 1.0f + 0.18f * step;
-        g = Math.max(0x10, Math.min(0x55, Math.round(g * lit)));
-        int base = 0xFF000000 | (g << 16) | (g << 8) | g;
+        int r = light(baseColour & 0xFF, lit);
+        int g = light((baseColour >> 8) & 0xFF, lit);
+        int b = light((baseColour >> 16) & 0xFF, lit);
+        int shadedBase = 0xFF000000 | (b << 16) | (g << 8) | r;
 
+        // 3. Draw Contour Isolines
         int band = topoBand(height);
         int strength = Math.max(coast, Math.max(
                 topoLineStrength(smoothed, x, z - 1, width, band),
                 topoLineStrength(smoothed, x - 1, z, width, band)));
         if (strength == 0) {
-            return base;
+            return shadedBase;
         }
-        return strength == 2 ? 0xFFFFFFFF : 0xFFB8C0C8;
+        if (strength == 2) {
+            return lerpColour(shadedBase, TOPO_LINE_INDEX_DARK, 0.85f);
+        } else {
+            return lerpColour(shadedBase, TOPO_LINE_DARK, 0.65f);
+        }
     }
 
     /**

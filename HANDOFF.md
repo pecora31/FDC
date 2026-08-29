@@ -26,6 +26,26 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — JourneyMap Hypsometric Topo & Precise Leaves Biome Tinting (Gemini)
+
+Đã làm:
+- **Sửa triệt để màu lá cây & cỏ theo Biome (Savanna/Swamp/Jungle/Taiga/Birch)** trong `BlockPalette.java`:
+  + Sửa lỗi thứ tự byte `packed()` trên hàm `calculateRGBColor`: Trước đó màu fallback bị lưu ở chuẩn RGB thường khiến byte Đỏ và Xanh Lam bị tráo đổi ngược lại khi tính tỉ lệ màu Biome `scale(b, g, r)`.
+  + Thêm kiểm tra `state.is(BlockTags.LEAVES)` vào `tintFor`: Mọi loại lá cây (Acacia, Birch, Spruce, Dark Oak, Mangrove, Jungle) giờ đây luôn nhận đúng bảng màu `TINT_FOLIAGE` của từng Biome. Cây ở Savanna mang đúng màu vàng rêu/olive đặc trưng của thảo nguyên thay vì màu xanh rừng sồi.
+- **Vẽ lại Map TOPO Chuẩn JourneyMap (ảnh 3)** trong `Rasterizer.java`:
+  + Gradient độ cao màu Hypsometric chuẩn JourneyMap: Vùng thấp $Y=62$ màu xanh lục rậm `#284822` $\to$ Đồi thoải màu olive-tan `#566548` $\to$ Dãy núi cao đá phiến xám `#82929E` $\to$ Đỉnh tuyết sáng `#C8D6E0`.
+  + Mặt nước xanh biển hải đồ sâu thẳm `#081878` cùng đường viền bờ biển `#D8E4F0`.
+  + Các đường bình độ vector đen sắc nét (`#14181C`) với đường đồng mức chính đậm màu đen tuyền `#000000` (Index contour mỗi 5 bậc).
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/BlockPalette.java` (sửa — packed byte order, BlockTags.LEAVES tint)
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — JourneyMap Topo hypsometric ramp & contour lines)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — FLIR Thermal Rasterizer & 3D Hypsometric Topo Polish (Gemini)
 
 Đã làm:

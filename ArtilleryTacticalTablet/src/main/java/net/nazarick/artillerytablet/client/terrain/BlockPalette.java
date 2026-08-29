@@ -7,6 +7,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -236,11 +237,11 @@ public final class BlockPalette {
 
             MapColor mapColour = mapColourOf(state);
 
-            // The palette answer first, so there is always something to fall back to and only one place
-            // that decides what the fallback is.
-            colour[blockId] = mapColour.calculateRGBColor(MapColor.Brightness.NORMAL);
+            // The palette answer first, packed into native 0xAABBGGRR order so byte arithmetic in
+            // TerrainMips is consistent between fallback and texture averages.
+            colour[blockId] = packed(mapColour.calculateRGBColor(MapColor.Brightness.NORMAL));
             preTinted[blockId] = true;
-            tint[blockId] = tintFor(mapColour, true);
+            tint[blockId] = tintFor(state, mapColour, true);
 
             // Captured now, before colour[]/tint[] potentially get overwritten below by a texture
             // average — this pair never changes again for this block id, unlike the fine ones.
@@ -275,7 +276,7 @@ public final class BlockPalette {
                 if (averaged != 0) {
                     colour[blockId] = averaged;
                     preTinted[blockId] = false;
-                    tint[blockId] = quad.isTinted() ? tintFor(mapColour, false) : TINT_NONE;
+                    tint[blockId] = quad.isTinted() ? tintFor(state, mapColour, false) : TINT_NONE;
                 }
                 return;
             }
@@ -295,23 +296,19 @@ public final class BlockPalette {
             preTinted[blockId] = false;
             // Nothing says whether a particle texture is tinted, so the palette entry decides. Water is
             // grey-blue until a biome colours it; lava and the rest are already the colour they are.
-            tint[blockId] = tintFor(mapColour, false);
+            tint[blockId] = tintFor(state, mapColour, false);
         }
     }
 
     /**
      * Which biome colour a block wants.
      *
-     * <p>Decided from the map palette entry rather than from the game's own colour resolvers, which
-     * would need a live world and a position to answer. The palette already sorts blocks into grass,
-     * plant and water, and those are the three tints that exist, so it answers the question without
-     * pretending to have a world.
-     *
-     * <p>{@code fromPalette} distinguishes the two callers. A palette colour for grass is tinted
-     * unconditionally, which is what this map has always done. A texture is tinted only when the
-     * model says so, because a texture that is already green would come out doubly so.
+     * <p>Leaves unconditionally want foliage tint regardless of map colour fallback.
      */
-    private static byte tintFor(MapColor mapColour, boolean fromPalette) {
+    private static byte tintFor(BlockState state, MapColor mapColour, boolean fromPalette) {
+        if (state != null && state.is(BlockTags.LEAVES)) {
+            return TINT_FOLIAGE;
+        }
         if (mapColour == MapColor.GRASS) {
             return TINT_GRASS;
         }
