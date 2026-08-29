@@ -26,6 +26,22 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Pure Crystal-Clear Display: Remove CRT Scanlines & Glass Glare (Gemini)
+
+Đã làm:
+- **Xóa bỏ hoàn toàn hiệu ứng CRT Scanlines và Vệt sáng phản chiếu mặt kính (Glass Glare Reflection)**:
+  + Gỡ bỏ lớp `renderGlassOverlay` trong `TabletDisplay.java` và `TabletScreen.java`.
+  + Màn hình tablet giờ đây hiển thị hình ảnh trong suốt, sắc nét $100\%$ chuẩn Pure Crystal-Clear Display, không còn vệt sọc CRT hay vệt bóng lóa 45 độ trên mặt kính.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletDisplay.java` (sửa — make renderGlassOverlay a no-op)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — remove renderGlassOverlay call)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Dynamic Zoom Contour Intervals, Spot Extrema & Depression Hachures (Gemini)
 
 Đã làm:

@@ -1189,7 +1189,6 @@ public class TabletScreen extends Screen {
         }
 
         maskWellCorners(g, area[0], area[1], area[2], area[3]);
-        TabletDisplay.renderGlassOverlay(g, area[0], area[1], area[2], area[3]);
 
         TabletDisplay.clear(g);
         renderControls(g, px, py);
