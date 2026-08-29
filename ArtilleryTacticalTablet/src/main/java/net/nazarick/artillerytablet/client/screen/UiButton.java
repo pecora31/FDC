@@ -142,39 +142,53 @@ public class UiButton {
     private void drawMark(Paint p, int cx, int cy, int w, int color) {
         switch (mark) {
             case PLUS -> {
-                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
-                p.fill(cx, cy - 5, cx + 1, cy + 6, color);
+                p.fill(cx - 6, cy, cx + 7, cy + 2, color);
+                p.fill(cx, cy - 6, cx + 2, cy + 7, color);
             }
             case MINUS -> {
-                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
+                p.fill(cx - 6, cy, cx + 7, cy + 2, color);
             }
             case CENTRE -> {
-                p.fill(cx - 4, cy, cx + 5, cy + 1, color);
-                p.fill(cx, cy - 4, cx + 1, cy + 5, color);
-                p.outline(cx - 3, cy - 3, 7, 7, color);
+                p.fill(cx - 5, cy, cx + 6, cy + 2, color);
+                p.fill(cx, cy - 5, cx + 2, cy + 6, color);
+                p.outline(cx - 4, cy - 4, 9, 9, color);
             }
             case GRID -> {
-                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
-                p.fill(cx, cy - 5, cx + 1, cy + 6, color);
-                p.fill(cx - 1, cy - 1, cx + 2, cy + 2, color);
+                p.fill(cx - 7, cy, cx + 8, cy + 1, color);
+                p.fill(cx, cy - 7, cx + 1, cy + 8, color);
+                p.fill(cx - 2, cy - 2, cx + 3, cy + 3, color);
+                p.fill(cx, cy, cx + 1, cy + 1, 0xFF363A42);
             }
             case BRIGHT -> {
-                // Tactical Sun icon
-                p.fill(cx - 2, cy - 2, cx + 3, cy + 3, color); // Center sun disc
-                p.fill(cx, cy - 6, cx + 1, cy - 3, color);      // Top ray
-                p.fill(cx, cy + 4, cx + 1, cy + 7, color);      // Bottom ray
-                p.fill(cx - 6, cy, cx - 3, cy + 1, color);      // Left ray
-                p.fill(cx + 4, cy, cx + 7, cy + 1, color);      // Right ray
-                p.fill(cx - 4, cy - 4, cx - 3, cy - 3, color);  // Diagonal rays
-                p.fill(cx + 4, cy - 4, cx + 5, cy - 3, color);
-                p.fill(cx - 4, cy + 4, cx - 3, cy + 5, color);
-                p.fill(cx + 4, cy + 4, cx + 5, cy + 5, color);
+                // Bold High-Definition Tactical Sun icon
+                p.fill(cx - 3, cy - 3, cx + 4, cy + 4, color); // Center sun disc
+                p.fill(cx - 1, cy - 8, cx + 1, cy - 4, color);  // Top ray
+                p.fill(cx - 1, cy + 5, cx + 1, cy + 9, color);  // Bottom ray
+                p.fill(cx - 8, cy - 1, cx - 4, cy + 1, color);  // Left ray
+                p.fill(cx + 5, cy - 1, cx + 9, cy + 1, color);  // Right ray
+                // Diagonal rays
+                for (int d = 4; d <= 6; d++) {
+                    p.fill(cx - d, cy - d, cx - d + 2, cy - d + 2, color);
+                    p.fill(cx + d - 1, cy - d, cx + d + 1, cy - d + 2, color);
+                    p.fill(cx - d, cy + d - 1, cx - d + 2, cy + d + 1, color);
+                    p.fill(cx + d - 1, cy + d - 1, cx + d + 1, cy + d + 1, color);
+                }
             }
             case POWER -> {
-                // IEC Standby Power icon
-                p.fill(cx, cy - 7, cx + 1, cy - 1, color);
-                p.outline(cx - 5, cy - 5, 11, 11, color);
-                p.fill(cx - 2, cy - 6, cx + 3, cy - 4, 0xFF000000); // Top gap
+                // Bold High-Definition IEC Power icon
+                int radius = 8;
+                int rIn2 = 5 * 5;
+                int rOut2 = 8 * 8;
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dx = -radius; dx <= radius; dx++) {
+                        int d2 = dx * dx + dy * dy;
+                        if (d2 <= rOut2 && d2 >= rIn2) {
+                            if (dy < -2 && Math.abs(dx) <= 3) continue;
+                            p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
+                        }
+                    }
+                }
+                p.fill(cx - 1, cy - 9, cx + 1, cy + 1, color);
             }
         }
     }

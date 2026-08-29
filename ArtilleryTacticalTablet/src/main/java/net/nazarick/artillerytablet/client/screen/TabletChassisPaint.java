@@ -1239,7 +1239,7 @@ public final class TabletChassisPaint {
                 setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Optical LED Socket & Smoked Acrylic Lens (Đồng bộ đối xứng 100%, không bị lệch nét khi scale)
+            // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Khớp 100% que dẫn sáng trắng đục mờ trong ảnh mẫu)
             // 1. Recessed dark slot border
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
@@ -1247,33 +1247,33 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // 2. Uniform smoked polycarbonate lens body
+            // 2. Uniform frosted light-pipe body (màu trắng xám sáng đục mờ chuẩn quân sự)
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF1C2028);
+                    setPixel(img, lx + x, ly + y, 0xFFBAC4D2);
                 }
             }
 
-            // 3. Symmetric ambient bevel lighting (Đón sáng nhẹ đồng đều ở viền trên/trái, đổ bóng dưới/phải)
+            // 3. 3D specular light-pipe highlights & shadows
             if (isVert) {
                 // Vertical LED (Top / Bottom rows)
                 for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF2A303C); // Left highlight
-                    setPixel(img, lx + w - 1, ly + y, 0xFF12141A); // Right shadow
+                    setPixel(img, lx, ly + y, 0xFFEBF0F8);        // Left crisp highlight
+                    setPixel(img, lx + w - 1, ly + y, 0xFF748092); // Right shadow
                 }
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF343C4A); // Top highlight
-                    setPixel(img, lx + x, ly + h - 1, 0xFF101216); // Bottom shadow
+                    setPixel(img, lx + x, ly, 0xFFFFFFFF);        // Top highlight
+                    setPixel(img, lx + x, ly + h - 1, 0xFF647082); // Bottom shadow
                 }
             } else {
                 // Horizontal LED (Left / Right flanks)
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF343C4A); // Top highlight
-                    setPixel(img, lx + x, ly + h - 1, 0xFF101216); // Bottom shadow
+                    setPixel(img, lx + x, ly, 0xFFFFFFFF);        // Top highlight
+                    setPixel(img, lx + x, ly + h - 1, 0xFF647082); // Bottom shadow
                 }
                 for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF2A303C); // Left highlight
-                    setPixel(img, lx + w - 1, ly + y, 0xFF12141A); // Right shadow
+                    setPixel(img, lx, ly + y, 0xFFEBF0F8);        // Left crisp highlight
+                    setPixel(img, lx + w - 1, ly + y, 0xFF748092); // Right shadow
                 }
             }
         }
@@ -1336,14 +1336,12 @@ public final class TabletChassisPaint {
         int keySize = 44;
         int half = keySize / 2;
 
-        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y =
-        // 76)
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
         String[] topLabels = { "GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
             if (i == 0 || i == 9) {
-                // 4 Corner Function Buttons have sunken protective wells and NO LEDs
                 bakeSunkenButtonWell(img, cx, cy);
             }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, topLabels[i]);
@@ -1352,8 +1350,7 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X
-        // = 76, Horizontal 8x4)
+        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
         String[] leftLabels = { "CFF", "F2", "F3", "F4", "F5", "F6" };
         for (int i = 0; i < 6; i++) {
             int cx = 39;
@@ -1362,8 +1359,7 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
-        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at
-        // LED_COL_RIGHT_X = 896, Horizontal 8x4)
+        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
         String[] rightLabels = { "F7", "F8", "F9", "F10", "F11", "F12" };
         for (int i = 0; i < 6; i++) {
             int cx = 941;
@@ -1372,14 +1368,12 @@ public final class TabletChassisPaint {
             bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at
-        // LED_ROW_BOTTOM_Y = 546)
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
         String[] botLabels = { "FLT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
             if (i == 0 || i == 9) {
-                // 4 Corner Function Buttons have sunken protective wells and NO LEDs
                 bakeSunkenButtonWell(img, cx, cy);
             }
             bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
@@ -1409,20 +1403,18 @@ public final class TabletChassisPaint {
 
                     int col;
                     if (inTopLeft) {
-                        // Top & Left of sunken cavity: Deep drop shadow descending into well
                         col = switch (dIn) {
-                            case 0, 1 -> 0xFF040507; // deep bottom cavity shadow
+                            case 0, 1 -> 0xFF040507;
                             case 2 -> 0xFF08090C;
                             case 3 -> 0xFF0E0F12;
-                            default -> 0xFF181A1E; // outer mouth transition
+                            default -> 0xFF181A1E;
                         };
                     } else {
-                        // Bottom & Right of sunken cavity: Catching reflective slope light
                         col = switch (dIn) {
                             case 0, 1 -> 0xFF141518;
                             case 2 -> 0xFF22242A;
                             case 3 -> 0xFF2B2E35;
-                            default -> 0xFF34373F; // bright reflective slope face
+                            default -> 0xFF34373F;
                         };
                     }
                     setPixel(img, x, y, applyStipple(col, x, y));
@@ -1432,69 +1424,81 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red, String label) {
-        int r = 7;
+        int r = 6;
         if (red) {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x77060709, 0xFF220606, 0xFF5E1212, 0xFFB02828, 0xFF9E2222, 0xFF7A1818, 0xFF3C0808, 0xFFA62424,
+                    0x88050608, 0xFF140404, 0xFF681414, 0xFFEF5350, 0xFFE53935, 0xFF991B1B, 0xFF4A0A0A, 0xFFC62828,
                     false);
         } else {
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x77060709, 0xFF14161C, 0xFF282B33, 0xFF545A68, 0xFF4A505E, 0xFF363B45, 0xFF1A1D24, 0xFF4A505E,
+                    0x88050608, 0xFF121418, 0xFF363B44, 0xFF727B8A, 0xFF58606E, 0xFF363A42, 0xFF1C1E23, 0xFF484E5A,
                     false);
         }
 
-        int textCol = 0xFFF0F4FA;
+        int textCol = 0xFFFFFFFF;
         int cx = kx + w / 2;
         int cy = ky + h / 2;
 
         switch (label) {
-            case "GRID" -> { // crosshair
-                for (int x = cx - 5; x <= cx + 5; x++)
+            case "GRID" -> { // Crosshair Reticle icon
+                for (int x = cx - 7; x <= cx + 7; x++) {
                     setPixel(img, x, cy, textCol);
-                for (int y = cy - 5; y <= cy + 5; y++)
+                }
+                for (int y = cy - 7; y <= cy + 7; y++) {
                     setPixel(img, cx, y, textCol);
-                fillCircle(img, cx, cy, 1, textCol);
-            }
-            case "BRIGHT" -> { // Simple clean tactical sun symbol for brightness
-                // Center sun disc (solid filled circle, radius 2)
+                }
                 fillCircle(img, cx, cy, 2, textCol);
-                // 4 Cardinal sun rays (2px length, 2px gap from center)
-                for (int y = cy - 6; y <= cy - 4; y++) setPixel(img, cx, y, textCol); // Top ray
-                for (int y = cy + 4; y <= cy + 6; y++) setPixel(img, cx, y, textCol); // Bottom ray
-                for (int x = cx - 6; x <= cx - 4; x++) setPixel(img, x, cy, textCol); // Left ray
-                for (int x = cx + 4; x <= cx + 6; x++) setPixel(img, x, cy, textCol); // Right ray
-                // 4 Diagonal sun rays (single pixel dots at 45 degrees)
-                setPixel(img, cx - 4, cy - 4, textCol);
-                setPixel(img, cx + 4, cy - 4, textCol);
-                setPixel(img, cx - 4, cy + 4, textCol);
-                setPixel(img, cx + 4, cy + 4, textCol);
+                setPixel(img, cx, cy, red ? 0xFF991B1B : 0xFF363A42);
             }
-            case "NIGHT" -> { // diamond
-                int s = 5;
-                for (int dy = -s; dy <= s; dy++) {
-                    int span = s - Math.abs(dy);
-                    for (int dx = -span; dx <= span; dx++) {
-                        setPixel(img, cx + dx, cy + dy, textCol);
-                    }
-                }
-            }
-            case "POWER" -> { // IEC Standby symbol
-                int radius = 6;
-                for (int y = cy - radius - 2; y <= cy - radius + 4; y++) {
+            case "BRIGHT" -> { // Bold High-Definition Tactical Sun icon
+                fillCircle(img, cx, cy, 3, textCol);
+                // 4 Cardinal rays (2px thick, length 4px)
+                for (int y = cy - 8; y <= cy - 5; y++) {
+                    setPixel(img, cx - 1, y, textCol);
                     setPixel(img, cx, y, textCol);
                 }
-                int rIn2 = (radius - 2) * (radius - 2);
-                int rOut2 = radius * radius;
-                int gapHalfW = 2;
+                for (int y = cy + 5; y <= cy + 8; y++) {
+                    setPixel(img, cx - 1, y, textCol);
+                    setPixel(img, cx, y, textCol);
+                }
+                for (int x = cx - 8; x <= cx - 5; x++) {
+                    setPixel(img, x, cy - 1, textCol);
+                    setPixel(img, x, cy, textCol);
+                }
+                for (int x = cx + 5; x <= cx + 8; x++) {
+                    setPixel(img, x, cy - 1, textCol);
+                    setPixel(img, x, cy, textCol);
+                }
+                // 4 Diagonal rays (2px thick angled rays)
+                for (int d = 4; d <= 6; d++) {
+                    setPixel(img, cx - d, cy - d, textCol);
+                    setPixel(img, cx - d + 1, cy - d, textCol);
+                    setPixel(img, cx + d, cy - d, textCol);
+                    setPixel(img, cx + d - 1, cy - d, textCol);
+                    setPixel(img, cx - d, cy + d, textCol);
+                    setPixel(img, cx - d + 1, cy + d, textCol);
+                    setPixel(img, cx + d, cy + d, textCol);
+                    setPixel(img, cx + d - 1, cy + d, textCol);
+                }
+            }
+            case "POWER" -> { // Bold High-Definition IEC Power icon (matching Image 2)
+                int radius = 8;
+                int rIn2 = 5 * 5;
+                int rOut2 = 8 * 8;
                 for (int dy = -radius; dy <= radius; dy++) {
                     for (int dx = -radius; dx <= radius; dx++) {
                         int d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -1 && Math.abs(dx) <= gapHalfW)
+                            if (dy < -2 && Math.abs(dx) <= 3)
                                 continue;
                             setPixel(img, cx + dx, cy + dy, textCol);
                         }
                     }
+                }
+                // 2px wide vertical power bar
+                for (int y = cy - 9; y <= cy; y++) {
+                    setPixel(img, cx - 1, y, textCol);
+                    setPixel(img, cx, y, textCol);
                 }
             }
             default -> rasterizePixelString(img, label, cx, cy, 1, textCol);

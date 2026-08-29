@@ -26,6 +26,29 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Frosted Translucent Light-Pipes, 3D Raised-Lip Keycaps & Bold Vector Icons (Gemini)
+
+Đã làm:
+- **Đồng bộ hóa ống dẫn sáng LED (Light-Pipe LEDs) theo chuẩn thực tế (Image 2)**:
+  + Thay màu tối bằng chất liệu nhựa Polycarbonate mờ quang học màu trắng xám bạc (`#BAC4D2` / `#D4DCE8`) có vệt đón sáng sắc nét `#FFFFFF` và bóng chìm `#647082` — hiển thị rõ ràng, sáng đẹp và chuẩn xác 100% như trên thiết bị quân sự thật.
+- **Đồng bộ hóa toàn bộ 32 Keycap theo mẫu thực tế (Image 2)**:
+  + Tất cả 32 phím đều mang **vành viền gờ nổi 3D (Raised Bezel Lip)** màu xám nhám sáng (`#58606E` / `#727B8A`) bao quanh **lòng mặt phím chìm (Recessed Dish Face)** màu than chì sâu (`#363A42`).
+  + Nút CFF và POWER mang vành viền đỏ rực (`#E53935` / `#EF5350`) và lòng phím đỏ thẫm (`#991B1B`).
+- **Thiết kế lại toàn bộ Vector Icons độ nét cao, to rõ và cân đối**:
+  + **`POWER` IEC Icon**: Vòng tròn năng lượng $17\text{px}$ nét dày $2\text{px}$ chuẩn IEC, căn giữa nổi bật trên nền đỏ.
+  + **`BRIGHT` Sun Icon**: Biểu tượng Mặt trời sắc nét gồm đĩa tròn trung tâm ($R=3\text{px}$) và 8 tia quang học dày $2\text{px}$ tỏa đều.
+  + **`GRID` Reticle Icon**: Tâm ngắm chữ thập trắc địa nét thanh $2\text{px}$.
+  + **`FLT` Label**: Nhãn in lụa trắng sắc nét.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — frosted light-pipes, 3D raised-lip keycaps, vector icons)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — bold vector marks)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Bàn giao màn hình chờ load (BootSplash) cho Gemini (Claude)
 
 Đã làm:
