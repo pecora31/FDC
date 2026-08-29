@@ -588,11 +588,10 @@ public class TabletScreen extends Screen {
         // ---- left edge: laying the guns --------------------------------------------------------
         side(false, 0, kw, kh, Component.translatable("gui.artillerytablet.frame.cff"),
                 () -> fire(selected >= 0 ? selected : 0), false,
-                Component.translatable("gui.artillerytablet.frame.cff.tip")).danger().active(armed);
+                Component.translatable("gui.artillerytablet.frame.cff.tip")).danger();
         side(false, 1, kw, kh, Component.translatable("gui.artillerytablet.key.adjust"),
                 () -> lay(selected), armed && !boundIds.isEmpty(),
-                Component.translatable("gui.artillerytablet.key.adjust.tip"))
-                .active(armed && !boundIds.isEmpty());
+                Component.translatable("gui.artillerytablet.key.adjust.tip"));
         side(false, 2, kw, kh, Component.translatable("gui.artillerytablet.key.mode"),
                 this::cycleFireMode, true, fireModeLabel());
         side(false, 3, kw, kh, Component.translatable("gui.artillerytablet.key.arc"),
@@ -687,7 +686,6 @@ public class TabletScreen extends Screen {
                 : edge == TabletFrame.EDGE_BOTTOM ? frame.rowKeyBottomH() : frame.rowKeyH();
         addKey(new UiButton(at[0], at[1], w, h, Component.literal("F" + number), () -> { })
                 .hard(false)
-                .active(false)
                 .lamp(frame.ledFor(edge, index))
                 .tooltip(Component.translatable("gui.artillerytablet.frame.spare", number)));
     }
@@ -704,7 +702,6 @@ public class TabletScreen extends Screen {
         addKey(new UiButton(at[0], at[1], frame.rowKeyW(), frame.rowKeyH(),
                 Component.literal(label), () -> { })
                 .hard(false)
-                .active(false)
                 .lamp(frame.ledFor(TabletFrame.EDGE_TOP, index))
                 .tooltip(Component.translatable("gui.artillerytablet.frame.spare", label)));
     }

@@ -105,14 +105,15 @@ public class UiButton {
         if (!contains(px, py)) {
             return false;
         }
-        if (hard) {
-            click();
+        click();
+        if (led != null && led.length >= 4) {
+            hardOn = !hardOn;
+        }
+        if (mfd) {
+            mfdOn = !mfdOn;
         }
         if (!active) {
             return false;
-        }
-        if (!hard) {
-            click();
         }
         if (action != null) {
             action.run();

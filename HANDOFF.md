@@ -26,6 +26,26 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Universal Interactive Key Feedback & On-Click LED Toggling (Gemini)
+
+Đã làm:
+- **Kích hoạt tương tác toàn bộ 32+ phím (`active = true`) cho giai đoạn test UI**:
+  + Bỏ các rào chắn điều kiện game tạm thời (`armed`, `boundIds.isEmpty()`, `spare` / `spareTop` hardcode `active(false)`).
+  + Toàn bộ phím cứng (kể cả F2–F20 và các phím dự phòng) đều có phản hồi âm thanh click cơ khí, hoạt ảnh lún phím 3D khi nhấn (`pressed`), và viền sáng ambient khi rê chuột (`hovered`).
+- **Tự động chuyển đổi trạng thái đèn LED khi bấm (Interactive On-Click LED Toggle)**:
+  + Trong `UiButton.press()`: Mỗi lần bấm vào một phím có khe đèn (`led != null`), trạng thái đèn LED của phím đó sẽ tự động đảo chiều Bật / Tắt (`hardOn = !hardOn`).
+  + Nút mềm MFD cũng tự động đảo trạng thái đèn pip (`mfdOn = !mfdOn`).
+  + **Lưu ý**: Đây là trạng thái tương tác tạm thời phục vụ kiểm thử thị giác và hoạt ảnh; khi người dùng nối logic nghiệp vụ backend, các điều kiện gate sẽ được khôi phục.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — active(true) for all buttons and spares)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — on-click LED & MFD toggle in press())
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch và tương tác 100% trong game.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Single-Source Key Rendering Architecture & Crisp Focused LEDs (Gemini)
 
 Đã làm:
