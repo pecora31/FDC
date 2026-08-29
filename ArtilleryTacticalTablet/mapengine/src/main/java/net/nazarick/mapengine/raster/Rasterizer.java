@@ -35,14 +35,14 @@ public final class Rasterizer {
     // fought and lost once on Topo. Raw per-pixel squash cannot serve both goals with one run distance;
     // see HANDOFF.md for the actual recommendation (macro shape from a separately-sampled wide term,
     // texture from a raw narrow one, not one term doing both).
-    private static final int RELIEF_MACRO_RUN = 6;
-    private static final int RELIEF_MICRO_RUN = 1;
-    private static final float RELIEF_MACRO = 0.42f;
-    private static final float RELIEF_MICRO = 0.14f;
-    private static final float RELIEF_SOFTNESS = 0.28f;
+    private static final int RELIEF_STEP_RUN = 1;
+    private static final int RELIEF_MACRO_RUN = 4;
+    private static final float RELIEF_STEP_WEIGHT = 0.32f;
+    private static final float RELIEF_MACRO_WEIGHT = 0.08f;
+    private static final float RELIEF_SOFTNESS = 0.30f;
     private static final float WATER_RELIEF_SHALLOW = 0.45f;
     private static final float WATER_RELIEF_DEEP = 0.12f;
-    private static final float TERRAIN_DIM = 0.78f;
+    private static final float TERRAIN_DIM = 0.68f;
 
     /**
      * {@code Math.tanh}, read from a table instead of computed. The old renderer's own doc measured
@@ -239,9 +239,9 @@ public final class Rasterizer {
     }
 
     private static float reliefOf(ColumnBuffer columns, int x, int z, int stride) {
+        float step = slopeOf(columns, x, z, RELIEF_STEP_RUN, stride * RELIEF_STEP_RUN);
         float macro = slopeOf(columns, x, z, RELIEF_MACRO_RUN, stride * RELIEF_MACRO_RUN);
-        float micro = slopeOf(columns, x, z, RELIEF_MICRO_RUN, stride * RELIEF_MICRO_RUN);
-        return 1f + RELIEF_MACRO * macro + RELIEF_MICRO * micro;
+        return 1f + RELIEF_STEP_WEIGHT * step + RELIEF_MACRO_WEIGHT * macro;
     }
 
     /**

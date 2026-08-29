@@ -361,6 +361,12 @@ public final class TerrainMips {
                 g = multiply(g, (tint >> 8) & 0xFF);
                 r = multiply(r, tint & 0xFF);
             }
+            if (kind == BlockPalette.TINT_FOLIAGE) {
+                // Tame foliage saturation so tree canopies read as deep natural forest green rather than neon green dots
+                b = Math.round(b * 0.78f);
+                g = Math.round(g * 0.78f);
+                r = Math.round(r * 0.78f);
+            }
         }
 
         if (depth > 0) {

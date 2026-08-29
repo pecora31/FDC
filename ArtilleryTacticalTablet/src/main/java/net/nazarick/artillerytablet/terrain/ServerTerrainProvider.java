@@ -188,7 +188,7 @@ public final class ServerTerrainProvider {
                 // vanilla and nothing else (leaves are a separate class hierarchy entirely, so a tree
                 // still reads as itself); this was asked for by name, not a guess at what "looks messy".
                 int solidY = blockY;
-                while ((isBlank(state, level, pos) || state.getBlock() instanceof BushBlock)
+                while ((isBlank(state, level, pos) || isClutter(state))
                         && solidY > level.getMinBuildHeight()) {
                     pos.set(worldX, --solidY, worldZ);
                     state = chunk.getBlockState(pos);
@@ -207,7 +207,8 @@ public final class ServerTerrainProvider {
 
                 int index = TerrainTile.index(localX, localZ);
                 tile.block[index] = TerrainTile.idOf(state.getBlock());
-                tile.height[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, blockY));
+                // The true solid surface height (skipping clutter plants so steps/hills stay smooth and clean)
+                tile.height[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, solidY + depth));
                 tile.depth[index] = (byte) depth;
                 tile.biome[index] = biomeIdOf(level, chunk, worldX, blockY, worldZ);
 
@@ -223,7 +224,7 @@ public final class ServerTerrainProvider {
                 pos.set(worldX, groundY, worldZ);
                 BlockState groundState = chunk.getBlockState(pos);
                 while ((groundState.is(BlockTags.LEAVES) || isBlank(groundState, level, pos)
-                        || groundState.getBlock() instanceof BushBlock)
+                        || isClutter(groundState))
                         && groundY > level.getMinBuildHeight()) {
                     pos.set(worldX, --groundY, worldZ);
                     groundState = chunk.getBlockState(pos);
@@ -237,6 +238,17 @@ public final class ServerTerrainProvider {
     private static boolean isBlank(BlockState state, Level level, BlockPos pos) {
         MapColor colour = state.getMapColor(level, pos);
         return colour == null || colour == MapColor.NONE;
+    }
+
+    /** Surface plants (flowers, tall grass, short grass, crops, saplings) that should not overwrite ground */
+    private static boolean isClutter(BlockState state) {
+        if (state == null) {
+            return false;
+        }
+        return state.getBlock() instanceof BushBlock
+                || state.is(BlockTags.FLOWERS)
+                || state.is(BlockTags.CROPS)
+                || state.is(BlockTags.SAPLINGS);
     }
 
     private static short biomeIdOf(Level level, LevelChunk chunk, int worldX, int worldY, int worldZ) {

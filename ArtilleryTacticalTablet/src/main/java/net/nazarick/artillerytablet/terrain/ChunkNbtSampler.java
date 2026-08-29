@@ -13,6 +13,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.nazarick.artillerytablet.ArtilleryTablet;
@@ -121,7 +122,7 @@ public final class ChunkNbtSampler {
                     // map colour is NONE. Colouring the topmost block regardless punches transparent
                     // holes through otherwise solid ground. The game's own map walks this same way.
                     int solidY = blockY;
-                    while (mapColourOf(state) == MapColor.NONE && solidY > minY) {
+                    while ((mapColourOf(state) == MapColor.NONE || isClutter(state)) && solidY > minY) {
                         BlockState below = stateAt(sections, x, --solidY, z);
                         if (below == null) {
                             break;
@@ -152,8 +153,8 @@ public final class ChunkNbtSampler {
 
                     int index = TerrainTile.index(localX, localZ);
                     tile.block[index] = TerrainTile.idOf(state.getBlock());
-                    // The surface, still — see the field's own note. The floor is height minus depth.
-                    tile.height[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, blockY));
+                    // The solid surface height without clutter plant bumps
+                    tile.height[index] = (short) Math.max(Short.MIN_VALUE + 1, Math.min(Short.MAX_VALUE, solidY + depth));
                     tile.depth[index] = (byte) depth;
                     tile.biome[index] = biomeAt(sections, biomes, x, blockY, z);
 
@@ -163,7 +164,7 @@ public final class ChunkNbtSampler {
                     int groundY = blockY;
                     BlockState groundState = stateAt(sections, x, groundY, z);
                     while (groundState != null
-                            && (groundState.is(BlockTags.LEAVES) || mapColourOf(groundState) == MapColor.NONE)
+                            && (groundState.is(BlockTags.LEAVES) || mapColourOf(groundState) == MapColor.NONE || isClutter(groundState))
                             && groundY > minY) {
                         BlockState below = stateAt(sections, x, groundY - 1, z);
                         if (below == null) {
@@ -225,6 +226,16 @@ public final class ChunkNbtSampler {
     private static BlockState stateAt(Sections sections, int x, int worldY, int z) {
         Section section = sections.at(Math.floorDiv(worldY, 16));
         return section == null ? null : section.get(x, Math.floorMod(worldY, 16), z);
+    }
+
+    private static boolean isClutter(BlockState state) {
+        if (state == null) {
+            return false;
+        }
+        return state.getBlock() instanceof BushBlock
+                || state.is(BlockTags.FLOWERS)
+                || state.is(BlockTags.CROPS)
+                || state.is(BlockTags.SAPLINGS);
     }
 
     /**

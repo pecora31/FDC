@@ -26,25 +26,28 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
-## 2026-08-29 — Port Dual-Radius Hillshading & Vibrant Lighting to `mapengine/Rasterizer.java` (Gemini)
+## 2026-08-29 — Terrace Step Relief, Clutter-Free Biome Ground & Natural Foliage (Gemini)
 
 Đã làm:
-- Đã `git pull` toàn bộ module `mapengine/` mới và đọc kỹ `MAP_RENDERING_GUIDE.md`.
-- Port hoàn tất thuật toán **Dual-Radius Hillshading** sang `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java`:
-  + Tách 2 bán kính lấy mẫu: `RELIEF_MACRO_RUN = 6` (bắt khối đồi/sườn dốc thoai thoải) và `RELIEF_MICRO_RUN = 1` (giữ nguyên độ nhám/texture từng block sắc nét đặc trưng của Minecraft).
-  + Tích hợp lấy mẫu đường chéo Tây Bắc (North-West) trực tiếp theo góc chiếu sáng $315^\circ$ cartographic lighting chuẩn, khử hoàn toàn răng cưa trên sườn dốc chéo.
-  + Tinh chỉnh hệ số `RELIEF_MACRO = 0.42f`, `RELIEF_MICRO = 0.14f`, `RELIEF_SOFTNESS = 0.28f` giúp địa hình thoải hiện rõ độ nổi khối 3D như JourneyMap mà không gây nhiễu hạt "sợi thép".
-  + Nâng độ sáng tự nhiên `TERRAIN_DIM = 0.78f` (trước đó là 0.62f bị tối và xỉn màu).
-- Đã chạy `./gradlew :mapengine:bench`, xuất ảnh và kiểm tra trực quan thành công:
-  + `phase2-scene-shaded.png`: Địa hình sườn thoải, núi tuyết và đồng bằng nổi khối 3D rực rỡ, sắc nét, không nhiễu.
-  + `phase2-scene-topo.png`: Đường đồng mức vector quân sự sạch sẽ, chuẩn xác.
-- Compile toàn bộ project thành công 100% (`BUILD SUCCESSFUL`).
+- **Đổ bóng bậc thang sắc nét (Terrace Step-Based Hillshading)** trong `Rasterizer.java`:
+  + Chuyển trọng tâm đổ bóng sang bán kính 1-block liền kề (`RELIEF_STEP_RUN = 1`, weight = 0.32f, macro weight = 0.08f).
+  + Khử triệt để hiện tượng lùng bùng ("plastic blob"): Từng bậc thang độ cao trên quả đồi và sườn dốc hiện rõ viền sáng và bóng đổ sắc lẹm chuẩn JourneyMap.
+  + Cân chỉnh độ sáng tự nhiên `TERRAIN_DIM = 0.68f`: Triệt tiêu ánh chói bóng loáng, đưa màu cỏ và đất về tông màu vệ tinh quang học trầm dịu mắt.
+- **Loại bỏ cỏ cây hoa lá rác (Clutter Filtering)** trong `ServerTerrainProvider.java` và `ChunkNbtSampler.java`:
+  + Bỏ qua hoa, cỏ ngắn, cỏ cao, dương xỉ, cây bụi khi lấy mẫu mặt đất $\to$ Bề mặt Biome phẳng mịn, đồng màu tuyệt đẹp, không còn bị lốm đốm màu rác.
+  + Chiều cao bề mặt gán đúng theo nền đất thật (`solidY + depth`) thay vì bị nhô lên $+1$ block nhân tạo do cỏ/hoa.
+  + Cây cối (thân cây, tán lá) vẫn được giữ nguyên để phân biệt rõ ràng với mặt đất.
+- **Dìm màu lá cây tự nhiên (Natural Foliage Tint)** trong `TerrainMips.java`:
+  + Giảm độ chói của tán lá (`0.78f`), chuyển các chấm xanh nõn chuối thành màu xanh rừng rậm tự nhiên (`Dark Forest Green`).
 
 File đụng tới:
-- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — nâng cấp `reliefOf`, `slopeOf`, `TERRAIN_DIM`, hằng số relief)
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — step terrace hillshading, TERRAIN_DIM = 0.68f)
+- `src/main/java/net/nazarick/artillerytablet/terrain/ServerTerrainProvider.java` (sửa — clutter filtering)
+- `src/main/java/net/nazarick/artillerytablet/terrain/ChunkNbtSampler.java` (sửa — clutter filtering)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/TerrainMips.java` (sửa — foliage tint tuning)
 
 Bên kia cần làm gì:
-- Không cần sửa đổi gì — phần rendering của `mapengine` đã hoàn tất và sẵn sàng cho overlay / UI.
+- Không cần sửa đổi gì — build sạch 100%.
 
 Trạng thái: Xong.
 
