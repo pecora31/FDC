@@ -26,6 +26,43 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Bàn giao màn hình chờ load (BootSplash) cho Gemini (Claude)
+
+Đã làm:
+- Không sửa code, chỉ ghi chú bàn giao. User muốn Gemini thiết kế lại toàn bộ màn hình chờ load
+  (hiện là logo "ATLAS" vẽ bằng ký tự ASCII + dòng chữ "Fire Direction Center" + vạch quét loading)
+  thay vì giữ bản placeholder hiện tại.
+
+Hiện trạng `BootSplash.java`:
+- Class `BootSplash` (package `client.screen`), 1 điểm gọi duy nhất trong toàn bộ codebase:
+  `TabletScreen.java:1180` — `BootSplash.draw(g, left, top, width0, height0)`.
+- Vẽ 3 phần theo chiều dọc, canh giữa: (1) logo "ATLAS" — mảng String `MARK[]`, mỗi ký tự khối
+  `█` được đặt tay theo lưới đo từ chính glyph đó (font game không fixed-pitch nên không thể vẽ
+  nguyên dòng); (2) subtitle "Fire Direction Center"; (3) vạch quét loading `drawSweep()` — 40 ô,
+  chu kỳ 1400ms, không phải progress bar thật (map không biết tổng số tile cần tải nên không có
+  "phần trăm" thật để vẽ, chỉ nói "thiết bị vẫn đang hoạt động").
+- Nền `BACKDROP = 0xEE0C1015` gần như đen nhưng không hoàn toàn opaque — bản đồ vẫn lờ mờ hiện
+  phía sau, chủ đích để không giả vờ "đang tải" trong khi thực ra là che một thứ đã xong.
+- Tự ẩn nếu panel quá nhỏ để chứa logo (không crop/vỡ hình).
+
+Thời điểm hiển thị (không ở file này, ở `MapPanel.java`):
+- `BOOT_DURATION_MS = 900L` — thời lượng CỐ ĐỊNH, không phụ thuộc dữ liệu bản đồ đã tải xong hay
+  chưa (từng phụ thuộc, đã bỏ vì gây cảm giác "tải lại từ đầu" giả khi cache đĩa chậm). Bản đồ vẫn
+  tiếp tục tải ngầm phía sau màn hình chờ, chỉ là animation không đợi nó.
+- `booting()` (trong `MapPanel`) trả `true` cho tới khi hết `BOOT_DURATION_MS`; `restartBoot()`
+  được gọi khi bấm nút nguồn hoặc đổi world.
+
+Bên kia cần làm gì:
+- Thiết kế lại toàn bộ phần vẽ trong `BootSplash.draw()` theo ý mới — được tự do đổi mọi thứ bên
+  trong (logo, màu, bố cục, kiểu loading indicator...).
+- **Chỉ cần giữ nguyên chữ ký hàm** `static void draw(GuiGraphics g, int x, int y, int width, int height)`
+  vì `TabletScreen.java` gọi đúng chữ ký này — đổi tên tham số/nội dung thoải mái, đổi chữ ký thì
+  phải sửa luôn điểm gọi ở `TabletScreen.java:1180`.
+- Không cần đụng gì tới `MapPanel.java` (thời lượng/logic bật-tắt) trừ khi muốn đổi `BOOT_DURATION_MS`
+  hoặc cách latch hoạt động — đó là phần của Claude, báo lại nếu cần đổi.
+
+Trạng thái: Cần bên kia tích hợp.
+
 ## 2026-08-29 — UiButton stub: animation nút bấm và đèn LED đã bị xóa, chờ Gemini dựng lại (Claude)
 
 Đã làm:
