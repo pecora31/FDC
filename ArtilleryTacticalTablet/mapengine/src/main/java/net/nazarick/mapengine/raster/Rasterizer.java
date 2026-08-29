@@ -680,132 +680,31 @@ public final class Rasterizer {
         return (neighbourBand != band) ? 1 : 0;
     }
 
+    /**
+     * Topographic military depression hachures (vạch chỉ dốc / vạch rãnh cụt răng lược).
+     * Rendered on the inward downhill side of closed contour loops for depressions/sinkholes.
+     */
     private static boolean isDepressionHachure(float[] smoothed, int x, int z, int width, float centerH, float interval) {
-        if ((x + z) % 4 != 0) {
+        // Uniform tick spacing along contour perimeters
+        if ((x * 2 + z * 3) % 4 != 0) {
             return false;
         }
         float hE = smoothedOrSelf(smoothed, x + 1, z, width, centerH);
         float hW = smoothedOrSelf(smoothed, x - 1, z, width, centerH);
         float hN = smoothedOrSelf(smoothed, x, z - 1, width, centerH);
         float hS = smoothedOrSelf(smoothed, x, z + 1, width, centerH);
+
+        // Positive Laplacian confirms a concave bowl / sinkhole / pit
         float laplacian = (hE + hW + hN + hS) / 4.0f - centerH;
-        if (laplacian > 0.28f) {
+        if (laplacian > 0.18f) {
             int currentBand = topoBand(centerH, interval);
-            return topoBand(hE, interval) != currentBand
-                    || topoBand(hW, interval) != currentBand
-                    || topoBand(hN, interval) != currentBand
-                    || topoBand(hS, interval) != currentBand;
+            // Must be adjacent to an uphill contour boundary
+            return topoBand(hE, interval) > currentBand
+                    || topoBand(hW, interval) > currentBand
+                    || topoBand(hN, interval) > currentBand
+                    || topoBand(hS, interval) > currentBand;
         }
         return false;
-    }
-
-    // Military Cartographic Topo Colors (STANAG / Swiss Topo Standard):
-    // Terrain features use dedicated Earth Sienna and Cold Slate to strictly avoid conflict
-    // with NATO MIL-STD-2525D combat force colors (Blue=Friendly, Red=Hostile, Amber=Unknown, Green=Neutral).
-    private static final int TOPO_VECTOR_PEAK = 0xFFC8824A;    // Topographic Earth Sienna for summits / peaks
-    private static final int TOPO_VECTOR_DEPR = 0xFF7A8B99;    // Deep Cold Slate Graphite for basins / depressions
-
-    public static final class SpotExtrema {
-        public final short x;
-        public final short z;
-        public final boolean isPeak;
-
-        public SpotExtrema(int x, int z, boolean isPeak) {
-            this.x = (short) x;
-            this.z = (short) z;
-            this.isPeak = isPeak;
-        }
-    }
-
-    public static java.util.List<SpotExtrema> extractSpotExtrema(ColumnBuffer columns) {
-        if (columns == null || columns.groundHeight == null) {
-            return java.util.Collections.emptyList();
-        }
-        int width = columns.width;
-        float[] smoothed = smoothGroundHeights(columns, TOPO_SMOOTH_RADIUS);
-        java.util.List<SpotExtrema> list = new java.util.ArrayList<>();
-        int radius = 28;
-        int step = radius;
-        for (int z = radius; z < width - radius; z += step) {
-            for (int x = radius; x < width - radius; x += step) {
-                int peakX = -1, peakZ = -1;
-                float maxH = -1000f;
-                int deprX = -1, deprZ = -1;
-                float minH = 1000f;
-
-                for (int dz = -radius / 2; dz <= radius / 2; dz++) {
-                    for (int dx = -radius / 2; dx <= radius / 2; dx++) {
-                        int cx = x + dx;
-                        int cz = z + dz;
-                        int cIdx = cz * width + cx;
-                        if (columns.height[cIdx] == ColumnBuffer.NO_DATA || columns.depthAt(cIdx) > 0) {
-                            continue;
-                        }
-                        float h = smoothed[cIdx];
-                        if (h > maxH) {
-                            maxH = h;
-                            peakX = cx;
-                            peakZ = cz;
-                        }
-                        if (h < minH) {
-                            minH = h;
-                            deprX = cx;
-                            deprZ = cz;
-                        }
-                    }
-                }
-
-                if (peakX != -1 && maxH >= 70f && isDominantPeak(smoothed, peakX, peakZ, width, maxH, radius)) {
-                    list.add(new SpotExtrema(peakX, peakZ, true));
-                }
-                if (deprX != -1 && isDominantDepression(smoothed, deprX, deprZ, width, minH, radius)) {
-                    list.add(new SpotExtrema(deprX, deprZ, false));
-                }
-            }
-        }
-        return list;
-    }
-
-    private static boolean isDominantPeak(float[] smoothed, int px, int pz, int width, float maxH, int radius) {
-        float avgSurrounding = 0f;
-        int count = 0;
-        for (int dz = -radius; dz <= radius; dz += 2) {
-            for (int dx = -radius; dx <= radius; dx += 2) {
-                if (dx == 0 && dz == 0) continue;
-                int cx = px + dx;
-                int cz = pz + dz;
-                if (cx >= 0 && cx < width && cz >= 0 && cz < width) {
-                    float h = smoothed[cz * width + cx];
-                    if (h != ColumnBuffer.NO_DATA) {
-                        if (h > maxH) return false;
-                        avgSurrounding += h;
-                        count++;
-                    }
-                }
-            }
-        }
-        return count > 0 && (maxH - (avgSurrounding / count)) >= 4.5f;
-    }
-
-    private static boolean isDominantDepression(float[] smoothed, int dx, int dz, int width, float minH, int radius) {
-        float avgSurrounding = 0f;
-        int count = 0;
-        for (int ddz = -radius; ddz <= radius; ddz += 2) {
-            for (int ddx = -radius; ddx <= radius; ddx += 2) {
-                if (ddx == 0 && ddz == 0) continue;
-                int cx = dx + ddx;
-                int cz = dz + ddz;
-                if (cx >= 0 && cx < width && cz >= 0 && cz < width) {
-                    float h = smoothed[cz * width + cx];
-                    if (h != ColumnBuffer.NO_DATA) {
-                        if (h < minH) return false;
-                        avgSurrounding += h;
-                        count++;
-                    }
-                }
-            }
-        }
-        return count > 0 && ((avgSurrounding / count) - minH) >= 4.5f;
     }
 
     /**

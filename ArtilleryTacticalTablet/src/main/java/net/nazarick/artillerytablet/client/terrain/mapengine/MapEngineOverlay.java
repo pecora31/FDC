@@ -82,7 +82,6 @@ public final class MapEngineOverlay {
         // reported this session.
         Region builtFromRegion;
         int lastSeenFrame;
-        List<Rasterizer.SpotExtrema> spots = java.util.Collections.emptyList();
 
         void close() {
             if (texture != null) {
@@ -220,10 +219,6 @@ public final class MapEngineOverlay {
 
         g.pose().popPose();
 
-        if (TerrainMips.filter() == TerrainMips.Filter.RELIEF) {
-            drawVectorExtrema(g, x, y, width, height, minBlockX, minBlockZ, spanX, spanZ, firstRx, lastRx, firstRz, lastRz);
-        }
-
         evictOffscreen(firstRx, lastRx, firstRz, lastRz);
         return any;
     }
@@ -291,11 +286,6 @@ public final class MapEngineOverlay {
             rt.builtLevel = level;
             rt.builtPaint = paint;
             rt.builtFromRegion = region;
-            if (region.hasLevel(0)) {
-                rt.spots = Rasterizer.extractSpotExtrema(region.level(0));
-            } else {
-                rt.spots = Rasterizer.extractSpotExtrema(columns);
-            }
         } catch (Throwable t) {
             // A texture half-written when something throws partway through is worse than one left
             // exactly as it was: it shows whatever the GPU happened to have in that memory, and
@@ -306,71 +296,6 @@ public final class MapEngineOverlay {
                     + "discarding and will retry", rx, rz, level, t);
             rt.close();
             rt.builtLevel = -1;
-        }
-    }
-
-    private void drawVectorExtrema(GuiGraphics g, int x, int y, int width, int height,
-                                   int minBlockX, int minBlockZ, int spanX, int spanZ,
-                                   int firstRx, int lastRx, int firstRz, int lastRz) {
-        // Dynamic vector icon scale based on user zoom level
-        int size;
-        if (spanX <= 400) {
-            size = 6; // 13x13 crisp vector icon when zoomed in close
-        } else if (spanX <= 1000) {
-            size = 5; // 11x11 crisp vector icon
-        } else if (spanX <= 2500) {
-            size = 4; // 9x9 crisp vector icon
-        } else {
-            size = 3; // 7x7 compact vector icon when zoomed out
-        }
-
-        int minScreenX = x + 2;
-        int maxScreenX = x + width - 2;
-        int minScreenY = y + 2;
-        int maxScreenY = y + height - 2;
-
-        for (int rx = firstRx; rx <= lastRx; rx++) {
-            for (int rz = firstRz; rz <= lastRz; rz++) {
-                long key = RegionKey.of(rx, rz);
-                RegionTexture rt = textures.get(key);
-                if (rt == null || rt.spots.isEmpty()) {
-                    continue;
-                }
-                for (Rasterizer.SpotExtrema spot : rt.spots) {
-                    int wx = rx * Region.BLOCKS + spot.x;
-                    int wz = rz * Region.BLOCKS + spot.z;
-
-                    int sx = x + Math.round((float) (wx - minBlockX) / spanX * width);
-                    int sy = y + Math.round((float) (wz - minBlockZ) / spanZ * height);
-
-                    if (sx >= minScreenX && sx <= maxScreenX && sy >= minScreenY && sy <= maxScreenY) {
-                        int color = spot.isPeak ? 0xFFC8824A : 0xFF7A8B99;
-                        drawVectorHollowTriangle(g, sx, sy, size, spot.isPeak, color);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void drawVectorHollowTriangle(GuiGraphics g, int cx, int cy, int size, boolean peak, int color) {
-        if (peak) {
-            // Hollow peak triangle △: Apex at top (cy - size), base at bottom (cy + size)
-            for (int dy = -size; dy < size; dy++) {
-                float t = (float) (dy + size) / (2 * size);
-                int span = Math.round(t * size);
-                g.fill(cx - span, cy + dy, cx - span + 1, cy + dy + 1, color);
-                g.fill(cx + span, cy + dy, cx + span + 1, cy + dy + 1, color);
-            }
-            g.fill(cx - size, cy + size, cx + size + 1, cy + size + 1, color);
-        } else {
-            // Hollow depression triangle ▽: Base at top (cy - size), apex at bottom (cy + size)
-            g.fill(cx - size, cy - size, cx + size + 1, cy - size + 1, color);
-            for (int dy = -size + 1; dy <= size; dy++) {
-                float t = (float) (size - dy) / (2 * size);
-                int span = Math.round(t * size);
-                g.fill(cx - span, cy + dy, cx - span + 1, cy + dy + 1, color);
-                g.fill(cx + span, cy + dy, cx + span + 1, cy + dy + 1, color);
-            }
         }
     }
 

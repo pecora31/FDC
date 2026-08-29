@@ -26,6 +26,24 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Pure Standard Military Cartography: Depression Hachures & Concentric Loop Summits (Gemini)
+
+Đã làm:
+- **Chuẩn hóa bản đồ địa hình theo 100% nguyên lý Trắc địa Quân sự quốc tế**:
+  + Gỡ bỏ hoàn toàn mọi biểu tượng icon tam giác đỉnh/vực khỏi bản đồ để giữ cho canvas sạch sẽ, thanh lịch và chuẩn tác chiến cao nhất.
+  + **Quy chuẩn nhận diện Đỉnh núi vs Hố sâu**:
+    * 🏔️ **Đỉnh núi / Vùng đất cao**: Thể hiện bằng các đường bình độ khép kín đồng tâm trơn nhẵn. Vòng nhỏ nhất ở tâm chính là đỉnh cao nhất.
+    * 🕳️ **Hố sâu / Chỗ trũng / Lòng chảo**: Thể hiện bằng các đường bình độ khép kín có thêm **Vạch chỉ hướng dốc (Vạch rãnh cụt / Răng lược / Depression Hachures)** chĩa vuông góc vào phía trong lòng hố theo hướng thấp dần.
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — refine authentic depression hachures, remove extrema spot classes)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/mapengine/MapEngineOverlay.java` (sửa — clean up vector extrema drawing)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Screen-Space Vector Java Extrema Markers with Dynamic Zoom Scaling (Gemini)
 
 Đã làm:
