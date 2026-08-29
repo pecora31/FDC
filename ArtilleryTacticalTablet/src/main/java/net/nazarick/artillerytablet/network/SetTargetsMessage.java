@@ -31,6 +31,11 @@ public class SetTargetsMessage {
             buf.writeInt(entry.x);
             buf.writeInt(entry.y);
             buf.writeInt(entry.z);
+            buf.writeEnum(entry.affiliation);
+            buf.writeUtf(entry.unitType);
+            buf.writeUtf(entry.echelon);
+            buf.writeUtf(entry.designation);
+            buf.writeUtf(entry.higherFormation);
         }
     }
 
@@ -39,7 +44,15 @@ public class SetTargetsMessage {
         int count = buf.readVarInt();
         List<TargetEntry> targets = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            targets.add(new TargetEntry(buf.readInt(), buf.readInt(), buf.readInt()));
+            int x = buf.readInt();
+            int y = buf.readInt();
+            int z = buf.readInt();
+            TargetEntry.Affiliation affiliation = buf.readEnum(TargetEntry.Affiliation.class);
+            String unitType = buf.readUtf();
+            String echelon = buf.readUtf();
+            String designation = buf.readUtf();
+            String higherFormation = buf.readUtf();
+            targets.add(new TargetEntry(x, y, z, affiliation, unitType, echelon, designation, higherFormation));
         }
         return new SetTargetsMessage(mainHand, targets);
     }

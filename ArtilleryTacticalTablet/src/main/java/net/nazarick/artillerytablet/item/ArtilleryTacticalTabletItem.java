@@ -116,7 +116,18 @@ public class ArtilleryTacticalTabletItem extends Item implements ItemScreenProvi
         ListTag list = stack.getOrCreateTag().getList(TAG_TARGETS, Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag tag = list.getCompound(i);
-            result.add(new TargetEntry(tag.getInt("X"), tag.getInt("Y"), tag.getInt("Z")));
+            // Classification fields fall back to the same placeholder default a freshly-spotted
+            // target gets — a tag saved before these fields existed reads exactly like one saved
+            // today with nothing chosen yet, not like corrupt data.
+            TargetEntry.Affiliation affiliation = tag.contains("Affiliation")
+                    ? TargetEntry.Affiliation.valueOf(tag.getString("Affiliation"))
+                    : TargetEntry.Affiliation.HOSTILE;
+            String unitType = tag.contains("UnitType") ? tag.getString("UnitType") : TargetEntry.defaultUnitType();
+            String echelon = tag.contains("Echelon") ? tag.getString("Echelon") : TargetEntry.defaultEchelon();
+            String designation = tag.getString("Designation");
+            String higherFormation = tag.getString("HigherFormation");
+            result.add(new TargetEntry(tag.getInt("X"), tag.getInt("Y"), tag.getInt("Z"),
+                    affiliation, unitType, echelon, designation, higherFormation));
         }
         return result;
     }
@@ -130,6 +141,11 @@ public class ArtilleryTacticalTabletItem extends Item implements ItemScreenProvi
             tag.putInt("X", entry.x);
             tag.putInt("Y", entry.y);
             tag.putInt("Z", entry.z);
+            tag.putString("Affiliation", entry.affiliation.name());
+            tag.putString("UnitType", entry.unitType);
+            tag.putString("Echelon", entry.echelon);
+            tag.putString("Designation", entry.designation);
+            tag.putString("HigherFormation", entry.higherFormation);
             list.add(tag);
         }
         stack.getOrCreateTag().put(TAG_TARGETS, list);
