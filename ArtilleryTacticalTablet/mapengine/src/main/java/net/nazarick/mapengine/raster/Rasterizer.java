@@ -582,15 +582,36 @@ public final class Rasterizer {
      * depth a real topographic sheet gets from its own line work rather than from shading the ground.
      */
     public static int[] rasterizeHypsometric(ColumnBuffer columns) {
+        return rasterizeHypsometric(columns, 0);
+    }
+
+    public static int[] rasterizeHypsometric(ColumnBuffer columns, int level) {
         int width = columns.width;
         float[] smoothed = smoothGroundHeights(columns, TOPO_SMOOTH_RADIUS);
         int[] pixels = new int[columns.columns()];
+        float interval = intervalForLevel(level);
+
         for (int z = 0; z < width; z++) {
             for (int x = 0; x < width; x++) {
-                pixels[columns.index(x, z)] = hypsoCell(columns, smoothed, x, z, width);
+                pixels[columns.index(x, z)] = hypsoCell(columns, smoothed, x, z, width, interval);
             }
         }
+
+        // Render Spot Elevations (Peak ▲ 184m and Depression ▼ 32m) on close and medium zoom
+        if (level <= 1) {
+            stampSpotExtrema(columns, smoothed, pixels, width, level);
+        }
+
         return pixels;
+    }
+
+    public static float intervalForLevel(int level) {
+        return switch (level) {
+            case 0 -> 4.0f;
+            case 1 -> 6.0f;
+            case 2 -> 12.0f;
+            default -> 20.0f;
+        };
     }
 
     /** {@link #smoothHeights}, but averaging {@link ColumnBuffer#groundHeight} — Topo's own field. */
@@ -603,21 +624,14 @@ public final class Rasterizer {
         return smoothFloatField(source, columns.width, radius);
     }
 
-    /**
-     * No hillshade, no elevation ramp, no shadow — the flattest reading of the reference image the
-     * user actually asked for: solid black ground (land and water drawn identically, on purpose — a
-     * shape a line does not cross is a shape, whether it happens to be a lake or a hillside), white
-     * contour lines, nothing else competing with them. The soft one-sided shadow this layer briefly
-     * carried made sense against a lit elevation ramp, blending toward a dark ink; against flat black
-     * with white ink it would only fight the line for attention, so it goes with the ramp it was
-     * built for rather than being adapted to a look it was never meant for.
-     */
     private static final int TOPO_VECTOR_BG = 0xFF1C2024;       // Pure flat dark matte canvas
     private static final int TOPO_VECTOR_WATER = 0xFF0E141B;    // Deep dark navy water
     private static final int TOPO_VECTOR_COAST = 0xFFD8E0E8;    // Clean crisp coastline
     private static final int TOPO_VECTOR_LINE = 0xFFD0D8E0;     // Unified crisp vector contour line
+    private static final int TOPO_VECTOR_DEPR = 0xFF8A9EA8;     // Subtle depression hachure tone
+    private static final int TOPO_VECTOR_ABYSS = 0xFF080A0D;    // Deep cave / ravine dark abyss
 
-    private static int hypsoCell(ColumnBuffer columns, float[] smoothed, int x, int z, int width) {
+    private static int hypsoCell(ColumnBuffer columns, float[] smoothed, int x, int z, int width, float interval) {
         int idx = columns.index(x, z);
         if (columns.height[idx] == ColumnBuffer.NO_DATA) {
             return 0;
@@ -636,14 +650,210 @@ public final class Rasterizer {
             return isWaterStipple(x, z) ? 0xFF16202A : TOPO_VECTOR_WATER;
         }
 
-        int band = topoBand(height);
+        // Check for deep underground cave drop / steep abyss
+        if (columns.groundHeight != null && columns.groundHeight[idx] < 50 && columns.height[idx] > 64) {
+            return TOPO_VECTOR_ABYSS;
+        }
+
+        int band = topoBand(height, interval);
         int strength = Math.max(coast, Math.max(
-                topoLineStrength(smoothed, x, z - 1, width, band),
-                topoLineStrength(smoothed, x - 1, z, width, band)));
+                topoLineStrength(smoothed, x, z - 1, width, band, interval),
+                topoLineStrength(smoothed, x - 1, z, width, band, interval)));
+
         if (strength == 0) {
+            // Depression hachures: inward tick marks pointing downhill into a sinkhole/pit
+            if (isDepressionHachure(smoothed, x, z, width, height, interval)) {
+                return TOPO_VECTOR_DEPR;
+            }
             return TOPO_VECTOR_BG;
         }
         return TOPO_VECTOR_LINE;
+    }
+
+    private static int topoBand(float height, float interval) {
+        return (int) Math.floor((height - TOPO_SEA_LEVEL) / interval);
+    }
+
+    private static int topoLineStrength(float[] smoothed, int nx, int nz, int width, int band, float interval) {
+        if (nx < 0 || nz < 0 || nx >= width || nz >= width) {
+            return 0;
+        }
+        float neighbourHeight = smoothed[nz * width + nx];
+        if (neighbourHeight == ColumnBuffer.NO_DATA) {
+            return 0;
+        }
+        int neighbourBand = topoBand(neighbourHeight, interval);
+        return (neighbourBand != band) ? 1 : 0;
+    }
+
+    private static boolean isDepressionHachure(float[] smoothed, int x, int z, int width, float centerH, float interval) {
+        if ((x + z) % 4 != 0) {
+            return false;
+        }
+        float hE = smoothedOrSelf(smoothed, x + 1, z, width, centerH);
+        float hW = smoothedOrSelf(smoothed, x - 1, z, width, centerH);
+        float hN = smoothedOrSelf(smoothed, x, z - 1, width, centerH);
+        float hS = smoothedOrSelf(smoothed, x, z + 1, width, centerH);
+        float laplacian = (hE + hW + hN + hS) / 4.0f - centerH;
+        if (laplacian > 0.28f) {
+            int currentBand = topoBand(centerH, interval);
+            return topoBand(hE, interval) != currentBand
+                    || topoBand(hW, interval) != currentBand
+                    || topoBand(hN, interval) != currentBand
+                    || topoBand(hS, interval) != currentBand;
+        }
+        return false;
+    }
+
+    private static void stampSpotExtrema(ColumnBuffer columns, float[] smoothed, int[] pixels, int width, int level) {
+        int radius = (level == 0) ? 16 : 10;
+        int step = radius;
+        for (int z = radius; z < width - radius; z += step) {
+            for (int x = radius; x < width - radius; x += step) {
+                int peakX = -1, peakZ = -1;
+                float maxH = -1000f;
+                int deprX = -1, deprZ = -1;
+                float minH = 1000f;
+
+                for (int dz = -radius / 2; dz <= radius / 2; dz++) {
+                    for (int dx = -radius / 2; dx <= radius / 2; dx++) {
+                        int cx = x + dx;
+                        int cz = z + dz;
+                        int cIdx = cz * width + cx;
+                        if (columns.height[cIdx] == ColumnBuffer.NO_DATA || columns.depthAt(cIdx) > 0) {
+                            continue;
+                        }
+                        float h = smoothed[cIdx];
+                        if (h > maxH) {
+                            maxH = h;
+                            peakX = cx;
+                            peakZ = cz;
+                        }
+                        if (h < minH) {
+                            minH = h;
+                            deprX = cx;
+                            deprZ = cz;
+                        }
+                    }
+                }
+
+                if (peakX != -1 && maxH >= 68f && isDominantPeak(smoothed, peakX, peakZ, width, maxH, radius)) {
+                    drawPeakSymbol(pixels, width, peakX, peakZ, Math.round(maxH));
+                }
+                if (deprX != -1 && isDominantDepression(smoothed, deprX, deprZ, width, minH, radius)) {
+                    drawDepressionSymbol(pixels, width, deprX, deprZ, Math.round(minH));
+                }
+            }
+        }
+    }
+
+    private static boolean isDominantPeak(float[] smoothed, int px, int pz, int width, float maxH, int radius) {
+        float avgSurrounding = 0f;
+        int count = 0;
+        for (int dz = -radius; dz <= radius; dz += 2) {
+            for (int dx = -radius; dx <= radius; dx += 2) {
+                if (dx == 0 && dz == 0) continue;
+                int cx = px + dx;
+                int cz = pz + dz;
+                if (cx >= 0 && cx < width && cz >= 0 && cz < width) {
+                    float h = smoothed[cz * width + cx];
+                    if (h != ColumnBuffer.NO_DATA) {
+                        if (h > maxH) return false;
+                        avgSurrounding += h;
+                        count++;
+                    }
+                }
+            }
+        }
+        return count > 0 && (maxH - (avgSurrounding / count)) >= 3.5f;
+    }
+
+    private static boolean isDominantDepression(float[] smoothed, int dx, int dz, int width, float minH, int radius) {
+        float avgSurrounding = 0f;
+        int count = 0;
+        for (int ddz = -radius; ddz <= radius; ddz += 2) {
+            for (int ddx = -radius; ddx <= radius; ddx += 2) {
+                if (ddx == 0 && ddz == 0) continue;
+                int cx = dx + ddx;
+                int cz = dz + ddz;
+                if (cx >= 0 && cx < width && cz >= 0 && cz < width) {
+                    float h = smoothed[cz * width + cx];
+                    if (h != ColumnBuffer.NO_DATA) {
+                        if (h < minH) return false;
+                        avgSurrounding += h;
+                        count++;
+                    }
+                }
+            }
+        }
+        return count > 0 && ((avgSurrounding / count) - minH) >= 3.5f;
+    }
+
+    private static void drawPeakSymbol(int[] pixels, int width, int cx, int cz, int heightVal) {
+        stampTriangle(pixels, width, cx, cz, true, TOPO_VECTOR_LINE);
+        stampNumber(pixels, width, cx + 4, cz - 2, heightVal, TOPO_VECTOR_LINE);
+    }
+
+    private static void drawDepressionSymbol(int[] pixels, int width, int cx, int cz, int heightVal) {
+        stampTriangle(pixels, width, cx, cz, false, TOPO_VECTOR_DEPR);
+        stampNumber(pixels, width, cx + 4, cz - 2, heightVal, TOPO_VECTOR_DEPR);
+    }
+
+    private static void stampTriangle(int[] pixels, int width, int cx, int cz, boolean peak, int color) {
+        for (int dy = -2; dy <= 2; dy++) {
+            int py = cz + dy;
+            if (py < 0 || py >= width) continue;
+            int span = peak ? (2 + dy) : (2 - dy);
+            if (span < 0) span = 0;
+            if (span > 2) span = 2;
+            for (int dx = -span; dx <= span; dx++) {
+                int px = cx + dx;
+                if (px >= 0 && px < width) {
+                    pixels[py * width + px] = color;
+                }
+            }
+        }
+    }
+
+    private static final int[] FONT_3X5 = {
+            0x7B6F, // 0
+            0x2C97, // 1
+            0x73E7, // 2
+            0x73CF, // 3
+            0x5DF9, // 4
+            0x7CEF, // 5
+            0x7CF7, // 6
+            0x7292, // 7
+            0x7DEF, // 8
+            0x7DCF  // 9
+    };
+
+    private static void stampNumber(int[] pixels, int width, int startX, int startY, int val, int color) {
+        String s = String.valueOf(val);
+        int curX = startX;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c >= '0' && c <= '9') {
+                stampDigit(pixels, width, curX, startY, c - '0', color);
+                curX += 4;
+            }
+        }
+    }
+
+    private static void stampDigit(int[] pixels, int width, int x0, int y0, int digit, int color) {
+        int pattern = FONT_3X5[digit];
+        for (int row = 0; row < 5; row++) {
+            int py = y0 + row;
+            if (py < 0 || py >= width) continue;
+            for (int col = 0; col < 3; col++) {
+                int px = x0 + col;
+                if (px < 0 || px >= width) continue;
+                int bitIndex = 14 - (row * 3 + col);
+                if (((pattern >> bitIndex) & 1) != 0) {
+                    pixels[py * width + px] = color;
+                }
+            }
+        }
     }
 
     /**
