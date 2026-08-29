@@ -76,7 +76,7 @@ public class UiButton {
         return this;
     }
 
-    public enum Mark { PLUS, MINUS, CENTRE, GRID, BRIGHT, NIGHT, POWER }
+    public enum Mark { PLUS, MINUS, CENTRE, GRID, BRIGHT, POWER }
 
     public UiButton mark(Mark kind) {
         this.mark = kind;
@@ -101,13 +101,82 @@ public class UiButton {
         return px >= x && px < x + w && py >= y && py < y + h;
     }
 
-    /** Dead — always refuses. No sound, no action dispatch. */
     public boolean press(double px, double py) {
-        return false;
+        if (!contains(px, py)) {
+            return false;
+        }
+        if (hard) {
+            click();
+        }
+        if (!active) {
+            return false;
+        }
+        if (!hard) {
+            click();
+        }
+        if (action != null) {
+            action.run();
+        }
+        return true;
     }
 
-    /** Dead — no sound. */
     public void release() {
+        if (!hard) {
+            return;
+        }
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc != null && mc.getSoundManager() != null) {
+            mc.getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                    net.nazarick.artillerytablet.init.ModSounds.TACTICAL_KEY_RELEASE.get(), 0.62f, 2.20f));
+        }
+    }
+
+    private void click() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc != null && mc.getSoundManager() != null) {
+            mc.getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                    net.nazarick.artillerytablet.init.ModSounds.TACTICAL_KEY_PRESS.get(), hard ? 0.62f : 1.15f, hard ? 2.20f : 0.30f));
+        }
+    }
+
+    private void drawMark(Paint p, int cx, int cy, int w, int color) {
+        switch (mark) {
+            case PLUS -> {
+                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
+                p.fill(cx, cy - 5, cx + 1, cy + 6, color);
+            }
+            case MINUS -> {
+                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
+            }
+            case CENTRE -> {
+                p.fill(cx - 4, cy, cx + 5, cy + 1, color);
+                p.fill(cx, cy - 4, cx + 1, cy + 5, color);
+                p.outline(cx - 3, cy - 3, 7, 7, color);
+            }
+            case GRID -> {
+                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
+                p.fill(cx, cy - 5, cx + 1, cy + 6, color);
+                p.fill(cx - 1, cy - 1, cx + 2, cy + 2, color);
+            }
+            case BRIGHT -> {
+                // Tactical Sun icon
+                p.fill(cx - 2, cy - 2, cx + 3, cy + 3, color); // Center sun disc
+                p.fill(cx, cy - 6, cx + 1, cy - 3, color);      // Top ray
+                p.fill(cx, cy + 4, cx + 1, cy + 7, color);      // Bottom ray
+                p.fill(cx - 6, cy, cx - 3, cy + 1, color);      // Left ray
+                p.fill(cx + 4, cy, cx + 7, cy + 1, color);      // Right ray
+                p.fill(cx - 4, cy - 4, cx - 3, cy - 3, color);  // Diagonal rays
+                p.fill(cx + 4, cy - 4, cx + 5, cy - 3, color);
+                p.fill(cx - 4, cy + 4, cx - 3, cy + 5, color);
+                p.fill(cx + 4, cy + 4, cx + 5, cy + 5, color);
+            }
+            case POWER -> {
+                // IEC Standby Power icon
+                p.fill(cx, cy - 7, cx + 1, cy - 1, color);
+                p.outline(cx - 5, cy - 5, 11, 11, color);
+                p.fill(cx - 2, cy - 6, cx + 3, cy - 4, 0xFF000000); // Top gap
+            }
+        }
     }
 
     public UiButton hard(boolean on) {

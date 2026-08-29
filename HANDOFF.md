@@ -63,6 +63,28 @@ Bên kia cần làm gì:
 
 Trạng thái: Cần bên kia tích hợp.
 
+## 2026-08-29 — Symmetrical Optical LED Sockets, FLT Key & Brightness Sun Icon (Gemini)
+
+Đã làm:
+- **Đồng bộ hóa đối xứng 100% khe đèn LED trên chassis (`TabletChassisPaint.java`)**:
+  + Loại bỏ vệt sáng lệch góc đáy (nguyên nhân gây hiệu ứng móc câu chữ $J$ và nét dày/mỏng khi scale độ phân giải).
+  + Chuẩn hóa hốc đèn LED thành khe tối chìm đối xứng phẳng (`0xFF08090C`) kèm thấu kính Polycarbonate mờ đồng nhất (`0xFF1C2028`), đón sáng môi trường nhẹ nhàng cân xứng 4 phía.
+- **Cập nhật nhãn phím & biểu tượng theo yêu cầu của user**:
+  + Nút góc dưới bên trái: Chuyển sang nhãn chữ in **`FLT`** (Filter).
+  + Nút góc trên bên phải: Vẽ lại biểu tượng **Mặt trời độ sáng (Tactical Sun Icon)** với tâm đĩa tròn và 8 tia quang học tỏa đều.
+  + Cập nhật đồng bộ trong `TabletChassisPaint.java`, `TabletScreen.java` và `UiButton.java`.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — symmetrical LED sockets, FLT label, Sun icon)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — use literal FLT for bottom-left filter key)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — vector mark drawing & sound interaction restore)
+- `build.gradle` (sửa — register caseLive task)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — UiButton stub: animation nút bấm và đèn LED đã bị xóa, chờ Gemini dựng lại (Claude)
 
 Đã làm:
