@@ -562,11 +562,10 @@ public class TabletScreen extends Screen {
                 .mark(UiButton.Mark.BRIGHT);
 
         // ---- bottom edge: the filter, spares, and the way out ----------------------------------
-        bottom(0, kw, kh, Component.translatable("gui.artillerytablet.frame.filter"),
+        bottom(0, kw, kh, Component.literal("FLT"),
                 TabletDisplay::cycleFilter, TabletDisplay.filtered(),
                 Component.translatable("gui.artillerytablet.frame.filter.tip",
-                        Component.translatable(TabletDisplay.filterName())))
-                .mark(UiButton.Mark.NIGHT);
+                        Component.translatable(TabletDisplay.filterName())));
         for (int i = 1; i <= 8; i++) {
             spare(TabletFrame.EDGE_BOTTOM, i, kw, kh, 12 + i);
         }

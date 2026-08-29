@@ -1239,45 +1239,41 @@ public final class TabletChassisPaint {
                 setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Optical Light-Pipe Capsule (Khớp 100% que dẫn sáng thấu kính cong trong
-            // ảnh mẫu)
-            // 1. Recessed dark slot
+            // Unlit Optical LED Socket & Smoked Acrylic Lens (Đồng bộ đối xứng 100%, không bị lệch nét khi scale)
+            // 1. Recessed dark slot border
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF0C0E12);
+                    setPixel(img, lx + x, ly + y, 0xFF08090C);
                 }
             }
 
-            // 2. Smoked polycarbonate translucent body
+            // 2. Uniform smoked polycarbonate lens body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF222630);
+                    setPixel(img, lx + x, ly + y, 0xFF1C2028);
                 }
             }
 
-            // 3. Curved specular highlight reflection (Vệt phản quang trắng bạc uốn cong
-            // đặc trưng trên que dẫn sáng)
+            // 3. Symmetric ambient bevel lighting (Đón sáng nhẹ đồng đều ở viền trên/trái, đổ bóng dưới/phải)
             if (isVert) {
-                // Vertical light pipe (Top/Bottom buttons)
-                for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, lx + w - 1, ly + y, 0xFF7A889E);
+                // Vertical LED (Top / Bottom rows)
+                for (int y = 0; y < h; y++) {
+                    setPixel(img, lx, ly + y, 0xFF2A303C); // Left highlight
+                    setPixel(img, lx + w - 1, ly + y, 0xFF12141A); // Right shadow
                 }
-                // Bright reflection tick on the curved bottom edge
-                setPixel(img, lx + w - 1, ly + h - 2, 0xFFD8E2F0);
-                setPixel(img, lx + w - 2, ly + h - 1, 0xFFB4C2D6);
-                // Top refraction shadow
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF14171E);
+                    setPixel(img, lx + x, ly, 0xFF343C4A); // Top highlight
+                    setPixel(img, lx + x, ly + h - 1, 0xFF101216); // Bottom shadow
                 }
             } else {
-                // Horizontal light pipe (Flank buttons)
-                for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, ly + h - 1, 0xFF7A889E);
+                // Horizontal LED (Left / Right flanks)
+                for (int x = 0; x < w; x++) {
+                    setPixel(img, lx + x, ly, 0xFF343C4A); // Top highlight
+                    setPixel(img, lx + x, ly + h - 1, 0xFF101216); // Bottom shadow
                 }
-                setPixel(img, lx + w - 2, ly + h - 1, 0xFFD8E2F0);
-                setPixel(img, lx + w - 1, ly + h - 2, 0xFFB4C2D6);
                 for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF14171E);
+                    setPixel(img, lx, ly + y, 0xFF2A303C); // Left highlight
+                    setPixel(img, lx + w - 1, ly + y, 0xFF12141A); // Right shadow
                 }
             }
         }
@@ -1378,7 +1374,7 @@ public final class TabletChassisPaint {
 
         // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at
         // LED_ROW_BOTTOM_Y = 546)
-        String[] botLabels = { "NIGHT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER" };
+        String[] botLabels = { "FLT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
@@ -1459,17 +1455,19 @@ public final class TabletChassisPaint {
                     setPixel(img, cx, y, textCol);
                 fillCircle(img, cx, cy, 1, textCol);
             }
-            case "BRIGHT" -> { // 8-pointed star
+            case "BRIGHT" -> { // Simple clean tactical sun symbol for brightness
+                // Center sun disc (solid filled circle, radius 2)
                 fillCircle(img, cx, cy, 2, textCol);
-                for (int x = cx - 6; x <= cx + 6; x++)
-                    setPixel(img, x, cy, textCol);
-                for (int y = cy - 6; y <= cy + 6; y++)
-                    setPixel(img, cx, y, textCol);
-                int d = 4;
-                setPixel(img, cx - d, cy - d, textCol);
-                setPixel(img, cx + d, cy - d, textCol);
-                setPixel(img, cx - d, cy + d, textCol);
-                setPixel(img, cx + d, cy + d, textCol);
+                // 4 Cardinal sun rays (2px length, 2px gap from center)
+                for (int y = cy - 6; y <= cy - 4; y++) setPixel(img, cx, y, textCol); // Top ray
+                for (int y = cy + 4; y <= cy + 6; y++) setPixel(img, cx, y, textCol); // Bottom ray
+                for (int x = cx - 6; x <= cx - 4; x++) setPixel(img, x, cy, textCol); // Left ray
+                for (int x = cx + 4; x <= cx + 6; x++) setPixel(img, x, cy, textCol); // Right ray
+                // 4 Diagonal sun rays (single pixel dots at 45 degrees)
+                setPixel(img, cx - 4, cy - 4, textCol);
+                setPixel(img, cx + 4, cy - 4, textCol);
+                setPixel(img, cx - 4, cy + 4, textCol);
+                setPixel(img, cx + 4, cy + 4, textCol);
             }
             case "NIGHT" -> { // diamond
                 int s = 5;
