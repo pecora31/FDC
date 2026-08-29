@@ -12,6 +12,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.nazarick.artillerytablet.ArtilleryTablet;
+import net.nazarick.artillerytablet.client.terrain.BlockPalette;
 import net.nazarick.artillerytablet.client.terrain.TerrainMips;
 import net.nazarick.artillerytablet.client.terrain.WorldGeneration;
 import net.nazarick.mapengine.core.ColumnBuffer;
@@ -133,6 +134,11 @@ public final class MapEngineOverlay {
         Minecraft mc = Minecraft.getInstance();
         if (mc == null || mc.level == null) {
             return;
+        }
+        // Prewarm all block models and texture averages on the render thread
+        int blockCount = net.minecraft.core.registries.BuiltInRegistries.BLOCK.size();
+        for (int i = 0; i < blockCount; i++) {
+            BlockPalette.prewarm(i);
         }
         net.minecraft.core.Registry<net.minecraft.world.level.biome.Biome> biomes =
                 mc.level.registryAccess().registry(net.minecraft.core.registries.Registries.BIOME).orElse(null);

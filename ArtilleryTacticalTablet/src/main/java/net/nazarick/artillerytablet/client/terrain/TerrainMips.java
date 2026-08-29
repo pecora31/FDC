@@ -337,14 +337,14 @@ public final class TerrainMips {
         // (ground vs. stone vs. trees), just not distinct *within* a material. That leaves the
         // hillshade term (applied afterwards, in Rasterizer) as the only thing varying brightness
         // cell-to-cell within one material, reading as terrain relief instead of getting lost among
-        // block-to-block colour noise. Every other filter keeps the fine per-texture colour.
-        boolean simple = filter == Filter.NONE;
-        int packed = simple ? BlockPalette.simpleColourOf(blockId) : BlockPalette.colourOf(blockId);
+        // Fine per-texture averaged colour: every material (granite, diorite, andesite, cobblestone,
+        // wood types, dirt types, sandstones) carries its true, faithful in-game appearance.
+        int packed = BlockPalette.colourOf(blockId);
         int b = (packed >> 16) & 0xFF;
         int g = (packed >> 8) & 0xFF;
         int r = packed & 0xFF;
 
-        byte kind = simple ? BlockPalette.simpleTintOf(blockId) : BlockPalette.tintOf(blockId);
+        byte kind = BlockPalette.tintOf(blockId);
         if (kind != BlockPalette.TINT_NONE && known(biomeId)) {
             int tint = tintColour(kind, biomeId);
             if (kind == BlockPalette.TINT_FOLIAGE) {
@@ -365,7 +365,7 @@ public final class TerrainMips {
                 b = Math.round(b * 0.82f);
                 g = Math.round(g * 0.82f);
                 r = Math.round(r * 0.82f);
-            } else if (simple || BlockPalette.isPreTinted(blockId)) {
+            } else if (BlockPalette.isPreTinted(blockId)) {
                 // The palette's grass is already the green of plains, so this scales it from that
                 // reference to the biome's rather than multiplying, which would darken it twice.
                 b = scale(b, (tint >> 16) & 0xFF, reference(kind, 16));

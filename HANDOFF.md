@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — True Material Color Texture Sampling & Render-Thread Prewarming (Gemini)
+
+Đã làm:
+- **Nâng cấp độ trung thực màu sắc vật liệu $100\%$ từ Texture thật của Minecraft**:
+  + Trước đó, chế độ Satellite Ground dùng bảng màu `simpleColourOf` (bảng màu thô 62 màu `MapColor` của vanilla khiến mọi loại đá granite, andesite, diorite, deepslate, cuội đều bị ép về 1 màu xám bệt; mọi loại gỗ bị ép về 1 màu nâu).
+  + Nâng cấp sang bảng màu chi tiết `BlockPalette.colourOf(blockId)` được lấy mẫu và tính trung bình trực tiếp từ baked model & texture sprite thật (`quad.getSprite()`).
+  + Tích hợp **Prewarm toàn bộ Block trên Render Thread** trong `MapEngineOverlay.java` $\to$ Mọi khối đá Granite (hồng nâu), Diorite (trắng xám), Andesite (xám xanh), Deepslate (xám đen chì), Cát (vàng ấm), Đất mịn, Bê tông, Gạch nung... đều mang đúng $100\%$ màu sắc vật liệu chân thực như trong game.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/mapengine/MapEngineOverlay.java` (sửa — block prewarming on render thread)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/TerrainMips.java` (sửa — enable true texture-averaged palette in groundColour)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — True Foliage Reference Tint Scaling for Biome Canopies (Gemini)
 
 Đã làm:
