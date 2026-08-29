@@ -596,12 +596,6 @@ public final class Rasterizer {
                 pixels[columns.index(x, z)] = hypsoCell(columns, smoothed, x, z, width, interval);
             }
         }
-
-        // Render Spot Elevations (Peak ▲ 184m and Depression ▼ 32m) on close and medium zoom
-        if (level <= 1) {
-            stampSpotExtrema(columns, smoothed, pixels, width, level);
-        }
-
         return pixels;
     }
 
@@ -711,8 +705,26 @@ public final class Rasterizer {
     private static final int TOPO_VECTOR_PEAK = 0xFFC8824A;    // Topographic Earth Sienna for summits / peaks
     private static final int TOPO_VECTOR_DEPR = 0xFF7A8B99;    // Deep Cold Slate Graphite for basins / depressions
 
-    private static void stampSpotExtrema(ColumnBuffer columns, float[] smoothed, int[] pixels, int width, int level) {
-        int radius = (level == 0) ? 24 : 16;
+    public static final class SpotExtrema {
+        public final short x;
+        public final short z;
+        public final boolean isPeak;
+
+        public SpotExtrema(int x, int z, boolean isPeak) {
+            this.x = (short) x;
+            this.z = (short) z;
+            this.isPeak = isPeak;
+        }
+    }
+
+    public static java.util.List<SpotExtrema> extractSpotExtrema(ColumnBuffer columns) {
+        if (columns == null || columns.groundHeight == null) {
+            return java.util.Collections.emptyList();
+        }
+        int width = columns.width;
+        float[] smoothed = smoothGroundHeights(columns, TOPO_SMOOTH_RADIUS);
+        java.util.List<SpotExtrema> list = new java.util.ArrayList<>();
+        int radius = 28;
         int step = radius;
         for (int z = radius; z < width - radius; z += step) {
             for (int x = radius; x < width - radius; x += step) {
@@ -744,13 +756,14 @@ public final class Rasterizer {
                 }
 
                 if (peakX != -1 && maxH >= 70f && isDominantPeak(smoothed, peakX, peakZ, width, maxH, radius)) {
-                    stampHollowTriangle(pixels, width, peakX, peakZ, true, TOPO_VECTOR_PEAK);
+                    list.add(new SpotExtrema(peakX, peakZ, true));
                 }
                 if (deprX != -1 && isDominantDepression(smoothed, deprX, deprZ, width, minH, radius)) {
-                    stampHollowTriangle(pixels, width, deprX, deprZ, false, TOPO_VECTOR_DEPR);
+                    list.add(new SpotExtrema(deprX, deprZ, false));
                 }
             }
         }
+        return list;
     }
 
     private static boolean isDominantPeak(float[] smoothed, int px, int pz, int width, float maxH, int radius) {
@@ -793,40 +806,6 @@ public final class Rasterizer {
             }
         }
         return count > 0 && ((avgSurrounding / count) - minH) >= 4.5f;
-    }
-
-    private static void stampHollowTriangle(int[] pixels, int width, int cx, int cz, boolean peak, int color) {
-        if (peak) {
-            // Hollow peak triangle △: Apex at top (cz - 2), base at bottom (cz + 2)
-            setPixelBounded(pixels, width, cx, cz - 2, color);
-            setPixelBounded(pixels, width, cx - 1, cz - 1, color);
-            setPixelBounded(pixels, width, cx + 1, cz - 1, color);
-            setPixelBounded(pixels, width, cx - 1, cz, color);
-            setPixelBounded(pixels, width, cx + 1, cz, color);
-            setPixelBounded(pixels, width, cx - 2, cz + 1, color);
-            setPixelBounded(pixels, width, cx + 2, cz + 1, color);
-            for (int dx = -2; dx <= 2; dx++) {
-                setPixelBounded(pixels, width, cx + dx, cz + 2, color);
-            }
-        } else {
-            // Hollow depression triangle ▽: Base at top (cz - 2), apex at bottom (cz + 2)
-            for (int dx = -2; dx <= 2; dx++) {
-                setPixelBounded(pixels, width, cx + dx, cz - 2, color);
-            }
-            setPixelBounded(pixels, width, cx - 2, cz - 1, color);
-            setPixelBounded(pixels, width, cx + 2, cz - 1, color);
-            setPixelBounded(pixels, width, cx - 1, cz, color);
-            setPixelBounded(pixels, width, cx + 1, cz, color);
-            setPixelBounded(pixels, width, cx - 1, cz + 1, color);
-            setPixelBounded(pixels, width, cx + 1, cz + 1, color);
-            setPixelBounded(pixels, width, cx, cz + 2, color);
-        }
-    }
-
-    private static void setPixelBounded(int[] pixels, int width, int x, int z, int color) {
-        if (x >= 0 && x < width && z >= 0 && z < width) {
-            pixels[z * width + x] = color;
-        }
     }
 
     /**

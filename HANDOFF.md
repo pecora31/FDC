@@ -26,6 +26,26 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Screen-Space Vector Java Extrema Markers with Dynamic Zoom Scaling (Gemini)
+
+Đã làm:
+- **Tách hoàn toàn biểu tượng Đỉnh núi & Vực sâu ra khỏi Raster Texture Tile và vẽ trực tiếp bằng Java Vector Screen-Space**:
+  + Thay vì nướng (bake) các điểm pixel thô vào ảnh texture của map (khiến biểu tượng bị vỡ hình / mờ nhòe khi zoom), toàn bộ icon đỉnh núi `△` và hố trũng `▽` nay được vẽ trực tiếp trên lớp **Vector Screen Layer** (`GuiGraphics`) bằng mã Java sắc nét $100\%$ từng pixel.
+  + **Tự động co giãn theo độ phóng đại (Dynamic Zoom Scaling)**:
+    * Khi zoom cận cảnh ($span \le 400\text{m}$): Biểu tượng lớn $13\times 13\text{px}$ rõ nét.
+    * Khi zoom trung bình ($span \le 1000\text{m}$ / $2500\text{m}$): Biểu tượng vừa $11\times 11\text{px}$ / $9\times 9\text{px}$.
+    * Khi zoom xa bao quát ($span > 2500\text{m}$): Biểu tượng gọn gàng $7\times 7\text{px}$.
+  + Màu sắc giữ chuẩn trắc địa quân sự không xung đột NATO: Đỉnh núi màu **Nâu đất sienna trắc địa (`#C8824A`)**, Hố trũng màu **Xám than chì lạnh (`#7A8B99`)**.
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — provide SpotExtrema extractor and pure clean raster contours)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/mapengine/MapEngineOverlay.java` (sửa — render vector extrema directly in screen space with zoom scaling)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Military Cartographic Topo Colors: Prevent NATO Symbology Clashes (Gemini)
 
 Đã làm:
