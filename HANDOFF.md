@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Military Cartographic Topo Colors: Prevent NATO Symbology Clashes (Gemini)
+
+Đã làm:
+- **Chuẩn hóa màu sắc địa hình theo quy chuẩn trắc địa quân sự (NATO STANAG / Swiss Topo)**:
+  + Trong tiêu chuẩn NATO MIL-STD-2525D, màu **Xanh Cyan/Blue (`#3B82F6`)** thuộc về **Quân ta (Friendly)**, màu **Vàng Amber (`#F59E0B`)** thuộc về **Mục tiêu chưa xác định (Unknown)** hoặc **Đài quan sát hỏa lực (Forward Observer `△`)**.
+  + Để tuyệt đối không gây nhầm lẫn thị giác giữa địa hình và các biểu tượng tác chiến quân sự:
+    * 🏔️ **Đỉnh núi / Điểm cao**: Chuyển sang màu **Nâu đất sienna trắc địa (`#C8824A`)** — màu chuẩn quốc tế cho địa mạo đồi núi, nổi bật rõ trên nền đen than chì và tách biệt hoàn toàn với màu trắng của đường bình độ lẫn màu của các đơn vị chiến đấu.
+    * 🕳️ **Đáy hố / Vực sâu**: Chuyển sang màu **Xám than chì lạnh (`#7A8B99`)** — trầm lắng, gợi tả chiều sâu hố sụt dưới lòng đất, không bị nhầm lẫn với lực lượng quân sự hay sông biển.
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — use cartographic earth sienna and cold slate colors)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Hollow Vector Tactical Extrema Markers: Amber Peaks & Cyan Depressions (Gemini)
 
 Đã làm:

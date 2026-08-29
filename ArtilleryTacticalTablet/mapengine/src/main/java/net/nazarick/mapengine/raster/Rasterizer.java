@@ -705,8 +705,11 @@ public final class Rasterizer {
         return false;
     }
 
-    private static final int TOPO_VECTOR_PEAK = 0xFFFFB800;    // Tactical Amber Gold for summits / peaks
-    private static final int TOPO_VECTOR_DEPR = 0xFF00E5FF;    // Tactical Electric Cyan for basins / depressions
+    // Military Cartographic Topo Colors (STANAG / Swiss Topo Standard):
+    // Terrain features use dedicated Earth Sienna and Cold Slate to strictly avoid conflict
+    // with NATO MIL-STD-2525D combat force colors (Blue=Friendly, Red=Hostile, Amber=Unknown, Green=Neutral).
+    private static final int TOPO_VECTOR_PEAK = 0xFFC8824A;    // Topographic Earth Sienna for summits / peaks
+    private static final int TOPO_VECTOR_DEPR = 0xFF7A8B99;    // Deep Cold Slate Graphite for basins / depressions
 
     private static void stampSpotExtrema(ColumnBuffer columns, float[] smoothed, int[] pixels, int width, int level) {
         int radius = (level == 0) ? 24 : 16;
