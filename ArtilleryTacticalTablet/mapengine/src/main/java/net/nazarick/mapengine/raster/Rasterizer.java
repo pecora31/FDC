@@ -35,13 +35,14 @@ public final class Rasterizer {
     // fought and lost once on Topo. Raw per-pixel squash cannot serve both goals with one run distance;
     // see HANDOFF.md for the actual recommendation (macro shape from a separately-sampled wide term,
     // texture from a raw narrow one, not one term doing both).
-    private static final int RELIEF_RUN = 3;
-    private static final float RELIEF_MACRO = 0.34f;
-    private static final float RELIEF_MICRO = 0.18f;
-    private static final float RELIEF_SOFTNESS = 0.35f;
+    private static final int RELIEF_MACRO_RUN = 6;
+    private static final int RELIEF_MICRO_RUN = 1;
+    private static final float RELIEF_MACRO = 0.42f;
+    private static final float RELIEF_MICRO = 0.14f;
+    private static final float RELIEF_SOFTNESS = 0.28f;
     private static final float WATER_RELIEF_SHALLOW = 0.45f;
     private static final float WATER_RELIEF_DEEP = 0.12f;
-    private static final float TERRAIN_DIM = 0.62f;
+    private static final float TERRAIN_DIM = 0.78f;
 
     /**
      * {@code Math.tanh}, read from a table instead of computed. The old renderer's own doc measured
@@ -238,33 +239,41 @@ public final class Rasterizer {
     }
 
     private static float reliefOf(ColumnBuffer columns, int x, int z, int stride) {
-        float macro = slopeOf(columns, x, z, RELIEF_RUN, stride * RELIEF_RUN);
-        float micro = slopeOf(columns, x, z, 1, stride);
+        float macro = slopeOf(columns, x, z, RELIEF_MACRO_RUN, stride * RELIEF_MACRO_RUN);
+        float micro = slopeOf(columns, x, z, RELIEF_MICRO_RUN, stride * RELIEF_MICRO_RUN);
         return 1f + RELIEF_MACRO * macro + RELIEF_MICRO * micro;
     }
 
-    /** North and west only, same as the port source — a light from the north-west needs no others. */
+    /**
+     * Directional slope from North, West, and Northwest (315° cartographic lighting).
+     */
     private static float slopeOf(ColumnBuffer columns, int x, int z, int texelOffset, int runBlocks) {
         short here = columns.floorAt(columns.index(x, z));
         short north = (z - texelOffset >= 0)
                 ? columns.floorAt(columns.index(x, z - texelOffset)) : ColumnBuffer.NO_DATA;
         short west = (x - texelOffset >= 0)
                 ? columns.floorAt(columns.index(x - texelOffset, z)) : ColumnBuffer.NO_DATA;
+        short northWest = (z - texelOffset >= 0 && x - texelOffset >= 0)
+                ? columns.floorAt(columns.index(x - texelOffset, z - texelOffset)) : ColumnBuffer.NO_DATA;
 
         float rise = 0f;
-        int axes = 0;
+        float weights = 0f;
         if (north != ColumnBuffer.NO_DATA) {
-            rise += here - north;
-            axes++;
+            rise += (here - north);
+            weights += 1.0f;
         }
         if (west != ColumnBuffer.NO_DATA) {
-            rise += here - west;
-            axes++;
+            rise += (here - west);
+            weights += 1.0f;
         }
-        if (axes == 0) {
+        if (northWest != ColumnBuffer.NO_DATA) {
+            rise += (here - northWest) * 0.7071f;
+            weights += 0.7071f;
+        }
+        if (weights == 0f) {
             return 0f;
         }
-        return squash(rise / (axes * (float) runBlocks) / RELIEF_SOFTNESS);
+        return squash((rise / weights) / ((float) runBlocks * RELIEF_SOFTNESS));
     }
 
     private static float squash(float x) {

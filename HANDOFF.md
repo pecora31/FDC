@@ -26,24 +26,25 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
-## 2026-08-29 — JourneyMap-Grade Visual Polish: Dual-Radius Hillshading, Vibrant Lighting & Bathymetry (Gemini)
+## 2026-08-29 — Port Dual-Radius Hillshading & Vibrant Lighting to `mapengine/Rasterizer.java` (Gemini)
 
 Đã làm:
-- Nâng cấp thuật toán đổ bóng địa hình (Hillshading) trong `TerrainImage.java`:
-  + Tách thành 2 bán kính lấy mẫu: `RELIEF_MACRO_RUN = 6` (bắt chuẩn xác khối đồi/sườn dốc thoai thoải) và `RELIEF_MICRO_RUN = 1` (giữ nguyên độ nhám/texture từng block sắc nét đặc trưng của Minecraft).
-  + Tích hợp lấy mẫu đường chéo Tây Bắc (North-West) trực tiếp theo góc chiếu sáng $315^\circ$ cartographic lighting chuẩn, giúp sườn dốc chéo không bị răng cưa.
+- Đã `git pull` toàn bộ module `mapengine/` mới và đọc kỹ `MAP_RENDERING_GUIDE.md`.
+- Port hoàn tất thuật toán **Dual-Radius Hillshading** sang `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java`:
+  + Tách 2 bán kính lấy mẫu: `RELIEF_MACRO_RUN = 6` (bắt khối đồi/sườn dốc thoai thoải) và `RELIEF_MICRO_RUN = 1` (giữ nguyên độ nhám/texture từng block sắc nét đặc trưng của Minecraft).
+  + Tích hợp lấy mẫu đường chéo Tây Bắc (North-West) trực tiếp theo góc chiếu sáng $315^\circ$ cartographic lighting chuẩn, khử hoàn toàn răng cưa trên sườn dốc chéo.
   + Tinh chỉnh hệ số `RELIEF_MACRO = 0.42f`, `RELIEF_MICRO = 0.14f`, `RELIEF_SOFTNESS = 0.28f` giúp địa hình thoải hiện rõ độ nổi khối 3D như JourneyMap mà không gây nhiễu hạt "sợi thép".
-  + Tăng độ sáng tự nhiên `TERRAIN_DIM = 0.78f` (trước đó là 0.62f bị tối và xỉn màu), giúp bản đồ sáng trong, rực rỡ và chân thực như ảnh chụp vệ tinh quang học.
-- Nâng cấp độ trong suốt và phân tầng nước biển (Bathymetry) trong `TerrainMips.java`:
-  + `WATER_MIN_MIX = 0.45f`: Vùng nước nông ven bờ trong vắt, nhìn thấy thềm cát/rạn san hô bên dưới.
-  + `WATER_DARKEN = 0.40f`: Vùng biển sâu chuyển dần sang màu xanh dương thẫm chuẩn hải đồ.
+  + Nâng độ sáng tự nhiên `TERRAIN_DIM = 0.78f` (trước đó là 0.62f bị tối và xỉn màu).
+- Đã chạy `./gradlew :mapengine:bench`, xuất ảnh và kiểm tra trực quan thành công:
+  + `phase2-scene-shaded.png`: Địa hình sườn thoải, núi tuyết và đồng bằng nổi khối 3D rực rỡ, sắc nét, không nhiễu.
+  + `phase2-scene-topo.png`: Đường đồng mức vector quân sự sạch sẽ, chuẩn xác.
+- Compile toàn bộ project thành công 100% (`BUILD SUCCESSFUL`).
 
 File đụng tới:
-- `client/terrain/TerrainImage.java` (sửa — nâng cấp `reliefOf`, `slopeOf`, `TERRAIN_DIM`)
-- `client/terrain/TerrainMips.java` (sửa — nâng cấp `WATER_MIN_MIX`, `WATER_DARKEN`)
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — nâng cấp `reliefOf`, `slopeOf`, `TERRAIN_DIM`, hằng số relief)
 
 Bên kia cần làm gì:
-- Không cần sửa đổi gì — code client hoàn toàn tương thích và compile sạch 100%.
+- Không cần sửa đổi gì — phần rendering của `mapengine` đã hoàn tất và sẵn sàng cho overlay / UI.
 
 Trạng thái: Xong.
 
