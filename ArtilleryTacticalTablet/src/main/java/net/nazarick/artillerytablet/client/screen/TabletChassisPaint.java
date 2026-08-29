@@ -1239,7 +1239,7 @@ public final class TabletChassisPaint {
                 setPixel(img, lx + w - 2, ly + h - 1, 0xFFFFFFFF);
             }
         } else {
-            // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Khớp 100% que dẫn sáng trắng đục mờ trong ảnh mẫu)
+            // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Thấu kính khói mờ trong suốt quân sự)
             // 1. Recessed dark slot border
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
@@ -1247,33 +1247,33 @@ public final class TabletChassisPaint {
                 }
             }
 
-            // 2. Uniform frosted light-pipe body (màu trắng xám sáng đục mờ chuẩn quân sự)
+            // 2. Translucent smoked optical lens body (Màu xám khói mờ trong suốt, không bị trắng quá)
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFFBAC4D2);
+                    setPixel(img, lx + x, ly + y, 0xFF2D333F);
                 }
             }
 
-            // 3. 3D specular light-pipe highlights & shadows
+            // 3. Subtle internal refraction & surface reflection
             if (isVert) {
                 // Vertical LED (Top / Bottom rows)
                 for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFFEBF0F8);        // Left crisp highlight
-                    setPixel(img, lx + w - 1, ly + y, 0xFF748092); // Right shadow
+                    setPixel(img, lx, ly + y, 0xFF3D4656);        // Left soft reflection
+                    setPixel(img, lx + w - 1, ly + y, 0xFF181C24); // Right shadow
                 }
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFFFFFFFF);        // Top highlight
-                    setPixel(img, lx + x, ly + h - 1, 0xFF647082); // Bottom shadow
+                    setPixel(img, lx + x, ly, 0xFF525E72);        // Top glint
+                    setPixel(img, lx + x, ly + h - 1, 0xFF141820); // Bottom shadow
                 }
             } else {
                 // Horizontal LED (Left / Right flanks)
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFFFFFFFF);        // Top highlight
-                    setPixel(img, lx + x, ly + h - 1, 0xFF647082); // Bottom shadow
+                    setPixel(img, lx + x, ly, 0xFF525E72);        // Top glint
+                    setPixel(img, lx + x, ly + h - 1, 0xFF141820); // Bottom shadow
                 }
                 for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFFEBF0F8);        // Left crisp highlight
-                    setPixel(img, lx + w - 1, ly + y, 0xFF748092); // Right shadow
+                    setPixel(img, lx, ly + y, 0xFF3D4656);        // Left soft reflection
+                    setPixel(img, lx + w - 1, ly + y, 0xFF181C24); // Right shadow
                 }
             }
         }
@@ -1380,7 +1380,7 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeSunkenButtonWell(NativeImage img, int cx, int cy) {
-        int keyW = 44, keyH = 44, keyR = 7;
+        int keyW = 44, keyH = 44, keyR = 8;
         int rimThick = 5;
         int outW = keyW + rimThick * 2, outH = keyH + rimThick * 2, outR = keyR + rimThick;
         int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
@@ -1420,14 +1420,16 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red) {
-        int r = 6;
+        int r = 8; // Bo tròn góc phím tự nhiên kiểu nhựa PBT đúc
         if (red) {
+            // Matte Tactical Red PBT plastic
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88050608, 0xFF140404, 0xFF681414, 0xFFEF5350, 0xFFE53935, 0xFF991B1B, 0xFF4A0A0A, 0xFFC62828,
+                    0x88050608, 0xFF240606, 0xFF8A1A1A, 0xFFF05252, 0xFFE03838, 0xFFA81E1E, 0xFF5A0C0C, 0xFFD42828,
                     false);
         } else {
+            // Matte Tactical Neutral Grey PBT plastic (màu sáng hơn, mịn màng, bề mặt PBT lì)
             bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88050608, 0xFF121418, 0xFF363B44, 0xFF727B8A, 0xFF58606E, 0xFF363A42, 0xFF1C1E23, 0xFF484E5A,
+                    0x88050608, 0xFF16181D, 0xFF424854, 0xFF7E8898, 0xFF667080, 0xFF444A56, 0xFF262A32, 0xFF586272,
                     false);
         }
     }

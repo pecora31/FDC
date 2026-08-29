@@ -26,6 +26,31 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Solid PBT Keycaps, Smoked Lenses, Corner LED Fix & Slim Icons (Gemini)
+
+Đã làm:
+- **Cải tiến hoạt ảnh nhấn phím PBT đồng nhất (Solid PBT Travel)**:
+  + Loại bỏ hoàn toàn hiệu ứng thụt lòng cao su (rubber dent box) gây dị mắt. Phím PBT là một khối nhựa đúc đồng nhất — khi nhấn, toàn bộ phím lún xuống $1\text{px}$ tự nhiên với bóng đổ nhẹ chân socket.
+- **Tái tạo chất liệu nhựa PBT đúc mờ (Matte PBT Plastic)**:
+  + Nâng tông màu phím xám sáng trung tính hơn (`#444A56` lòng phím, `#667080` viền nổi, `#7E8898` ánh sáng tán xạ).
+  + Tăng độ bo tròn góc phím tự nhiên ($R = 8\text{px}$) thay vì góc sắc metallic cứng.
+- **Thấu kính LED xám khói mờ trong suốt (Translucent Smoked Acrylic Lens)**:
+  + Giảm màu trắng đục của thấu kính khi tắt xuống tông xám khói mờ (`#2D333F` kèm ánh phản quang `#525E72`), tạo độ tương phản cực kỳ rõ nét và nổi bật khi LED phát sáng ON (`#00FF66`).
+- **Sửa lỗi LED 'from nowhere' ở 4 góc**:
+  + Bỏ gán `lamp()` cho 4 nút góc chìm không có khe đèn vật lý: `GRID` (top 0), `BRIGHT` (top 9), `FLT` (bottom 0), `POWER` (bottom 9).
+- **Thu nhỏ & làm thon gọn Vector Icons (`UiButton.java`)**:
+  + Biểu tượng NGUỒN `POWER` và MẶT TRỜI ĐỘ SÁNG `BRIGHT` được thu nhỏ vừa vặn, thanh mảnh, sắc nét và cân đối hoàn hảo trên mặt phím.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — PBT plastic palette, R=8 rounded corners, smoked translucent lenses)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — remove phantom lamps on 4 corner buttons)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — solid key travel, slim POWER/BRIGHT/GRID icons)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Universal Interactive Key Feedback & On-Click LED Toggling (Gemini)
 
 Đã làm:

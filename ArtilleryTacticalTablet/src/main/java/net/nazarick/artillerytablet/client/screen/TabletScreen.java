@@ -582,7 +582,6 @@ public class TabletScreen extends Screen {
                 .hard(!screenOn)
                 .power()
                 .mark(UiButton.Mark.POWER)
-                .lamp(frame.ledFor(TabletFrame.EDGE_BOTTOM, TabletFrame.ROW_KEYS - 1))
                 .tooltip(Component.translatable("gui.artillerytablet.frame.power.tip")));
 
         // ---- left edge: laying the guns --------------------------------------------------------
@@ -619,14 +618,17 @@ public class TabletScreen extends Screen {
                          boolean on, Component tip, boolean wide) {
         int[] at = frame.rowKey(false, index, wide);
         int w = wide ? frame.rowKeyWide() : frame.rowKeyW();
-        return addKey(new UiButton(at[0], at[1], w, frame.rowKeyH(),
+        UiButton btn = new UiButton(at[0], at[1], w, frame.rowKeyH(),
                 label, () -> {
             action.run();
             rebuild();
         })
                 .hard(on)
-                .lamp(frame.ledFor(TabletFrame.EDGE_TOP, index, wide))
-                .tooltip(tip));
+                .tooltip(tip);
+        if (index > 0 && index < TabletFrame.ROW_KEYS - 1) {
+            btn.lamp(frame.ledFor(TabletFrame.EDGE_TOP, index, wide));
+        }
+        return addKey(btn);
     }
 
     private UiButton bottom(int index, int kw, int kh, Component label, Runnable action,
@@ -638,14 +640,17 @@ public class TabletScreen extends Screen {
                             boolean on, Component tip, boolean wide) {
         int[] at = frame.rowKey(true, index, wide);
         int w = wide ? frame.rowKeyWide() : frame.rowKeyW();
-        return addKey(new UiButton(at[0], at[1], w, frame.rowKeyBottomH(),
+        UiButton btn = new UiButton(at[0], at[1], w, frame.rowKeyBottomH(),
                 label, () -> {
             action.run();
             rebuild();
         })
                 .hard(on)
-                .lamp(frame.ledFor(TabletFrame.EDGE_BOTTOM, index, wide))
-                .tooltip(tip));
+                .tooltip(tip);
+        if (index > 0 && index < TabletFrame.ROW_KEYS - 1) {
+            btn.lamp(frame.ledFor(TabletFrame.EDGE_BOTTOM, index, wide));
+        }
+        return addKey(btn);
     }
 
     private UiButton side(boolean right, int index, int kw, int kh, Component label,

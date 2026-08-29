@@ -155,57 +155,55 @@ public class UiButton {
                 p.outline(cx - 3, cy - 3, 7, 7, color);
             }
             case GRID -> {
-                // Precision Reticle Crosshair
-                p.fill(cx - 6, cy, cx + 7, cy + 1, color);
-                p.fill(cx, cy - 6, cx + 1, cy + 7, color);
-                for (int dy = -3; dy <= 3; dy++) {
-                    for (int dx = -3; dx <= 3; dx++) {
+                // Slim, crisp Reticle Crosshair
+                p.fill(cx - 5, cy, cx + 6, cy + 1, color);
+                p.fill(cx, cy - 5, cx + 1, cy + 6, color);
+                for (int dy = -2; dy <= 2; dy++) {
+                    for (int dx = -2; dx <= 2; dx++) {
                         int d2 = dx * dx + dy * dy;
-                        if (d2 <= 9 && d2 >= 4) {
+                        if (d2 <= 5 && d2 >= 2) {
                             p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
                         }
                     }
                 }
             }
             case BRIGHT -> {
-                // Clean Balanced Tactical Sun icon
-                // Solid center disc (R = 3)
-                for (int dy = -3; dy <= 3; dy++) {
-                    for (int dx = -3; dx <= 3; dx++) {
-                        if (dx * dx + dy * dy <= 9) {
+                // Slim, refined Tactical Sun icon (nhỏ gọn, thanh mảnh)
+                // Center disc (R = 2)
+                for (int dy = -2; dy <= 2; dy++) {
+                    for (int dx = -2; dx <= 2; dx++) {
+                        if (dx * dx + dy * dy <= 4) {
                             p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
                         }
                     }
                 }
-                // 4 Cardinal rays (length 4px, 2px wide)
-                p.fill(cx - 1, cy - 8, cx + 1, cy - 4, color); // Top ray
-                p.fill(cx - 1, cy + 5, cx + 1, cy + 9, color); // Bottom ray
-                p.fill(cx - 8, cy - 1, cx - 4, cy + 1, color); // Left ray
-                p.fill(cx + 5, cy - 1, cx + 9, cy + 1, color); // Right ray
-                // 4 Diagonal rays (2px wide at 45 degrees)
-                for (int d = 4; d <= 6; d++) {
-                    p.fill(cx - d, cy - d, cx - d + 2, cy - d + 2, color);
-                    p.fill(cx + d - 1, cy - d, cx + d + 1, cy - d + 2, color);
-                    p.fill(cx - d, cy + d - 1, cx - d + 2, cy + d + 1, color);
-                    p.fill(cx + d - 1, cy + d - 1, cx + d + 1, cy + d + 1, color);
-                }
+                // 4 Slim Cardinal rays (1px wide, length 3px)
+                p.fill(cx, cy - 6, cx + 1, cy - 3, color); // Top ray
+                p.fill(cx, cy + 4, cx + 1, cy + 7, color); // Bottom ray
+                p.fill(cx - 6, cy, cx - 3, cy + 1, color); // Left ray
+                p.fill(cx + 4, cy, cx + 7, cy + 1, color); // Right ray
+                // 4 Diagonal rays (1px points)
+                p.fill(cx - 4, cy - 4, cx - 3, cy - 3, color);
+                p.fill(cx + 4, cy - 4, cx + 5, cy - 3, color);
+                p.fill(cx - 4, cy + 4, cx - 3, cy + 5, color);
+                p.fill(cx + 4, cy + 4, cx + 5, cy + 5, color);
             }
             case POWER -> {
-                // Balanced IEC Power icon
-                int radius = 7;
-                int rIn2 = 5 * 5;
-                int rOut2 = 7 * 7;
+                // Slim, elegant IEC Power icon (nhỏ, thon gọn, không béo)
+                int radius = 5;
+                int rIn2 = 3 * 3;
+                int rOut2 = 5 * 5;
                 for (int dy = -radius; dy <= radius; dy++) {
                     for (int dx = -radius; dx <= radius; dx++) {
                         int d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -2 && Math.abs(dx) <= 2) continue; // Top opening gap
+                            if (dy < -1 && Math.abs(dx) <= 1) continue; // Top opening gap
                             p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
                         }
                     }
                 }
-                // 2px wide vertical power bar
-                p.fill(cx - 1, cy - 8, cx + 1, cy, color);
+                // 1px slim vertical power stem
+                p.fill(cx, cy - 6, cx + 1, cy, color);
             }
         }
     }
@@ -256,31 +254,14 @@ public class UiButton {
 
         if (hard) {
             // =========================================================================
-            // 1. HARD PHYSICAL CHASSIS KEYS (32 Keys on Bezel)
+            // 1. HARD PHYSICAL CHASSIS KEYS (32 Keys on Bezel - Solid PBT Keycaps)
             // =========================================================================
             if (pressed) {
-                // Sunken pressed keycap face depression
-                int rim = 4;
-                int dishX = x + rim;
-                int dishY = y + rim + 1;
-                int dishW = w - rim * 2;
-                int dishH = h - rim * 2;
-
-                int floorCol = danger ? 0xFF7A1414 : 0xFF2A2E36;
-                p.rect(dishX, dishY, dishW, dishH, floorCol);
-
-                // Deep inner drop shadow on top & left
-                int shadowCol = danger ? 0xFF4A0808 : 0xFF14161A;
-                p.fill(dishX, dishY, dishX + dishW, dishY + 2, shadowCol);
-                p.fill(dishX, dishY, dishX + 2, dishY + dishH, shadowCol);
-
-                // Dim highlight on bottom & right
-                int hiCol = danger ? 0xFF9E1E1E : 0xFF3E4450;
-                p.fill(dishX, dishY + dishH - 1, dishX + dishW, dishY + dishH, hiCol);
-                p.fill(dishX + dishW - 1, dishY, dishX + dishW, dishY + dishH, hiCol);
+                // Natural uniform solid keycap depression (Lún cả cụm phím 1px)
+                p.fill(x + 2, y + 1, x + w - 2, y + 3, 0x44000000);
             } else if (hovered) {
                 // Subtle 1px tactical ambient hover outline around key
-                p.outline(x + 1, y + 1, w - 2, h - 2, danger ? 0x50FF5A52 : 0x38FFFFFF);
+                p.outline(x + 1, y + 1, w - 2, h - 2, danger ? 0x50FF5A52 : 0x30FFFFFF);
             }
 
             // Render glowing optical LED if active
@@ -289,7 +270,7 @@ public class UiButton {
                 int ledCol = danger ? 0xFFFF2A2A : 0xFF00E85D;
 
                 // Subtle 1px soft bloom
-                p.rect(lx - 1, ly - 1, lw + 2, lh + 2, (ledCol & 0x00FFFFFF) | 0x30000000);
+                p.rect(lx - 1, ly - 1, lw + 2, lh + 2, (ledCol & 0x00FFFFFF) | 0x25000000);
 
                 // Saturated luminous light-pipe body
                 p.rect(lx, ly, lw, lh, ledCol);
