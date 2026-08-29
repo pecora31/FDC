@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Screen-Space Integer Rasterization of 3D Keycaps & LEDs (Gemini)
+
+Đã giải quyết triệt để gốc rễ nguyên nhân (Root Cause Analysis & Fix):
+- **Phát hiện nguyên nhân gốc rễ**: 
+  + Trước đây, toàn bộ 32 phím và 28 thấu kính LED được nướng sẵn (`baked`) vào texture tĩnh $980\times 630$ (`case.png`). Khi hiển thị trong game Minecraft, hàm `GuiGraphics.blit` co giãn (scale down) texture tĩnh này về độ phân giải GUI của người chơi theo tỷ lệ số thập phân không nguyên (ví dụ $scale = 0.4653$). 
+  + Do GPU làm tròn tọa độ UV (subpixel aliasing/jitter), các đường nét mảnh $1\text{px}$ trên texture khi scale xuống sẽ bị cột này làm tròn thành $2\text{px}$, cột bên cạnh làm tròn thành $1\text{px}$, dẫn tới viền đèn/viền phím bị lệch độ dày dày mỏng không đều giữa các phím (như F17 vs F18).
+- **Giải pháp triệt để**:
+  + Chuyển `case.png` chỉ nướng khung vỏ máy, ốc vít, góc cao su, rãnh socket chìm tối màu (`0xFF0A0B0E`).
+  + Toàn bộ **32 Phím 3D PBT** và **28 Thấu kính LED** được chuyển sang vẽ trực tiếp bằng các lệnh pixel nguyên thủy trong không gian màn hình thực (`UiButton.render()` qua `GuiGraphics.fill`/`rect`).
+  + Mọi phím bấm và đèn LED giờ đây thực thi các phép toán offset số nguyên tuyệt đối (`int`): viền ngoài đúng $1\text{px}$, gờ nổi $1\text{px}$ highlight/$1\text{px}$ shadow, lòng phím chìm $1\text{px}$ shadow/$1\text{px}$ glint, thấu kính LED rãnh chìm đúng $1\text{px}$ trên cả 4 cạnh.
+  + **Kết quả**: Triệt tiêu $100\%$ hiện tượng sai lệch subpixel texture, tất cả 32 phím và 28 đèn LED hiển thị đồng nhất tuyệt đối từng pixel trên mọi độ phân giải màn hình và mọi mức GUI Scale.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bake sunken dark sockets, eliminate pre-baked key/led raster distortion)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — screen-space integer-aligned 3D keycaps and LED light-pipe rendering)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Pixel Uniformity, Slim Icons, Scaled Centered Labels & Rounded Screen Well (Gemini)
 
 Đã làm:

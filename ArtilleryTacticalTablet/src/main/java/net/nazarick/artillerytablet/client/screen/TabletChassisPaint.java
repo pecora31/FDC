@@ -1307,9 +1307,9 @@ public final class TabletChassisPaint {
             if (i == 0 || i == 9) {
                 bakeSunkenButtonWell(img, cx, cy);
             }
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false);
+            bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             if (i != 0 && i != 9) {
-                bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
+                bakeLedSocket(img, cx - 2, 76, 4, 8);
             }
         }
 
@@ -1317,16 +1317,16 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 0));
-            bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
+            bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
+            bakeLedSocket(img, 76, cy - 2, 8, 4);
         }
 
         // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false);
-            bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
+            bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
+            bakeLedSocket(img, 896, cy - 2, 8, 4);
         }
 
         // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
@@ -1336,9 +1336,28 @@ public final class TabletChassisPaint {
             if (i == 0 || i == 9) {
                 bakeSunkenButtonWell(img, cx, cy);
             }
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9));
+            bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             if (i != 0 && i != 9) {
-                bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
+                bakeLedSocket(img, cx - 2, 546, 4, 8);
+            }
+        }
+    }
+
+    private static void bakeKeySocket(NativeImage img, int kx, int ky, int w, int h) {
+        int r = 8;
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                if (isInsideRounded(x, y, w, h, r)) {
+                    setPixel(img, kx + x, ky + y, 0xFF0A0B0E);
+                }
+            }
+        }
+    }
+
+    private static void bakeLedSocket(NativeImage img, int lx, int ly, int w, int h) {
+        for (int y = -1; y <= h; y++) {
+            for (int x = -1; x <= w; x++) {
+                setPixel(img, lx + x, ly + y, 0xFF08090C);
             }
         }
     }
@@ -1380,21 +1399,6 @@ public final class TabletChassisPaint {
                     setPixel(img, x, y, applyStipple(col, x, y));
                 }
             }
-        }
-    }
-
-    private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red) {
-        int r = 8; // Bo tròn góc phím tự nhiên kiểu nhựa PBT đúc
-        if (red) {
-            // Matte Tactical Red PBT plastic
-            bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88050608, 0xFF240606, 0xFF8A1A1A, 0xFFF05252, 0xFFE03838, 0xFFA81E1E, 0xFF5A0C0C, 0xFFD42828,
-                    false);
-        } else {
-            // Matte Tactical Neutral Grey PBT plastic (màu sáng hơn, mịn màng, bề mặt PBT lì)
-            bakeKeySprite(img, kx, ky, w, h, r,
-                    0x88050608, 0xFF16181D, 0xFF424854, 0xFF7E8898, 0xFF667080, 0xFF444A56, 0xFF262A32, 0xFF586272,
-                    false);
         }
     }
 
