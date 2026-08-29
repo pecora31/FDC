@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — True Foliage Reference Tint Scaling for Biome Canopies (Gemini)
+
+Đã làm:
+- **Khắc phục triệt để lỗi màu cây bị giống nhau ở mọi Biome (Savanna, Forest, Jungle, Swamp, Birch, Spruce)**:
+  + Tìm ra nguyên nhân gốc: `MapColor.PLANT` của Minecraft có giá trị mặc định là `0x007C00` (kênh Đỏ = 0, Lam = 0). Khi nhân tỉ lệ tint `scale(0, tintRed, refRed)`, kênh Đỏ và Lam luôn bị bằng 0 khiến mọi loại lá cây đều bị biến thành màu xanh sồi đen (`RGB 0, 100, 0`).
+  + Sửa trong `TerrainMips.java`: Sử dụng chuẩn màu nền lá gốc `FOLIAGE_REFERENCE` (`0x77AB2F`) để nhân tỉ lệ trực tiếp với `tintFoliage[biomeId]` của Biome. Cây ở Thảo nguyên Savanna giờ đây mang đúng sắc vàng rêu/olive acacia (`RGB 143, 134, 34`), Rừng sồi mang sắc xanh rậm (`RGB 98, 140, 38`), Rừng rậm Jungle mang màu lục bảo, và Rừng Đầm lầy mang màu rêu đầm.
+  + Thêm bảng màu cố định chuẩn vanilla trong `BlockPalette.java` cho các loại lá đặc thù: Bạch dương (Birch `0x80A755`), Thông (Spruce `0x619961`), Hoa anh đào (Cherry `0xFBB3D1`), Đỗ quyên (Azalea `0x77AB2F`).
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/TerrainMips.java` (sửa — foliage reference tint scaling)
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/BlockPalette.java` (sửa — FIXED_COLOURS for special leaves)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Flat Minimalist Vector Topo with Unified Contour Lines (Gemini)
 
 Đã làm:

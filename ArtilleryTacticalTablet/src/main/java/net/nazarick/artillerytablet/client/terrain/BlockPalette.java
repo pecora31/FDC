@@ -93,10 +93,14 @@ public final class BlockPalette {
      * <p>Kept to that one case on purpose. Every entry added here is a place where the map stops
      * telling the truth about the world, and it should have to earn it.
      */
-    private static final Map<Block, Integer> HAZARDS = Map.of(
-            // From the range the user picked, the middle of it: hot enough to read as fire, far
-            // enough from red to not be mistaken for the marks the tablet draws in red.
-            Blocks.LAVA, packed(0xFF6600));
+    private static final Map<Block, Integer> FIXED_COLOURS = Map.of(
+            Blocks.LAVA, packed(0xFF6600),
+            Blocks.BIRCH_LEAVES, packed(0x80A755),
+            Blocks.SPRUCE_LEAVES, packed(0x619961),
+            Blocks.CHERRY_LEAVES, packed(0xFBB3D1),
+            Blocks.AZALEA_LEAVES, packed(0x77AB2F),
+            Blocks.FLOWERING_AZALEA_LEAVES, packed(0x77AB2F)
+    );
 
     /** A plain 0xRRGGBB in the byte order the rest of this map works in — blue high, red low. */
     private static int packed(int rgb) {
@@ -223,12 +227,12 @@ public final class BlockPalette {
             Block block = BuiltInRegistries.BLOCK.byId(blockId);
             BlockState state = block.defaultBlockState();
 
-            Integer fixed = HAZARDS.get(block);
+            Integer fixed = FIXED_COLOURS.get(block);
             if (fixed != null) {
                 colour[blockId] = fixed;
                 preTinted[blockId] = false;
                 tint[blockId] = TINT_NONE;
-                hazard[blockId] = true;
+                hazard[blockId] = (block == Blocks.LAVA);
                 simpleColour[blockId] = fixed;
                 simpleTint[blockId] = TINT_NONE;
                 resolved[blockId] = true;

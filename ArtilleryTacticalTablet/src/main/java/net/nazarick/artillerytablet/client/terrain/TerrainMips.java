@@ -347,7 +347,25 @@ public final class TerrainMips {
         byte kind = simple ? BlockPalette.simpleTintOf(blockId) : BlockPalette.tintOf(blockId);
         if (kind != BlockPalette.TINT_NONE && known(biomeId)) {
             int tint = tintColour(kind, biomeId);
-            if (simple || BlockPalette.isPreTinted(blockId)) {
+            if (kind == BlockPalette.TINT_FOLIAGE) {
+                // Base un-tinted foliage reference is FOLIAGE_REFERENCE (0x77AB2F in standard order, swapped for texture).
+                // Scale directly from FOLIAGE_REFERENCE so Red, Green, and Blue channels
+                // accurately reflect the biome's foliage climate (e.g. golden savanna olive acacia vs emerald forest).
+                int ref = swapForTexture(FOLIAGE_REFERENCE);
+                int refB = (ref >> 16) & 0xFF;
+                int refG = (ref >> 8) & 0xFF;
+                int refR = ref & 0xFF;
+                int tintB = (tint >> 16) & 0xFF;
+                int tintG = (tint >> 8) & 0xFF;
+                int tintR = tint & 0xFF;
+                b = scale(refB, tintB, refB);
+                g = scale(refG, tintG, refG);
+                r = scale(refR, tintR, refR);
+                // Realistic natural tree canopy depth
+                b = Math.round(b * 0.82f);
+                g = Math.round(g * 0.82f);
+                r = Math.round(r * 0.82f);
+            } else if (simple || BlockPalette.isPreTinted(blockId)) {
                 // The palette's grass is already the green of plains, so this scales it from that
                 // reference to the biome's rather than multiplying, which would darken it twice.
                 b = scale(b, (tint >> 16) & 0xFF, reference(kind, 16));
@@ -360,12 +378,6 @@ public final class TerrainMips {
                 b = multiply(b, (tint >> 16) & 0xFF);
                 g = multiply(g, (tint >> 8) & 0xFF);
                 r = multiply(r, tint & 0xFF);
-            }
-            if (kind == BlockPalette.TINT_FOLIAGE) {
-                // Tame foliage saturation so tree canopies read as deep natural forest green rather than neon green dots
-                b = Math.round(b * 0.78f);
-                g = Math.round(g * 0.78f);
-                r = Math.round(r * 0.78f);
             }
         }
 
