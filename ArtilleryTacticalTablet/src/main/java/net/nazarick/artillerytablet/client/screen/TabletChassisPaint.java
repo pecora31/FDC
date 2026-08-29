@@ -1337,46 +1337,42 @@ public final class TabletChassisPaint {
         int half = keySize / 2;
 
         // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
-        String[] topLabels = { "GRID", "SA", "WPN", "DEF", "SYS", "DRV", "STR", "COM", "BMS", "BRIGHT" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
             if (i == 0 || i == 9) {
                 bakeSunkenButtonWell(img, cx, cy);
             }
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, topLabels[i]);
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false);
             if (i != 0 && i != 9) {
                 bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
             }
         }
 
         // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
-        String[] leftLabels = { "CFF", "F2", "F3", "F4", "F5", "F6" };
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 0), leftLabels[i]);
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 0));
             bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
         // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
-        String[] rightLabels = { "F7", "F8", "F9", "F10", "F11", "F12" };
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false, rightLabels[i]);
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, false);
             bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
         // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
-        String[] botLabels = { "FLT", "F13", "F14", "F15", "F16", "F17", "F18", "F19", "F20", "POWER" };
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
             if (i == 0 || i == 9) {
                 bakeSunkenButtonWell(img, cx, cy);
             }
-            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9), botLabels[i]);
+            bakeSingleKey(img, cx - half, cy - half, keySize, keySize, (i == 9));
             if (i != 0 && i != 9) {
                 bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
             }
@@ -1423,7 +1419,7 @@ public final class TabletChassisPaint {
         }
     }
 
-    private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red, String label) {
+    private static void bakeSingleKey(NativeImage img, int kx, int ky, int w, int h, boolean red) {
         int r = 6;
         if (red) {
             bakeKeySprite(img, kx, ky, w, h, r,
@@ -1433,75 +1429,6 @@ public final class TabletChassisPaint {
             bakeKeySprite(img, kx, ky, w, h, r,
                     0x88050608, 0xFF121418, 0xFF363B44, 0xFF727B8A, 0xFF58606E, 0xFF363A42, 0xFF1C1E23, 0xFF484E5A,
                     false);
-        }
-
-        int textCol = 0xFFFFFFFF;
-        int cx = kx + w / 2;
-        int cy = ky + h / 2;
-
-        switch (label) {
-            case "GRID" -> { // Crosshair Reticle icon
-                for (int x = cx - 7; x <= cx + 7; x++) {
-                    setPixel(img, x, cy, textCol);
-                }
-                for (int y = cy - 7; y <= cy + 7; y++) {
-                    setPixel(img, cx, y, textCol);
-                }
-                fillCircle(img, cx, cy, 2, textCol);
-                setPixel(img, cx, cy, red ? 0xFF991B1B : 0xFF363A42);
-            }
-            case "BRIGHT" -> { // Bold High-Definition Tactical Sun icon
-                fillCircle(img, cx, cy, 3, textCol);
-                // 4 Cardinal rays (2px thick, length 4px)
-                for (int y = cy - 8; y <= cy - 5; y++) {
-                    setPixel(img, cx - 1, y, textCol);
-                    setPixel(img, cx, y, textCol);
-                }
-                for (int y = cy + 5; y <= cy + 8; y++) {
-                    setPixel(img, cx - 1, y, textCol);
-                    setPixel(img, cx, y, textCol);
-                }
-                for (int x = cx - 8; x <= cx - 5; x++) {
-                    setPixel(img, x, cy - 1, textCol);
-                    setPixel(img, x, cy, textCol);
-                }
-                for (int x = cx + 5; x <= cx + 8; x++) {
-                    setPixel(img, x, cy - 1, textCol);
-                    setPixel(img, x, cy, textCol);
-                }
-                // 4 Diagonal rays (2px thick angled rays)
-                for (int d = 4; d <= 6; d++) {
-                    setPixel(img, cx - d, cy - d, textCol);
-                    setPixel(img, cx - d + 1, cy - d, textCol);
-                    setPixel(img, cx + d, cy - d, textCol);
-                    setPixel(img, cx + d - 1, cy - d, textCol);
-                    setPixel(img, cx - d, cy + d, textCol);
-                    setPixel(img, cx - d + 1, cy + d, textCol);
-                    setPixel(img, cx + d, cy + d, textCol);
-                    setPixel(img, cx + d - 1, cy + d, textCol);
-                }
-            }
-            case "POWER" -> { // Bold High-Definition IEC Power icon (matching Image 2)
-                int radius = 8;
-                int rIn2 = 5 * 5;
-                int rOut2 = 8 * 8;
-                for (int dy = -radius; dy <= radius; dy++) {
-                    for (int dx = -radius; dx <= radius; dx++) {
-                        int d2 = dx * dx + dy * dy;
-                        if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy < -2 && Math.abs(dx) <= 3)
-                                continue;
-                            setPixel(img, cx + dx, cy + dy, textCol);
-                        }
-                    }
-                }
-                // 2px wide vertical power bar
-                for (int y = cy - 9; y <= cy; y++) {
-                    setPixel(img, cx - 1, y, textCol);
-                    setPixel(img, cx, y, textCol);
-                }
-            }
-            default -> rasterizePixelString(img, label, cx, cy, 1, textCol);
         }
     }
 

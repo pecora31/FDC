@@ -26,6 +26,28 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Single-Source Key Rendering Architecture & Crisp Focused LEDs (Gemini)
+
+Đã làm:
+- **Khắc phục triệt để lỗi chồng 2 lớp chữ/icon (Ghosting / Double Labels)**:
+  + Chuyển texture vỏ máy (`TabletChassisPaint.java`) sang dạng **keycap 3D nguyên bản không in chữ tĩnh (Blank 3D Keycaps)**: Giữ toàn bộ gờ viền nổi, lòng phím chìm, rãnh socket, thấu kính polycarbonate và bóng đổ 3D, nhưng không nướng cứng nhãn text/icon vào ảnh nền.
+  + Toàn bộ nhãn chữ (`SA`, `WPN`, `DEF`, `STA`, `DRW`, `SMR`, `LOG`, `BTY`, `CFF`, `ADJ`, `MOD`, `ARC`, `FLT`, `F7`..`F20`) và vector icons (`GRID`, `BRIGHT`, `POWER`) được vẽ duy nhất $100\%$ tại một nguồn qua `UiButton.render()`.
+  + **Kết quả**: Triệt tiêu hoàn toàn hiện tượng lệch font, chồng chữ (`FF13`, `AB_J`), nhòe nét hay đan chèn 2 nút.
+- **Tinh chỉnh độ sáng & quầng phát quang LED**:
+  + Thu hẹp quầng bloom chỉ còn $1\text{px}$ bám sát khe đèn, triệt tiêu hiện tượng lóa/cháy sáng lan ra vỏ nhựa xung quanh.
+  + Giữ màu xanh lục bảo (`#00E85D`) và đỏ rực (`#FF2A2A`) với lõi thấu kính sáng trắng `#FFFFFF` sắc sảo, tinh tế.
+- **Cân đối hoàn hảo toàn bộ Vector Icons (`UiButton.java`)**:
+  + Biểu tượng NGUỒN `POWER`, MẶT TRỜI ĐỘ SÁNG `BRIGHT`, TÂM NGẮM `GRID`, `PLUS`, `MINUS`, `CENTRE` được căn giữa tuyệt đối và đồng nhất kích thước.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bake blank 3D keycaps without duplicate text)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — single-source dynamic labels, balanced vector icons, focused LED bloom)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Rebuilt and Connected UiButton.render() in Full (Gemini)
 
 Đã làm:
