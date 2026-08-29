@@ -628,7 +628,7 @@ public final class Rasterizer {
     private static final int TOPO_VECTOR_WATER = 0xFF0E141B;    // Deep dark navy water
     private static final int TOPO_VECTOR_COAST = 0xFFD8E0E8;    // Clean crisp coastline
     private static final int TOPO_VECTOR_LINE = 0xFFD0D8E0;     // Unified crisp vector contour line
-    private static final int TOPO_VECTOR_DEPR = 0xFF8A9EA8;     // Subtle depression hachure tone
+    private static final int TOPO_VECTOR_HACHURE = 0xFF8A9EA8;  // Subtle depression hachure tone
     private static final int TOPO_VECTOR_ABYSS = 0xFF080A0D;    // Deep cave / ravine dark abyss
 
     private static int hypsoCell(ColumnBuffer columns, float[] smoothed, int x, int z, int width, float interval) {
@@ -663,7 +663,7 @@ public final class Rasterizer {
         if (strength == 0) {
             // Depression hachures: inward tick marks pointing downhill into a sinkhole/pit
             if (isDepressionHachure(smoothed, x, z, width, height, interval)) {
-                return TOPO_VECTOR_DEPR;
+                return TOPO_VECTOR_HACHURE;
             }
             return TOPO_VECTOR_BG;
         }
@@ -705,8 +705,11 @@ public final class Rasterizer {
         return false;
     }
 
+    private static final int TOPO_VECTOR_PEAK = 0xFFFFB800;    // Tactical Amber Gold for summits / peaks
+    private static final int TOPO_VECTOR_DEPR = 0xFF00E5FF;    // Tactical Electric Cyan for basins / depressions
+
     private static void stampSpotExtrema(ColumnBuffer columns, float[] smoothed, int[] pixels, int width, int level) {
-        int radius = (level == 0) ? 16 : 10;
+        int radius = (level == 0) ? 24 : 16;
         int step = radius;
         for (int z = radius; z < width - radius; z += step) {
             for (int x = radius; x < width - radius; x += step) {
@@ -737,11 +740,11 @@ public final class Rasterizer {
                     }
                 }
 
-                if (peakX != -1 && maxH >= 68f && isDominantPeak(smoothed, peakX, peakZ, width, maxH, radius)) {
-                    drawPeakSymbol(pixels, width, peakX, peakZ, Math.round(maxH));
+                if (peakX != -1 && maxH >= 70f && isDominantPeak(smoothed, peakX, peakZ, width, maxH, radius)) {
+                    stampHollowTriangle(pixels, width, peakX, peakZ, true, TOPO_VECTOR_PEAK);
                 }
                 if (deprX != -1 && isDominantDepression(smoothed, deprX, deprZ, width, minH, radius)) {
-                    drawDepressionSymbol(pixels, width, deprX, deprZ, Math.round(minH));
+                    stampHollowTriangle(pixels, width, deprX, deprZ, false, TOPO_VECTOR_DEPR);
                 }
             }
         }
@@ -765,7 +768,7 @@ public final class Rasterizer {
                 }
             }
         }
-        return count > 0 && (maxH - (avgSurrounding / count)) >= 3.5f;
+        return count > 0 && (maxH - (avgSurrounding / count)) >= 4.5f;
     }
 
     private static boolean isDominantDepression(float[] smoothed, int dx, int dz, int width, float minH, int radius) {
@@ -786,73 +789,40 @@ public final class Rasterizer {
                 }
             }
         }
-        return count > 0 && ((avgSurrounding / count) - minH) >= 3.5f;
+        return count > 0 && ((avgSurrounding / count) - minH) >= 4.5f;
     }
 
-    private static void drawPeakSymbol(int[] pixels, int width, int cx, int cz, int heightVal) {
-        stampTriangle(pixels, width, cx, cz, true, TOPO_VECTOR_LINE);
-        stampNumber(pixels, width, cx + 4, cz - 2, heightVal, TOPO_VECTOR_LINE);
-    }
-
-    private static void drawDepressionSymbol(int[] pixels, int width, int cx, int cz, int heightVal) {
-        stampTriangle(pixels, width, cx, cz, false, TOPO_VECTOR_DEPR);
-        stampNumber(pixels, width, cx + 4, cz - 2, heightVal, TOPO_VECTOR_DEPR);
-    }
-
-    private static void stampTriangle(int[] pixels, int width, int cx, int cz, boolean peak, int color) {
-        for (int dy = -2; dy <= 2; dy++) {
-            int py = cz + dy;
-            if (py < 0 || py >= width) continue;
-            int span = peak ? (2 + dy) : (2 - dy);
-            if (span < 0) span = 0;
-            if (span > 2) span = 2;
-            for (int dx = -span; dx <= span; dx++) {
-                int px = cx + dx;
-                if (px >= 0 && px < width) {
-                    pixels[py * width + px] = color;
-                }
+    private static void stampHollowTriangle(int[] pixels, int width, int cx, int cz, boolean peak, int color) {
+        if (peak) {
+            // Hollow peak triangle △: Apex at top (cz - 2), base at bottom (cz + 2)
+            setPixelBounded(pixels, width, cx, cz - 2, color);
+            setPixelBounded(pixels, width, cx - 1, cz - 1, color);
+            setPixelBounded(pixels, width, cx + 1, cz - 1, color);
+            setPixelBounded(pixels, width, cx - 1, cz, color);
+            setPixelBounded(pixels, width, cx + 1, cz, color);
+            setPixelBounded(pixels, width, cx - 2, cz + 1, color);
+            setPixelBounded(pixels, width, cx + 2, cz + 1, color);
+            for (int dx = -2; dx <= 2; dx++) {
+                setPixelBounded(pixels, width, cx + dx, cz + 2, color);
             }
+        } else {
+            // Hollow depression triangle ▽: Base at top (cz - 2), apex at bottom (cz + 2)
+            for (int dx = -2; dx <= 2; dx++) {
+                setPixelBounded(pixels, width, cx + dx, cz - 2, color);
+            }
+            setPixelBounded(pixels, width, cx - 2, cz - 1, color);
+            setPixelBounded(pixels, width, cx + 2, cz - 1, color);
+            setPixelBounded(pixels, width, cx - 1, cz, color);
+            setPixelBounded(pixels, width, cx + 1, cz, color);
+            setPixelBounded(pixels, width, cx - 1, cz + 1, color);
+            setPixelBounded(pixels, width, cx + 1, cz + 1, color);
+            setPixelBounded(pixels, width, cx, cz + 2, color);
         }
     }
 
-    private static final int[] FONT_3X5 = {
-            0x7B6F, // 0
-            0x2C97, // 1
-            0x73E7, // 2
-            0x73CF, // 3
-            0x5DF9, // 4
-            0x7CEF, // 5
-            0x7CF7, // 6
-            0x7292, // 7
-            0x7DEF, // 8
-            0x7DCF  // 9
-    };
-
-    private static void stampNumber(int[] pixels, int width, int startX, int startY, int val, int color) {
-        String s = String.valueOf(val);
-        int curX = startX;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c >= '0' && c <= '9') {
-                stampDigit(pixels, width, curX, startY, c - '0', color);
-                curX += 4;
-            }
-        }
-    }
-
-    private static void stampDigit(int[] pixels, int width, int x0, int y0, int digit, int color) {
-        int pattern = FONT_3X5[digit];
-        for (int row = 0; row < 5; row++) {
-            int py = y0 + row;
-            if (py < 0 || py >= width) continue;
-            for (int col = 0; col < 3; col++) {
-                int px = x0 + col;
-                if (px < 0 || px >= width) continue;
-                int bitIndex = 14 - (row * 3 + col);
-                if (((pattern >> bitIndex) & 1) != 0) {
-                    pixels[py * width + px] = color;
-                }
-            }
+    private static void setPixelBounded(int[] pixels, int width, int x, int z, int color) {
+        if (x >= 0 && x < width && z >= 0 && z < width) {
+            pixels[z * width + x] = color;
         }
     }
 

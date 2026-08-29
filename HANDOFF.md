@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Hollow Vector Tactical Extrema Markers: Amber Peaks & Cyan Depressions (Gemini)
+
+Đã làm:
+- **Nâng cấp ký hiệu Đỉnh núi & Vực trũng thành biểu tượng Vector rỗng (Hollow Outline) với màu tương phản tác chiến**:
+  + 🏔️ **Đỉnh núi / Đỉnh đồi**: Ký hiệu tam giác rỗng viền mảnh `△` màu **Vàng cam hổ phách tác chiến (Tactical Amber Gold `#FFB800`)**.
+  + 🕳️ **Đáy hố / Vực sâu / Lòng chảo**: Ký hiệu tam giác ngược rỗng viền mảnh `▽` màu **Xanh lơ dạ quang tác chiến (Tactical Electric Cyan `#00E5FF`)**.
+  + **Bỏ hoàn toàn chữ số cao độ**: Loại bỏ toàn bộ chữ số nhỏ bị nhòe/blend vào đường bình độ, chỉ giữ lại các biểu tượng vector rỗng sắc nét.
+  + Tăng bán kính lọc đỉnh nổi bật (`radius = 24 / 16`, `prominence >= 4.5m`) giúp bản đồ thoáng đãng, chỉ xuất hiện ở các đỉnh núi và hố sụt thực sự quan trọng.
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — hollow vector outline triangles with tactical amber/cyan colors, remove numbers)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Pure Crystal-Clear Display: Remove CRT Scanlines & Glass Glare (Gemini)
 
 Đã làm:
