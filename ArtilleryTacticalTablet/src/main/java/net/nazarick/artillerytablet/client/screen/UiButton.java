@@ -403,40 +403,6 @@ public class UiButton {
         if (invisible) {
             return;
         }
-        boolean lit = active && contains(px, py);
-        boolean isPressed = lit && mouseDown;
-
-        if (hard && TabletScreen.chassisTextureLocation != null) {
-            // 1. Dynamic Lit LED overlay (only blits when LED is turned on)
-            if (led != null && hardOn) {
-                int colType = danger ? 1 : power ? 2 : 0;
-                boolean isVert = led[3] > led[2];
-                TabletChassisPaint.blitLed(g, led[0], led[1], led[2], led[3], true, colType, isVert, TabletScreen.chassisTextureLocation);
-            }
-
-            // 2. Dynamic Hover / Pressed Keycap overlay (only when interacted with)
-            if (lit || isPressed) {
-                boolean red = danger || power;
-                TabletChassisPaint.blitButton(g, x, y, w, h, red, lit, isPressed, TabletScreen.chassisTextureLocation);
-
-                int textCol = red
-                        ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
-                        : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
-                Paint p = new GuiPaint(g);
-                int kx = isPressed ? x + Math.max(1, Math.round(w * (2f / 44))) : x;
-                int ky = isPressed ? y + Math.max(1, Math.round(w * (2f / 44))) : y;
-                if (mark != null) {
-                    drawMark(p, kx + w / 2, ky + h / 2, w, textCol);
-                } else if (sub == null) {
-                    p.label(TabletTheme.text(label).getString(), kx, ky, w, h, textCol);
-                } else {
-                    p.label(TabletTheme.text(label).getString(), kx, ky, w, h / 2, textCol);
-                    p.label(TabletTheme.text(sub).getString(), kx, ky + h / 2, w, h / 2, textCol);
-                }
-            }
-            return;
-        }
-
         render(new GuiPaint(g), px, py, mouseDown);
     }
 
@@ -449,38 +415,38 @@ public class UiButton {
             return;
         }
         boolean lit = active && contains(px, py);
+        boolean isPressed = lit && mouseDown;
 
         if (hard) {
             boolean red = danger || power;
-            boolean isPressed = lit && mouseDown;
 
             int kx = x, ky = y;
             if (!isPressed) {
                 p.fill(kx + 1, ky + h, kx + w, ky + h + 1, COL_BTN_DROP_SHADOW);
                 p.fill(kx + w, ky + 1, kx + w + 1, ky + h, COL_BTN_DROP_SHADOW);
             } else {
-                int pressOffset = Math.max(1, Math.round(w * (2f / 44)));
+                int pressOffset = Math.max(1, Math.round(w * (2f / 44f)));
                 kx += pressOffset;
                 ky += pressOffset;
             }
 
             int borderCol = red ? COL_RED_BORDER_DARK : COL_BTN_BORDER_DARK;
-            int wallCol = red ? COL_RED_WALL_EXTRUSION : COL_BTN_WALL_EXTRUSION;
+            int wallCol = red ? (isPressed ? COL_RED_SHOULDER_PRESSED : COL_RED_WALL_EXTRUSION) : (isPressed ? COL_BTN_SHOULDER_PRESSED : COL_BTN_WALL_EXTRUSION);
             int shoulderCol = red
                     ? (isPressed ? COL_RED_SHOULDER_PRESSED : lit ? COL_RED_SHOULDER_HOVER : COL_RED_SHOULDER_LIGHT)
                     : (isPressed ? COL_BTN_SHOULDER_PRESSED : lit ? COL_BTN_SHOULDER_HOVER : COL_BTN_SHOULDER_LIGHT);
 
-            // 1. Dark Border with clean rounded corner steps (Bo góc mềm mại, chuẩn pixel Minecraft)
+            // 1. Dark Border with clean rounded corner steps
             int br = Math.max(1, Math.round(w * (4f / 44f)));
             for (int dy = 0; dy < h; dy++) {
                 int inset = (dy < br) ? (br - dy) : (dy >= h - br) ? (dy - (h - br) + 1) : 0;
                 p.fill(kx + inset, ky + dy, kx + w - inset, ky + dy + 1, borderCol);
             }
 
-            // 2. Cap Shoulder Body (Matte PBT nhám mịn, không bóng bẩy)
+            // 2. Cap Shoulder Body (Matte PBT nhám mịn)
             for (int dy = 1; dy < h - 1; dy++) {
                 int inset = (dy < br) ? Math.max(1, br - dy) : (dy >= h - br) ? Math.max(1, dy - (h - br) + 1) : 1;
-                int col = (dy <= 2) ? shoulderCol : wallCol;
+                int col = (dy <= 2 && !isPressed) ? shoulderCol : wallCol;
                 p.fill(kx + inset, ky + dy, kx + w - inset, ky + dy + 1, col);
             }
 
@@ -497,21 +463,30 @@ public class UiButton {
                     ? (isPressed ? COL_RED_TEXT_PRESSED : COL_RED_TEXT)
                     : (isPressed ? COL_BTN_TEXT_PRESSED : COL_BTN_TEXT);
 
-            // 3. Concave Dish Bowl (Lòng chảo 3D lõm bo gọn)
+            // 3. Concave Dish Bowl
             int innerMargin = Math.max(2, Math.round(w * (3.5f / 44f)));
             int ix = kx + innerMargin, iy = ky + innerMargin;
             int iw = w - innerMargin * 2, ih = h - innerMargin * 2;
 
-            p.fill(ix, iy, ix + iw, iy + 1, dishShadow);
-            p.fill(ix, iy + 1, ix + 1, iy + ih - 1, dishShadow);
-            p.fill(ix + iw - 1, iy + 1, ix + iw, iy + ih - 1, dishLight);
-            p.fill(ix, iy + ih - 1, ix + iw, iy + ih, dishLight);
+            if (!isPressed) {
+                p.fill(ix, iy, ix + iw, iy + 1, dishShadow);
+                p.fill(ix, iy + 1, ix + 1, iy + ih - 1, dishShadow);
+                p.fill(ix + iw - 1, iy + 1, ix + iw, iy + ih - 1, dishLight);
+                p.fill(ix, iy + ih - 1, ix + iw, iy + ih, dishLight);
+            } else {
+                p.fill(ix, iy, ix + iw, iy + 1, dishShadow);
+                p.fill(ix, iy + 1, ix + 1, iy + ih - 1, dishShadow);
+                p.fill(ix + iw - 1, iy + 1, ix + iw, iy + ih - 1, dishShadow);
+                p.fill(ix, iy + ih - 1, ix + iw, iy + ih, dishShadow);
+            }
 
             // Dish Floor
             p.fill(ix + 1, iy + 1, ix + iw - 1, iy + ih - 1, dishBaseCol);
 
+            // 4. Always draw LED with its live state (on or off)
             drawLamp(p);
 
+            // 5. Text / Glyph with physical press offset
             if (mark != null) {
                 drawMark(p, kx + w / 2, ky + h / 2, w, textCol);
             } else if (sub == null) {
@@ -523,37 +498,40 @@ public class UiButton {
             return;
         }
 
+        int kx = isPressed ? x + 1 : x;
+        int ky = isPressed ? y + 1 : y;
+
         if (nav) {
-            if (selected) {
+            if (isPressed) {
+                p.rect(x, y, w, h, 0x333B82F6);
+                p.rect(x, y + h - 2, w, 2, TabletTheme.FRIENDLY);
+            } else if (selected) {
                 p.rect(x, y + h - 2, w, 2, TabletTheme.FRIENDLY);
             } else if (lit) {
                 p.rect(x, y + h - 2, w, 2, TabletTheme.LINE);
             }
-            p.label(TabletTheme.text(label).getString(), x, y, w, h,
-                    selected || lit ? TabletTheme.TEXT : TabletTheme.MUTED);
+            p.label(TabletTheme.text(label).getString(), kx, ky, w, h,
+                    isPressed || selected || lit ? TabletTheme.TEXT : TabletTheme.MUTED);
             return;
         }
 
         if (mfd) {
-            // White while it is merely available, green once it is the one selected. Border and
-            // lettering move together, so the state reads at a glance rather than being decoded from
-            // a change of edge alone.
-            int ink = !active ? 0x667C8894 : mfdOn || lit ? TabletTheme.GOOD : TabletTheme.TEXT;
-            p.rect(x, y, w, h, TabletTheme.OVERLAY);
+            int ink = !active ? 0x667C8894 : (mfdOn || lit || isPressed) ? TabletTheme.GOOD : TabletTheme.TEXT;
+            int fill = isPressed ? 0x4400E65A : TabletTheme.OVERLAY;
+            p.rect(x, y, w, h, fill);
             p.outline(x, y, w, h, ink);
-            p.label(TabletTheme.text(label).getString(), x, y, w, h, ink);
+            p.label(TabletTheme.text(label).getString(), kx, ky, w, h, ink);
             return;
         }
 
         if (mark != null) {
-            int ink = !active ? 0x667C8894 : lit ? TabletTheme.FRIENDLY : TabletTheme.TEXT;
-            p.rect(x, y, w, h, BACKGROUND);
-            p.outline(x, y, w, h, lit ? TabletTheme.FRIENDLY : TabletTheme.LINE);
+            int ink = !active ? 0x667C8894 : isPressed ? 0xFFFFFFFF : lit ? TabletTheme.FRIENDLY : TabletTheme.TEXT;
+            int fill = isPressed ? 0x443B82F6 : BACKGROUND;
+            p.rect(x, y, w, h, fill);
+            p.outline(x, y, w, h, isPressed ? TabletTheme.TEXT : lit ? TabletTheme.FRIENDLY : TabletTheme.LINE);
 
-            // Odd-length arms about an odd-length centre, so the mark lands on the box's middle
-            // rather than half a pixel off it whatever size the box is.
-            int cx = x + (w - 1) / 2;
-            int cy = y + (h - 1) / 2;
+            int cx = kx + (w - 1) / 2;
+            int cy = ky + (h - 1) / 2;
             switch (mark) {
                 case PLUS -> {
                     p.rect(cx - 2, cy, 5, 1, ink);
@@ -572,28 +550,29 @@ public class UiButton {
         }
 
         if (menuItem) {
-            if (lit) {
+            if (isPressed) {
+                p.rect(x, y, w, h, 0x553B82F6);
+            } else if (lit) {
                 p.rect(x, y, w, h, 0x334DA3FF);
             }
-            p.label(TabletTheme.text(label).getString(), x + Ui.GAP_SM, y, w, h,
-                    lit ? TabletTheme.TEXT : TabletTheme.MUTED);
+            p.label(TabletTheme.text(label).getString(), kx + Ui.GAP_SM, ky, w, h,
+                    isPressed || lit ? TabletTheme.TEXT : TabletTheme.MUTED);
             return;
         }
 
         if (danger) {
-            int fill = !active ? 0x552A333D : lit ? 0xFFFF7A72 : TabletTheme.HOSTILE;
+            int fill = !active ? 0x552A333D : isPressed ? 0xFF881111 : lit ? 0xFFFF7A72 : TabletTheme.HOSTILE;
             p.rect(x, y, w, h, fill);
-            p.label(TabletTheme.text(label).getString(), x, y, w, h,
+            p.label(TabletTheme.text(label).getString(), kx, ky, w, h,
                     !active ? 0x667C8894 : 0xFFFFFFFF);
             return;
         }
 
-        // Only the outline answers the cursor. Filling a key on hover made the pointer the brightest
-        // thing on a display where colour is meant to carry state.
-        p.rect(x, y, w, h, BACKGROUND);
-        p.outline(x, y, w, h, !active ? 0x552A333D : lit ? TabletTheme.FRIENDLY : TabletTheme.LINE);
-        p.label(TabletTheme.text(label).getString(), x, y, w, h,
-                !active ? 0x667C8894 : lit ? TabletTheme.FRIENDLY : TabletTheme.TEXT);
+        int fill = isPressed ? 0x443B82F6 : BACKGROUND;
+        p.rect(x, y, w, h, fill);
+        p.outline(x, y, w, h, !active ? 0x552A333D : isPressed ? TabletTheme.TEXT : lit ? TabletTheme.FRIENDLY : TabletTheme.LINE);
+        p.label(TabletTheme.text(label).getString(), kx, ky, w, h,
+                !active ? 0x667C8894 : isPressed ? 0xFFFFFFFF : lit ? TabletTheme.FRIENDLY : TabletTheme.TEXT);
     }
 
 }

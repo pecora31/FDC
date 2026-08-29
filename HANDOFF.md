@@ -26,6 +26,30 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Complete Overhaul: Responsive Button Press Animations & Dynamic LED Illumination (Gemini)
+
+Đã làm:
+- **Sửa chữa và hoàn thiện toàn diện $100\%$ hệ thống Animation nút bấm và Đèn LED chỉ thị**:
+  + **Animation Nút bấm Vỏ máy (Bezel Hard Keys: F1-F20, SA, WPN, DEF, SYS, DRV, STR, COM, BMS, CFF, PWR)**:
+    * Khi Hover (`lit`): Mặt phím và lòng chảo 3D sáng nhẹ đón con trỏ.
+    * Khi Click/Nhấn giữ (`isPressed = lit && mouseDown`): Nút vật lý lún sâu $1\text{px} \to 2\text{px}$ vào hốc máy (press offset), bóng đổ chân phím biến mất, lòng chảo đổ bóng chìm đậm (`COL_BTN_DISH_SHADOW_PRESSED`), nhãn chữ và ký hiệu dịch chuyển theo độ lún và chuyển màu xám nhạt (`COL_BTN_TEXT_PRESSED`).
+  + **Animation Nút bấm Màn hình (On-Screen Soft Keys, Tabs, MFD, Action, Zoom +, Zoom -)**:
+    * Khi Hover: Viền sáng xanh tác chiến (`#3B82F6`) / xanh lá (`#00E65A`).
+    * Khi Nhấn (`isPressed`): Nền phím phản hồi màu sáng mờ (`0x443B82F6` / `0x4400E65A`), viền chuyển trắng sáng, nội dung bên trong dịch $1\text{px}$ cho cảm giác xúc giác thực thụ.
+  + **Hệ thống Đèn LED Quang học (Dynamic Status LEDs)**:
+    * Khi bật (Tab đang mở, Grid bật, Filter bật, Power Standby, CFF Armed): Phát sáng rực rỡ với **3 lớp quang học**: (1) Quầng sáng phốt pho tỏa rộng 1px (`0x55...`), (2) Thân đi-ốt bán dẫn phát quang rực rỡ (`#00FF66` xanh lá, `#FF2A2A` đỏ CFF, `#FFB000` vàng cam Power), (3) Lõi sợi quang trắng sáng tinh khiết (`#FFFFFF`).
+    * Khi tắt: Thân đèn kính hun khói chìm vào hốc máy với viền đen và vệt phản xạ kính.
+    * Đã nối đúng trạng thái CFF Armed $\to$ Đèn LED CFF sáng rực đỏ khi có mục tiêu được khóa!
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — responsive button animations and vivid optical LED illumination)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — connect live CFF armed and status LED states)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Pure Standard Military Cartography: Depression Hachures & Concentric Loop Summits (Gemini)
 
 Đã làm:
