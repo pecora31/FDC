@@ -26,6 +26,33 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Rebuilt and Connected UiButton.render() in Full (Gemini)
+
+Đã làm:
+- **Viết lại toàn bộ 3 overload `render()` trong `UiButton.java`**:
+  + `render(GuiGraphics g, double px, double py, boolean mouseDown)` -> chuyển tiếp qua `GuiPaint(g)`.
+  + `render(Paint p, double px, double py)` -> chuyển tiếp `render(p, px, py, false)`.
+  + `render(Paint p, double px, double py, boolean mouseDown)`:
+    * **Phím cứng Chassis (`hard == true`)**:
+      - Phản hồi nhấn (`pressed`): Lòng phím thụt lún $1\text{px}$ với bóng đổ sâu top/left và viền tối.
+      - Phản hồi hover (`hovered`): Vầng sáng ambient sheen bao quanh gờ viền nổi.
+      - Đèn LED quang học phát sáng (`hardOn == true`): Tỏa quầng hào quang màu xanh lục bảo (hoặc đỏ rực khi `danger`) với lõi thấu kính trắng sáng `0xFFFFFFFF`.
+      - Vẽ biểu tượng `drawMark()` hoặc nhãn chữ `label`/`sub`.
+    * **Phím mềm MFD viền màn hình (`mfd == true`)**:
+      - Nền kính quân sự HUD, viền đổi màu theo trạng thái (`mfdOn ? 0xFF5FD08A : (hovered ? 0xFF4DA3FF : 0xFF2A333D)`), đèn pip on-screen.
+    * **Danh mục menu & Tabs (`menuItem == true`, `nav == true`)**:
+      - Thanh chỉ thị màu (accent indicator bar) bên trái hoặc dưới chân tab, highlight khi hover/selected.
+    * **Nút bấm thao tác trên màn hình (Action / Map buttons `+`, `-`, Center, Danger)**:
+      - Viền vát 3D, nền đổi màu theo hover/pressed/danger, hiển thị vector marks & text sắc nét.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — hoàn thiện toàn bộ logic render, active LEDs, click depression & hover glow)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch và hiển thị 100% trong game.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Frosted Translucent Light-Pipes, 3D Raised-Lip Keycaps & Bold Vector Icons (Gemini)
 
 Đã làm:
