@@ -237,9 +237,9 @@ public final class BlockPalette {
 
             MapColor mapColour = mapColourOf(state);
 
-            // The palette answer first, packed into native 0xAABBGGRR order so byte arithmetic in
-            // TerrainMips is consistent between fallback and texture averages.
-            colour[blockId] = packed(mapColour.calculateRGBColor(MapColor.Brightness.NORMAL));
+            // The palette answer first, so there is always something to fall back to and only one place
+            // that decides what the fallback is.
+            colour[blockId] = mapColour.calculateRGBColor(MapColor.Brightness.NORMAL);
             preTinted[blockId] = true;
             tint[blockId] = tintFor(state, mapColour, true);
 

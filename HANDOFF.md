@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Restore Crisp Vector Black & White Topo & Palette Color Order Fix (Gemini)
+
+Đã làm:
+- **Khắc phục lỗi màu map vệ tinh bị xanh lè**:
+  + Trong `BlockPalette.java`: Hoàn trả `calculateRGBColor` về giá trị RGB tự nhiên (không bọc trong `packed()` nữa để tránh bị đảo lộn byte Đỏ/Lam 2 lần liên tiếp qua tầng `ForgeBlockStyle` và `NativeImage`).
+  + Màu cỏ, màu đất, màu rừng và màu thảo nguyên Savanna trở lại đúng tông màu tự nhiên chuẩn xác $100\%$.
+- **Khôi phục Map TOPO về Phong cách Vector Đen Trắng Sắc Nét** theo đúng yêu cầu:
+  + Nền địa hình than chì tối giản `#1E2226` với độ sâu đổ bóng $3\text{D}$ tinh tế.
+  + Đường đồng mức chính (Index Contour mỗi 5 bậc độ cao): Màu trắng tinh `#FFFFFF` sắc lẹm.
+  + Đường đồng mức phụ (Minor Contour): Màu bạc `#B8C0C8`.
+  + Vùng biển/nước: Màu xanh đen navy `#0E141B` với đường viền bờ biển `#D8E0E8`.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/terrain/BlockPalette.java` (sửa — colour fallback byte order)
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — khôi phục Black & White Vector Topo)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — 5x5 Biome Color Blending & Alpine Snow Albedo Boost (Gemini)
 
 Đã làm:
