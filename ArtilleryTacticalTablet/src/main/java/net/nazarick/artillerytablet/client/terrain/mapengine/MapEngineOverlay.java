@@ -126,6 +126,24 @@ public final class MapEngineOverlay {
         // region loads, so leaving room for the game's own threads matters more here than in a
         // benchmark that has the machine to itself.
         store = new RegionStore(root == null ? tempRoot() : root, source, 256, 4, overview);
+        prewarmAll();
+    }
+
+    private static void prewarmAll() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null || mc.level == null) {
+            return;
+        }
+        net.minecraft.core.Registry<net.minecraft.world.level.biome.Biome> biomes =
+                mc.level.registryAccess().registry(net.minecraft.core.registries.Registries.BIOME).orElse(null);
+        if (biomes != null) {
+            for (net.minecraft.world.level.biome.Biome b : biomes) {
+                int id = biomes.getId(b);
+                if (id >= 0) {
+                    TerrainMips.prewarmBiome((short) id);
+                }
+            }
+        }
     }
 
     /**

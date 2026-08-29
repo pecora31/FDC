@@ -722,16 +722,7 @@ public final class TerrainMips {
 
             Minecraft mc = Minecraft.getInstance();
             if (mc == null || mc.level == null) {
-                // No world to ask. Deliberately not remembered — the next world is the answer, and
-                // writing "unusable" now would keep this biome grey for the rest of the session.
-                return false;
-            }
-            if (!mc.isSameThread()) {
-                // A background bake asking. It reaches into mc.level, which the render thread may be
-                // swapping out from under it on a change of world — and the answer is not worth that
-                // risk when the render thread warms every biome a tile mentions the moment the tile
-                // lands (see TerrainClientCache.accept). Not remembered, for the same reason as
-                // above: the render thread's answer is the one that should stick.
+                // No world to ask. Deliberately not remembered — the next world is the answer
                 return false;
             }
 
