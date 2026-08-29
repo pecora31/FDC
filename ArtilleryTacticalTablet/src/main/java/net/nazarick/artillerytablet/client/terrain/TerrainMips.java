@@ -391,6 +391,13 @@ public final class TerrainMips {
         if (filter == Filter.RELIEF) {
             return reliefOf(surfaceY, depth, BlockPalette.isHazard(blockId));
         }
+
+        // JourneyMap-grade earthy matte tone: subtly dampen oversaturation (16% towards luminance)
+        float lum = 0.299f * r + 0.587f * g + 0.114f * b;
+        r = Math.max(0, Math.min(255, Math.round(r + (lum - r) * 0.16f)));
+        g = Math.max(0, Math.min(255, Math.round(g + (lum - g) * 0.16f)));
+        b = Math.max(0, Math.min(255, Math.round(b + (lum - b) * 0.16f)));
+
         return 0xFF000000 | (b << 16) | (g << 8) | r;
     }
 
