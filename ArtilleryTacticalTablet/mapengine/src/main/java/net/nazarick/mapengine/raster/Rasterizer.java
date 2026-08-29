@@ -612,11 +612,10 @@ public final class Rasterizer {
      * with white ink it would only fight the line for attention, so it goes with the ramp it was
      * built for rather than being adapted to a look it was never meant for.
      */
-    private static final int TOPO_VECTOR_BG = 0xFF1E2226;       // Minimalist dark charcoal background
+    private static final int TOPO_VECTOR_BG = 0xFF1C2024;       // Pure flat dark matte canvas
     private static final int TOPO_VECTOR_WATER = 0xFF0E141B;    // Deep dark navy water
     private static final int TOPO_VECTOR_COAST = 0xFFD8E0E8;    // Clean crisp coastline
-    private static final int TOPO_VECTOR_MINOR = 0xFFB8C0C8;    // Clean silver minor contour line
-    private static final int TOPO_VECTOR_INDEX = 0xFFFFFFFF;    // Pure crisp white index contour line
+    private static final int TOPO_VECTOR_LINE = 0xFFD0D8E0;     // Unified crisp vector contour line
 
     private static int hypsoCell(ColumnBuffer columns, float[] smoothed, int x, int z, int width) {
         int idx = columns.index(x, z);
@@ -637,22 +636,14 @@ public final class Rasterizer {
             return isWaterStipple(x, z) ? 0xFF16202A : TOPO_VECTOR_WATER;
         }
 
-        // Vector Black-and-White Land: subtle 3D hypsometric grayscale depth
-        float t = Math.max(0f, Math.min(1f, (height - TOPO_SEA_LEVEL) / 180f));
-        int g = Math.round(0x18 + 0x22 * t); // 24 to 58
-        float step = slopeOf(columns, x, z, 1, 1);
-        float lit = 1.0f + 0.18f * step;
-        g = Math.max(0x12, Math.min(0x50, Math.round(g * lit)));
-        int base = 0xFF000000 | (g << 16) | (g << 8) | g;
-
         int band = topoBand(height);
         int strength = Math.max(coast, Math.max(
                 topoLineStrength(smoothed, x, z - 1, width, band),
                 topoLineStrength(smoothed, x - 1, z, width, band)));
         if (strength == 0) {
-            return base;
+            return TOPO_VECTOR_BG;
         }
-        return strength == 2 ? TOPO_VECTOR_INDEX : TOPO_VECTOR_MINOR;
+        return TOPO_VECTOR_LINE;
     }
 
     /**

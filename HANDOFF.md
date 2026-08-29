@@ -26,6 +26,22 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-29 — Flat Minimalist Vector Topo with Unified Contour Lines (Gemini)
+
+Đã làm:
+- **Tối giản hóa Map TOPO chuẩn bản vẽ kỹ thuật quân sự**:
+  + Bỏ hoàn toàn nền mờ và bóng dốc địa hình phía sau $\to$ Nền đất đồng nhất phẳng lì màu than chì `#1C2024`.
+  + Hợp nhất tất cả các đường bình độ về một màu bạc sáng sắc nét `#D0D8E0` (không phân tách đường đậm sau mỗi 5 bậc độ cao).
+  + Giữ nguyên mặt nước xanh đen navy `#0E141B` và đường viền bờ biển `#D8E0E8`.
+
+File đụng tới:
+- `mapengine/src/main/java/net/nazarick/mapengine/raster/Rasterizer.java` (sửa — `hypsoCell` flat canvas & unified contour line tone)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Restore Crisp Vector Black & White Topo & Palette Color Order Fix (Gemini)
 
 Đã làm:
