@@ -26,6 +26,22 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Military Frosted Milky Optical Light-Pipe LEDs (Gemini)
+
+Đã làm:
+- **Tái hiện chuẩn xác mẫu đèn LED thấu kính quang học theo mô hình 3D gốc (`TabletChassisPaint.java`)**:
+  + **Thấu kính quang học mờ (Milky Frosted Optical Light-Pipe)**: Thân đèn là thanh tản sáng acrylic mờ quân sự với màu xám bạc ngọc trai (`#B0BED0`), lõi khuếch tán quang học phản xạ sáng (`0xFFDCE6F2`) và gờ phản quang đỉnh (`0xFFEEF4FC`), đúng y hệt các thanh dẫn sáng trong ảnh mẫu render 3D CAD của tablet quân sự.
+  + **Khe rãnh CNC mỏng sắc nét**: Viền rãnh chìm 1px thanh mảnh (`0xFF0E1014`), tạo độ tương phản cao và chiều sâu chân thực trên nền khung máy kim loại tối màu.
+  + **Nướng trực tiếp vào `case.png`**: Đảm bảo 0ms runtime overhead khi mở tablet.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — nướng LED thấu kính mờ quân sự chuẩn mẫu gốc)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Baked 3D Raised Optical Dome LED Capsules on Chassis (Gemini)
 
 Đã làm:

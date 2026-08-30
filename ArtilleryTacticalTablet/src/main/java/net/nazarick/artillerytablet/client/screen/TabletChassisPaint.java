@@ -1201,52 +1201,55 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Raised Smoked Optical Polycarbonate Dome Capsule (Thấu kính nổi quang học quân sự)
-            // 1. Ultra-thin CNC micro-gap slot rim (rãnh khắc vi cơ khí siêu mỏng, không bị đen dày)
+            // Frosted Milky-White Optical Light-Pipe Lens (Thấu kính quang học mờ quân sự chuẩn mẫu 3D gốc)
+            // 1. Crisp 1px CNC recessed channel socket
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
-                    if (y == -1 || x == -1) {
-                        setPixel(img, lx + x, ly + y, 0xFF14161A); // Micro upper/left recessed root
-                    } else if (y == h || x == w) {
-                        setPixel(img, lx + x, ly + y, 0xFF2A2D34); // Bottom/right metal crest highlight
-                    }
+                    setPixel(img, lx + x, ly + y, 0xFF0E1014);
                 }
             }
 
-            // 2. Translucent smoked optical lens body (thân thấu kính khói bóng)
-            for (int y = 0; y < h; y++) {
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF353C48);
-                }
-            }
-
-            // 3. 3D Convex Dome Optical Highlight & Fresnel Glint (vệt sáng thấu kính nổi)
+            // 2. Translucent frosted milky-white acrylic optical light diffuser bar
             if (isVert) {
-                // Top cap glint & bottom shadow
-                for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly, 0xFF586476);
-                    setPixel(img, lx + x, ly + h - 1, 0xFF1A1F26);
-                }
-                // Longitudinal optical reflection streak (Vệt sáng phản xạ ánh sáng dọc thấu kính)
+                // Top cap glint
+                setPixel(img, lx, ly, 0xFFB4C2D0);
+                setPixel(img, lx + 1, ly, 0xFFEEF4FC);
+                setPixel(img, lx + 2, ly, 0xFFEEF4FC);
+                setPixel(img, lx + 3, ly, 0xFF8A98A8);
+
+                // Body & cylindrical Fresnel diffusion core
                 for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, lx, ly + y, 0xFF4A5566);
-                    setPixel(img, lx + 1, ly + y, 0xFF7E8C9E); // Sharp specular Fresnel highlight
-                    setPixel(img, lx + 2, ly + y, 0xFF3D4654);
-                    setPixel(img, lx + 3, ly + y, 0xFF222832); // Right convex falloff shadow
+                    setPixel(img, lx, ly + y, 0xFF8492A2);
+                    setPixel(img, lx + 1, ly + y, 0xFFDCE6F2); // High-luminance milky reflection core
+                    setPixel(img, lx + 2, ly + y, 0xFFB0BED0); // Diffused optical body
+                    setPixel(img, lx + 3, ly + y, 0xFF647080); // Convex curve falloff shadow
                 }
+
+                // Bottom cap shadow
+                setPixel(img, lx, ly + h - 1, 0xFF606C7C);
+                setPixel(img, lx + 1, ly + h - 1, 0xFF748292);
+                setPixel(img, lx + 2, ly + h - 1, 0xFF748292);
+                setPixel(img, lx + 3, ly + h - 1, 0xFF485260);
             } else {
-                // Left cap glint & right shadow
-                for (int y = 0; y < h; y++) {
-                    setPixel(img, lx, ly + y, 0xFF586476);
-                    setPixel(img, lx + w - 1, ly + y, 0xFF1A1F26);
-                }
-                // Transverse optical reflection streak (Vệt sáng phản xạ ánh sáng ngang thấu kính)
+                // Left cap glint
+                setPixel(img, lx, ly, 0xFFB4C2D0);
+                setPixel(img, lx, ly + 1, 0xFFEEF4FC);
+                setPixel(img, lx, ly + 2, 0xFFEEF4FC);
+                setPixel(img, lx, ly + 3, 0xFF8A98A8);
+
+                // Body & cylindrical Fresnel diffusion core
                 for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, ly, 0xFF4A5566);
-                    setPixel(img, lx + x, ly + 1, 0xFF7E8C9E); // Sharp specular Fresnel highlight
-                    setPixel(img, lx + x, ly + 2, 0xFF3D4654);
-                    setPixel(img, lx + x, ly + 3, 0xFF222832);
+                    setPixel(img, lx + x, ly, 0xFFDCE6F2); // High-luminance milky reflection core
+                    setPixel(img, lx + x, ly + 1, 0xFFB0BED0); // Diffused optical body
+                    setPixel(img, lx + x, ly + 2, 0xFF8492A2);
+                    setPixel(img, lx + x, ly + 3, 0xFF647080); // Convex curve falloff shadow
                 }
+
+                // Right cap shadow
+                setPixel(img, lx + w - 1, ly, 0xFF606C7C);
+                setPixel(img, lx + w - 1, ly + 1, 0xFF748292);
+                setPixel(img, lx + w - 1, ly + 2, 0xFF748292);
+                setPixel(img, lx + w - 1, ly + 3, 0xFF485260);
             }
         }
     }
