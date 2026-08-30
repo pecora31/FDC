@@ -1202,29 +1202,32 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Thấu kính khói mờ trong suốt quân sự)
-            // 1. Recessed dark slot border (1px uniform on all 4 sides)
+            // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Thấu kính khói đối xứng 100%)
+            // 1. Perfectly uniform 1px recessed dark bezel (đúng 1px đều cả 4 cạnh)
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
                     setPixel(img, lx + x, ly + y, 0xFF08090C);
                 }
             }
 
-            // 2. Translucent smoked optical lens body
+            // 2. Uniform smoked translucent optical lens body
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF2D333F);
+                    setPixel(img, lx + x, ly + y, 0xFF343C48);
                 }
             }
 
-            // 3. 1px uniform internal top/left glint & bottom/right shadow
-            for (int x = 0; x < w; x++) {
-                setPixel(img, lx + x, ly, 0xFF4C566A);        // Top glint
-                setPixel(img, lx + x, ly + h - 1, 0xFF1E222A); // Bottom shadow
-            }
-            for (int y = 0; y < h; y++) {
-                setPixel(img, lx, ly + y, 0xFF404858);        // Left glint
-                setPixel(img, lx + w - 1, ly + y, 0xFF1E222A); // Right shadow
+            // 3. Symmetric optical core filament (đối xứng hoàn hảo, không có bóng đổ lệch hướng gây dày viền)
+            if (isVert) {
+                for (int y = 1; y < h - 1; y++) {
+                    setPixel(img, lx + 1, ly + y, 0xFF4E5868);
+                    setPixel(img, lx + 2, ly + y, 0xFF4E5868);
+                }
+            } else {
+                for (int x = 1; x < w - 1; x++) {
+                    setPixel(img, lx + x, ly + 1, 0xFF4E5868);
+                    setPixel(img, lx + x, ly + 2, 0xFF4E5868);
+                }
             }
         }
     }

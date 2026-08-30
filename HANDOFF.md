@@ -26,6 +26,21 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — 100% Symmetrical Uniform LED Socket Bezel (Gemini)
+
+Đã làm:
+- **Khắc phục triệt để lỗi viền đèn LED chỗ dày chỗ mỏng (`TabletChassisPaint.java`)**:
+  + **Nguyên nhân**: Trong hàm `bakeLedSprite`, code cũ áp dụng bóng đổ hướng bất đối xứng (`dishShadow` ở cạnh dưới/phải) kết hợp với viền socket tối màu bên ngoài, khiến cạnh dưới và cạnh phải của thấu kính bị chập 2-3px viền đen, trong khi cạnh trên và trái chỉ có 1px viền đen. Khi game scale tỷ lệ GUI, hiện tượng bất đối xứng này tạo ra các viền LED chỗ dày chỗ mỏng.
+  + **Giải pháp**: Tái cấu trúc `bakeLedSprite` sang dạng **đối xứng quang học $100\%$**: viền socket đen `0xFF08090C` đúng 1px chuẩn trên cả 4 cạnh, thân thấu kính khói đồng nhất `0xFF343C48` và lõi quang học trung tâm `0xFF4E5868` đối xứng trục tuyệt đối. Mọi đèn LED trên 4 cạnh khung máy đều có độ dày và viền đen đồng đều như nhau.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bakeLedSprite đối xứng 100%)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Press State Shape & Font Preservation, Uniform Sockets & Aligned LEDs (Gemini)
 
 Đã làm:
