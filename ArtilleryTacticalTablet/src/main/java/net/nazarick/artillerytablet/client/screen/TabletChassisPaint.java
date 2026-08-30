@@ -1301,6 +1301,7 @@ public final class TabletChassisPaint {
         int half = keySize / 2;
 
         // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
+        String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", null};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
@@ -1308,25 +1309,28 @@ public final class TabletChassisPaint {
                 bakeSunkenButtonWell(img, cx, cy);
             }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
+            bakeSingleKey(img, cx, cy, topLabels[i], (i == 9) ? UiButton.Mark.BRIGHT : null, false);
             if (i != 0 && i != 9) {
-                bakeLedSocket(img, cx - 1, 77, 3, 7);
+                bakeLedSprite(img, cx - 1, 77, 3, 7, false, 0);
             }
         }
 
-        // 2. Left Flank (6 Keys centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
+        // 2. Left Flank (6 Keys F1-F6 centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
-            bakeLedSocket(img, 77, cy - 1, 7, 3);
+            bakeSingleKey(img, cx, cy, "F" + (i + 1), null, false);
+            bakeLedSprite(img, 77, cy - 1, 7, 3, false, 0);
         }
 
-        // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
+        // 3. Right Flank (6 Keys F7-F12 centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
-            bakeLedSocket(img, 897, cy - 1, 7, 3);
+            bakeSingleKey(img, cx, cy, "F" + (i + 7), null, false);
+            bakeLedSprite(img, 897, cy - 1, 7, 3, false, 0);
         }
 
         // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
@@ -1337,9 +1341,100 @@ public final class TabletChassisPaint {
                 bakeSunkenButtonWell(img, cx, cy);
             }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
-            if (i != 0 && i != 9) {
-                bakeLedSocket(img, cx - 1, 547, 3, 7);
+            if (i == 0) {
+                bakeSingleKey(img, cx, cy, null, UiButton.Mark.FILTER, false);
+            } else if (i == 9) {
+                bakeSingleKey(img, cx, cy, null, UiButton.Mark.POWER, true);
+            } else {
+                bakeSingleKey(img, cx, cy, "F" + (i + 12), null, false);
+                bakeLedSprite(img, cx - 1, 547, 3, 7, false, 0);
             }
+        }
+    }
+
+    private static void bakeSingleKey(NativeImage img, int cx, int cy, String label, UiButton.Mark mark, boolean redKey) {
+        int keySize = 44;
+        int half = keySize / 2;
+        int kx = cx - half;
+        int ky = cy - half;
+        int w = keySize, h = keySize;
+
+        int borderDark = redKey ? 0xFF240606 : 0xFF14161B;
+        int shoulderLight = redKey ? 0xFFF05252 : 0xFF7E8898;
+        int rimTop = redKey ? 0xFFE03838 : 0xFF667080;
+        int wallExtrusion = redKey ? 0xFF8A1A1A : 0xFF3A404C;
+        int dishBase = redKey ? 0xFFA81E1E : 0xFF444A56;
+        int dishShadow = redKey ? 0xFF5A0C0C : 0xFF262A32;
+        int dishHighlight = redKey ? 0xFFD42828 : 0xFF586272;
+
+        bakeKeySprite(img, kx, ky, w, h, 8, 0, borderDark, wallExtrusion, shoulderLight, rimTop, dishBase, dishShadow, dishHighlight, false);
+
+        int textCol = redKey ? 0xFFFFFFFF : 0xFFF0F4FA;
+        if (mark != null) {
+            drawMarkToImage(img, cx, cy, mark, textCol);
+        } else if (label != null && !label.isEmpty()) {
+            rasterizePixelString(img, label, cx, cy, 2, textCol);
+        }
+    }
+
+    private static void drawMarkToImage(NativeImage img, int cx, int cy, UiButton.Mark mark, int color) {
+        switch (mark) {
+            case BRIGHT -> {
+                // Sunburst (8 rays + center)
+                fillCircle(img, cx, cy, 4, color);
+                for (int d = 6; d <= 9; d++) {
+                    setPixel(img, cx, cy - d, color);
+                    setPixel(img, cx, cy + d, color);
+                    setPixel(img, cx - d, cy, color);
+                    setPixel(img, cx + d, cy, color);
+                    int diag = (int) Math.round(d * 0.7071);
+                    setPixel(img, cx - diag, cy - diag, color);
+                    setPixel(img, cx + diag, cy - diag, color);
+                    setPixel(img, cx - diag, cy + diag, color);
+                    setPixel(img, cx + diag, cy + diag, color);
+                }
+            }
+            case POWER -> {
+                int radius = 8;
+                int rIn2 = 5 * 5;
+                int rOut2 = 8 * 8;
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dx = -radius; dx <= radius; dx++) {
+                        int d2 = dx * dx + dy * dy;
+                        if (d2 <= rOut2 && d2 >= rIn2) {
+                            if (dy <= -4 && Math.abs(dx) <= 2) continue; // Top opening gap
+                            setPixel(img, cx + dx, cy + dy, color);
+                        }
+                    }
+                }
+                // 2px wide vertical power stem
+                for (int y = -8; y <= 0; y++) {
+                    setPixel(img, cx, cy + y, color);
+                    setPixel(img, cx - 1, cy + y, color);
+                }
+            }
+            case FILTER -> {
+                // Crescent moon (right side)
+                for (int dy = -6; dy <= 6; dy++) {
+                    for (int dx = 0; dx <= 6; dx++) {
+                        int d2 = dx * dx + dy * dy;
+                        if (d2 <= 36 && (dx >= 2 || Math.abs(dy) <= 2)) {
+                            if ((dx - 4) * (dx - 4) + dy * dy > 12) {
+                                setPixel(img, cx + dx, cy + dy, color);
+                            }
+                        }
+                    }
+                }
+                // 3 Sun rays (left side)
+                for (int dx = -8; dx <= -4; dx++) {
+                    setPixel(img, cx + dx, cy, color);
+                }
+                for (int d = 3; d <= 6; d++) {
+                    setPixel(img, cx - d, cy - d, color);
+                    setPixel(img, cx - d, cy + d, color);
+                }
+            }
+            default -> {}
         }
     }
 

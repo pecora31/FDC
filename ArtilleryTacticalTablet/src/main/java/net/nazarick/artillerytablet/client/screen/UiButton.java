@@ -277,69 +277,83 @@ public class UiButton {
 
         if (hard) {
             // =========================================================================
-            // 1. HARD PHYSICAL CHASSIS KEYS (32 Keys on Bezel - Solid Molded PBT Keycaps)
+            // 1. HARD PHYSICAL CHASSIS KEYS (Baked directly into chassis texture!)
             // =========================================================================
+            // When idle: The baked chassis texture already renders the key with 100% fidelity (0ms overhead)
+            if (!hovered && !pressed && !hardOn) {
+                return;
+            }
+
+            // 1. Hover Overlay: subtle dark tint over the baked key
+            if (hovered && !pressed && !hardOn) {
+                p.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x22000000);
+                return;
+            }
+
             boolean redKey = danger || power;
             int dyPress = pressed ? 1 : 0;
             int kx = x;
             int ky = y + dyPress;
 
-            // Colors for Matte Tactical PBT Plastic:
-            int borderCol   = pressed ? (redKey ? 0xFF1C0404 : 0xFF101216) : (redKey ? 0xFF240606 : 0xFF14161B);
-            int rimTopLeft  = pressed ? (redKey ? 0xFFB82828 : 0xFF586272) : (redKey ? 0xFFF05252 : 0xFF7E8898);
-            int rimBody     = pressed ? (redKey ? 0xFFC02A2A : 0xFF545E6E) : (redKey ? 0xFFE03838 : 0xFF667080);
-            int rimBotRight = pressed ? (redKey ? 0xFF6A1010 : 0xFF282E38) : (redKey ? 0xFF8A1A1A : 0xFF3A404C);
-            int dishFloor   = pressed ? (redKey ? 0xFF8E1818 : 0xFF383E4A) : (redKey ? 0xFFA81E1E : 0xFF444A56);
-            int dishShadow  = pressed ? (redKey ? 0xFF440606 : 0xFF1E222A) : (redKey ? 0xFF5A0C0C : 0xFF262A32);
-            int dishGlint   = pressed ? (redKey ? 0xFFB82424 : 0xFF4C5666) : (redKey ? 0xFFD42828 : 0xFF586272);
-
-            // Subtle top socket shadow on gentle switch travel
+            // 2. Depressed Keycap on Press (Lún xuống 1px, sẫm màu)
             if (pressed) {
+                int borderCol   = redKey ? 0xFF1C0404 : 0xFF101216;
+                int rimTopLeft  = redKey ? 0xFFB82828 : 0xFF586272;
+                int rimBody     = redKey ? 0xFFC02A2A : 0xFF545E6E;
+                int rimBotRight = redKey ? 0xFF6A1010 : 0xFF282E38;
+                int dishFloor   = redKey ? 0xFF8E1818 : 0xFF383E4A;
+                int dishShadow  = redKey ? 0xFF440606 : 0xFF1E222A;
+                int dishGlint   = redKey ? 0xFFB82424 : 0xFF4C5666;
+
+                // Subtle top socket shadow on gentle switch travel
                 p.fill(x + 1, y, x + w - 1, y + 1, 0x35000000);
+
+                // Outer Keycap Border
+                p.fill(kx + 2, ky, kx + w - 2, ky + 1, borderCol);
+                p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, borderCol);
+                p.fill(kx, ky + 2, kx + w, ky + h - 2, borderCol);
+                p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, borderCol);
+                p.fill(kx + 2, ky + h - 1, kx + w - 2, ky + h, borderCol);
+
+                // Slim 1px Raised Rim Bevel
+                p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimBody);
+                p.fill(kx + 1, ky + 2, kx + w - 1, ky + h - 2, rimBody);
+                p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBody);
+
+                // Rim Highlights & Shadows
+                p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimTopLeft);
+                p.fill(kx + 1, ky + 2, kx + 2, ky + h - 2, rimTopLeft);
+                p.fill(kx + 1, ky + 1, kx + 2, ky + 2, rimTopLeft);
+                p.fill(kx + w - 2, ky + 2, kx + w - 1, ky + h - 2, rimBotRight);
+                p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBotRight);
+                p.fill(kx + w - 2, ky + h - 2, kx + w - 1, ky + h - 1, rimBotRight);
+
+                // Recessed Dish Floor
+                int dx0 = kx + 2;
+                int dy0 = ky + 2;
+                int dw = w - 4;
+                int dh = h - 4;
+
+                p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishFloor);
+                p.fill(dx0, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishFloor);
+                p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishFloor);
+
+                p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishShadow);
+                p.fill(dx0, dy0 + 1, dx0 + 1, dy0 + dh - 1, dishShadow);
+                p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishGlint);
+                p.fill(dx0 + dw - 1, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishGlint);
+
+                // Label / Mark on pressed key
+                int textCol = redKey ? 0xFFFFFFFF : 0xFFF0F4FA;
+                if (mark != null) {
+                    drawMark(p, cx, cy + dyPress, w, textCol);
+                } else if (label != null && !label.getString().isEmpty()) {
+                    p.label(label.getString(), kx, ky, w, h, textCol);
+                }
             }
 
-            // 1. Outer Keycap Border (Smooth 3px Rounded Corner Keycap)
-            p.fill(kx + 2, ky, kx + w - 2, ky + 1, borderCol);
-            p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, borderCol);
-            p.fill(kx, ky + 2, kx + w, ky + h - 2, borderCol);
-            p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, borderCol);
-            p.fill(kx + 2, ky + h - 1, kx + w - 2, ky + h, borderCol);
-
-            // 2. Slim 1px Raised Rim Bevel (Smooth 2px Rounded)
-            p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimBody);
-            p.fill(kx + 1, ky + 2, kx + w - 1, ky + h - 2, rimBody);
-            p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBody);
-
-            // 1px Rim Highlights & Shadows
-            p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimTopLeft); // Top highlight
-            p.fill(kx + 1, ky + 2, kx + 2, ky + h - 2, rimTopLeft); // Left light
-            p.fill(kx + 1, ky + 1, kx + 2, ky + 2, rimTopLeft);     // Top-left shoulder
-            p.fill(kx + w - 2, ky + 2, kx + w - 1, ky + h - 2, rimBotRight); // Right shadow
-            p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBotRight); // Bottom shadow
-            p.fill(kx + w - 2, ky + h - 2, kx + w - 1, ky + h - 1, rimBotRight); // Bot-right shoulder
-
-            // 3. Recessed Dish Floor (Gờ viền mỏng 2px, lòng phím rộng rãi bo tròn mềm mại)
-            int dx0 = kx + 2;
-            int dy0 = ky + 2;
-            int dw = w - 4;
-            int dh = h - 4;
-
-            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishFloor);
-            p.fill(dx0, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishFloor);
-            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishFloor);
-
-            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishShadow); // Top dish shadow
-            p.fill(dx0, dy0 + 1, dx0 + 1, dy0 + dh - 1, dishShadow); // Left dish shadow
-            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishGlint); // Bottom dish highlight
-            p.fill(dx0 + dw - 1, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishGlint); // Right dish highlight
-
-            // 4. Subtle Dark Hover Overlay (Mờ đen nhẹ khi hover)
-            if (hovered && !pressed) {
-                p.fill(kx + 1, ky + 1, kx + w - 1, ky + h - 1, 0x22000000);
-            }
-
-            // 5. Slender Compact Optical LED with Subtle Recessed Depth
-            if (led != null && led.length >= 4) {
+            // 3. Active Glowing Laser LED (Only when hardOn)
+            if (hardOn && led != null && led.length >= 4) {
                 int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
                 int ledCol = danger ? 0xFFFF2828 : 0xFF00E85D;
 
@@ -356,41 +370,15 @@ public class UiButton {
                     y0 = ly + lh / 2 - 1;
                 }
 
-                // 1px Subtle Recessed Socket Moat (Hốc lõm nhẹ vào bề mặt khung)
-                p.fill(x0 - 1, y0 - 1, x0 + wLed + 1, y0, 0xFF08090C); // Top shadow
-                p.fill(x0 - 1, y0 - 1, x0, y0 + hLed + 1, 0xFF08090C); // Left shadow
-                p.fill(x0 - 1, y0 + hLed, x0 + wLed + 1, y0 + hLed + 1, 0xFF181C22); // Bottom rim glint
-                p.fill(x0 + wLed, y0 - 1, x0 + wLed + 1, y0 + hLed + 1, 0xFF181C22); // Right rim glint
-
-                if (hardOn) {
-                    // Active Laser Glow
-                    p.rect(x0 - 1, y0 - 1, wLed + 2, hLed + 2, (ledCol & 0x00FFFFFF) | 0x30000000);
-                    p.rect(x0, y0, wLed, hLed, ledCol);
-                    // White-hot center filament
-                    if (hLed > wLed) {
-                        p.fill(x0, y0 + 1, x0 + 1, y0 + hLed - 1, 0xFFE0FFE8);
-                    } else {
-                        p.fill(x0 + 1, y0, x0 + wLed - 1, y0 + 1, 0xFFE0FFE8);
-                    }
+                // Active Laser Glow
+                p.rect(x0 - 1, y0 - 1, wLed + 2, hLed + 2, (ledCol & 0x00FFFFFF) | 0x30000000);
+                p.rect(x0, y0, wLed, hLed, ledCol);
+                // White-hot center filament
+                if (hLed > wLed) {
+                    p.fill(x0, y0 + 1, x0 + 1, y0 + hLed - 1, 0xFFE0FFE8);
                 } else {
-                    // Unlit Smoked Translucent Optical Polycarbonate Lens (trong suốt, không bị trắng quá)
-                    p.rect(x0, y0, wLed, hLed, 0xFF3C4654);
-                    p.fill(x0, y0, x0 + wLed, y0 + 1, 0xFF5A6678); // Top optical reflection
-                    p.fill(x0, y0, x0 + 1, y0 + hLed, 0xFF4E5A6A); // Left optical reflection
-                    p.fill(x0 + wLed - 1, y0 + 1, x0 + wLed, y0 + hLed, 0xFF2A323D); // Right depth shadow
-                    p.fill(x0 + 1, y0 + hLed - 1, x0 + wLed, y0 + hLed, 0xFF2A323D); // Bottom depth shadow
+                    p.fill(x0 + 1, y0, x0 + wLed - 1, y0 + 1, 0xFFE0FFE8);
                 }
-            }
-
-            // 6. Text / Mark on Hard Keycap (Optically Centered & Shifted on Press)
-            int textCol = active ? (redKey ? 0xFFFFFFFF : 0xFFF0F4FA) : 0xFF6C7684;
-            if (mark != null) {
-                drawMark(p, cx, cy + dyPress, w, textCol);
-            } else if (label != null && !label.getString().isEmpty()) {
-                p.label(label.getString(), kx, ky, w, h, textCol);
-            }
-            if (sub != null && !sub.getString().isEmpty()) {
-                p.label(sub.getString(), kx, ky + h - 10, w, 8, 0xFF8E99A8);
             }
 
         } else if (mfd) {

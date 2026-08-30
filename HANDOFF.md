@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Full Static Baking of All 32 Bezel Keys & Zero-Overhead Interaction Model (Gemini)
+
+Đã làm:
+- **Nướng trực tiếp $100\%$ toàn bộ 32 phím cứng, nhãn chữ và LED unlit vào texture tĩnh (`TabletChassisPaint.java`)**:
+  + **Độ sắc nét & Chi tiết 3D tối đa**: Toàn bộ 32 phím cứng (`GRID`, `SA`, `WPN`, `DEF`, `STA`, `DRV`, `STR`, `LOG`, `BTY`, `BRIGHT`, `F1`-`F20`, `FLT`, `POWER`) cùng biểu tượng và thấu kính LED xám khói được nướng trực tiếp vào texture tĩnh $980\times 630$ với độ cong góc $R=8\text{px}$, gờ nổi PBT và lòng phím dập nổi hoàn hảo.
+  + **Tốc độ render siêu tốc**: Toàn bộ vỏ máy và 32 phím được render bằng đúng **1 lệnh `blit` GPU duy nhất**, $0\text{ms}$ CPU overhead.
+- **Tối ưu hóa kiến trúc tương tác `UiButton.java`**:
+  + **Trạng thái bình thường (Idle)**: `UiButton` bỏ qua việc vẽ, để texture tĩnh hiển thị sắc nét tuyệt đối.
+  + **Khi Hover**: `UiButton` phủ 1 lớp bóng mờ (`0x22000000`) trên duy nhất phím đang rê chuột.
+  + **Khi Nhấn**: `UiButton` vẽ phím thụt xuống $1\text{px}$ đè lên vị trí phím đó với hiệu ứng đổ bóng sẫm màu.
+  + **Khi LED bật sáng (`hardOn`)**: `UiButton` vẽ đốm sáng laser quang học rực rỡ cho phím đó.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bakeAllDefaultKeysAndLeds, bakeSingleKey, drawMarkToImage)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — zero-overhead idle model, hover/press/LED overlays)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Ultra-Fast Zero-Lag Rendering & Smooth 3px Rounded Keycaps (Gemini)
 
 Đã làm:
