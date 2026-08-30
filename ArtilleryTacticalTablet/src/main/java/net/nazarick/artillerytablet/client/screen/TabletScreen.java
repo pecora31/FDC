@@ -275,6 +275,19 @@ public class TabletScreen extends Screen {
      * device, not of the screen instance, which is built afresh every time the tablet is opened.
      */
     private static boolean screenOn = true;
+    private static final Set<String> TOGGLED_LEDS = new HashSet<>();
+
+    private static boolean isLedOn(String id) {
+        return TOGGLED_LEDS.contains(id);
+    }
+
+    private static void toggleLed(String id) {
+        if (TOGGLED_LEDS.contains(id)) {
+            TOGGLED_LEDS.remove(id);
+        } else {
+            TOGGLED_LEDS.add(id);
+        }
+    }
 
     public TabletScreen(ItemStack stack, InteractionHand hand) {
         super(Component.translatable("item.artillerytablet.artillery_tactical_tablet"));
@@ -675,8 +688,12 @@ public class TabletScreen extends Screen {
         int w = row ? frame.rowKeyW() : kw;
         int h = !row ? kh
                 : edge == TabletFrame.EDGE_BOTTOM ? frame.rowKeyBottomH() : frame.rowKeyH();
-        addKey(new UiButton(at[0], at[1], w, h, Component.literal("F" + number), () -> { })
-                .hard(false)
+        String keyId = "spare_" + edge + "_" + index;
+        addKey(new UiButton(at[0], at[1], w, h, Component.literal("F" + number), () -> {
+            toggleLed(keyId);
+            rebuild();
+        })
+                .hard(isLedOn(keyId))
                 .lamp(frame.ledFor(edge, index))
                 .tooltip(Component.translatable("gui.artillerytablet.frame.spare", number)));
     }
@@ -690,9 +707,13 @@ public class TabletScreen extends Screen {
      */
     private void spareTop(int index, int kw, int kh, String label) {
         int[] at = frame.rowKey(false, index);
+        String keyId = "top_" + index;
         addKey(new UiButton(at[0], at[1], frame.rowKeyW(), frame.rowKeyH(),
-                Component.literal(label), () -> { })
-                .hard(false)
+                Component.literal(label), () -> {
+            toggleLed(keyId);
+            rebuild();
+        })
+                .hard(isLedOn(keyId))
                 .lamp(frame.ledFor(TabletFrame.EDGE_TOP, index))
                 .tooltip(Component.translatable("gui.artillerytablet.frame.spare", label)));
     }

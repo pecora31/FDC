@@ -26,6 +26,34 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Uniform Button Press Tone, Perfectly Centered LEDs & Toggleable LED State (Gemini)
+
+Đã làm:
+- **Làm tối đồng đều toàn bộ nút khi ấn (`UiButton.java`)**:
+  + Chuyển lớp phủ khi nhấn sang **1 lớp mờ đồng nhất $100\%$ (`0x50000000`)** trên toàn bộ phím bấm bo góc. Cạnh trên và cạnh trái không còn bị đen sẫm mà có cùng sắc độ tối tự nhiên với phần lòng phím và chữ số.
+- **Căn giữa LED vào dải bezel phẳng & Loại bỏ viền gradient cắt ngang (`TabletChassisPaint.java`, `TabletFrame.java`)**:
+  + **Nguyên nhân viền LED không đều ở ảnh 2**: Đèn LED hàng dưới trước đây đặt ở $y=546$, nằm đè lên đúng ranh giới dải vát dốc (`y=540-548`) của khung máy, khiến nửa trên của LED chìm vào dải tối còn nửa dưới nằm trên nền phẳng.
+  + **Giải pháp**: Căn giữa hình học chuẩn xác vào dải bezel phẳng:
+    * Hàng trên: $y=72$ (kích thước $4\times 8\text{px}$)
+    * Hàng dưới: $y=549$ (kích thước $4\times 8\text{px}$)
+    * Cột trái: $x=71$ (kích thước $8\times 4\text{px}$)
+    * Cột phải: $x=900$ (kích thước $8\times 4\text{px}$)
+  + Đồng bộ $100\%$ tọa độ `TabletFrame.ledFor` và `TabletChassisPaint.java`. Toàn bộ 28 đèn LED nằm hoàn toàn trên nền phẳng đồng nhất, viền đen $1\text{px}$ chuẩn xác trên cả 4 cạnh.
+- **Cơ chế bật/tắt giữ trạng thái đèn LED khi bấm (`TabletScreen.java`)**:
+  + Thêm cơ chế `TOGGLED_LEDS`: Khi bấm vào 1 phím cứng (như `F1`–`F20`, `SA`, `WPN`...), đèn LED tương ứng sẽ bật sáng và giữ nguyên trạng thái; bấm lần nữa sẽ tắt.
+  + Vị trí phát quang laser trùng khớp $100\%$ từng pixel với thấu kính đã nướng.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletFrame.java` (sửa — tọa độ LED căn giữa chuẩn)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — nướng LED theo tọa độ căn giữa mới)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — màu tối đồng đều khi bấm)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — toggle LED khi click)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Extinguish Bright Rim Highlight on Button Press (Gemini)
 
 Đã làm:
