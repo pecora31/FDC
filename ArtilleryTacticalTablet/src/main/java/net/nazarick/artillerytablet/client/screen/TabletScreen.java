@@ -531,30 +531,21 @@ public class TabletScreen extends Screen {
         }
         int kw = frame.keyW();
         int kh = frame.keyH();
-        boolean armed = !targets.isEmpty() && selected >= 0 && selected < targets.size();
 
         // ---- top edge: grid, five real views spread among three not yet wired, and brightness --
         //
         // The new case has eight domain-labelled slots where the old one had five tab keys and two
         // spares — SA/WPN/SYS/COM/BMS carry TARGETS/AMMO/STATUS/LOG/BATTERY exactly as the five tab
         // keys always did; DEF/DRV/STR are not yet behind anything, same as any other spare.
-        top(0, kw, kh, Component.translatable("gui.artillerytablet.frame.grid"),
-                () -> map.toggleGrid(), map.gridShown(),
-                Component.translatable("gui.artillerytablet.frame.grid.tip"))
-                .mark(UiButton.Mark.GRID);
-        top(1, kw, kh, Component.literal("SA"), () -> appManager.switchTo(MapApp.ID),
-                appManager.isActive(MapApp.ID), Component.translatable("gui.artillerytablet.app.map"));
-        top(2, kw, kh, Component.literal("WPN"), () -> appManager.switchTo(FireControlApp.ID),
-                appManager.isActive(FireControlApp.ID), Component.literal("Fire Control"));
+        spareTop(0, kw, kh, "GRID");
+        spareTop(1, kw, kh, "SA");
+        spareTop(2, kw, kh, "WPN");
         spareTop(3, kw, kh, "DEF");
-        top(4, kw, kh, Component.literal(TabletTab.STATUS.code), () -> toggleTab(TabletTab.STATUS),
-                openTab == TabletTab.STATUS, Component.translatable(TabletTab.STATUS.titleKey));
+        spareTop(4, kw, kh, TabletTab.STATUS.code);
         spareTop(5, kw, kh, "DRV");
         spareTop(6, kw, kh, "STR");
-        top(7, kw, kh, Component.literal(TabletTab.LOG.code), () -> toggleTab(TabletTab.LOG),
-                openTab == TabletTab.LOG, Component.translatable(TabletTab.LOG.titleKey));
-        top(8, kw, kh, Component.literal(TabletTab.BATTERY.code), () -> toggleTab(TabletTab.BATTERY),
-                openTab == TabletTab.BATTERY, Component.translatable(TabletTab.BATTERY.titleKey));
+        spareTop(7, kw, kh, TabletTab.LOG.code);
+        spareTop(8, kw, kh, TabletTab.BATTERY.code);
         top(9, kw, kh, Component.translatable("gui.artillerytablet.frame.brightness_up"),
                 TabletDisplay::cycleBrightness, false,
                 Component.translatable("gui.artillerytablet.frame.brightness.tip",
@@ -584,17 +575,11 @@ public class TabletScreen extends Screen {
                 .mark(UiButton.Mark.POWER)
                 .tooltip(Component.translatable("gui.artillerytablet.frame.power.tip")));
 
-        // ---- left edge: laying the guns --------------------------------------------------------
-        side(false, 0, kw, kh, Component.translatable("gui.artillerytablet.frame.cff"),
-                () -> fire(selected >= 0 ? selected : 0), false,
-                Component.translatable("gui.artillerytablet.frame.cff.tip")).danger();
-        side(false, 1, kw, kh, Component.translatable("gui.artillerytablet.key.adjust"),
-                () -> lay(selected), armed && !boundIds.isEmpty(),
-                Component.translatable("gui.artillerytablet.key.adjust.tip"));
-        side(false, 2, kw, kh, Component.translatable("gui.artillerytablet.key.mode"),
-                this::cycleFireMode, true, fireModeLabel());
-        side(false, 3, kw, kh, Component.translatable("gui.artillerytablet.key.arc"),
-                this::toggleTrajectory, true, trajectoryLabel());
+        // ---- left edge: not yet assigned --------------------------------------------------------
+        spare(TabletFrame.EDGE_LEFT, 0, kw, kh, 1);
+        spare(TabletFrame.EDGE_LEFT, 1, kw, kh, 2);
+        spare(TabletFrame.EDGE_LEFT, 2, kw, kh, 3);
+        spare(TabletFrame.EDGE_LEFT, 3, kw, kh, 4);
         spare(TabletFrame.EDGE_LEFT, 4, kw, kh, 5);
         spare(TabletFrame.EDGE_LEFT, 5, kw, kh, 6);
 
