@@ -29,6 +29,21 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Top-Left Silk-Screen Silver ASTRA Logo Badge on Chassis (Gemini)
+
+Đã làm:
+- **Thêm logo ASTRA màu xám bạc nhỏ gọn ở góc trên bên trái khung máy (`TabletChassisPaint.java`)**:
+  + Thêm hàm `bakeTopLeftAstraBadge` vẽ logo vector ASTRA kích thước compact $33\text{px} \times 6\text{px}$ tại tọa độ $(52, 96)$ (nằm ở phần vai góc trên bên trái khung máy, phía trên cột phím `F1`–`F6`).
+  + Tông màu: Xám trắng bạc mờ chuẩn in lụa quân sự (`0xFFC0C9D4`) kèm bóng đổ khắc laser chìm (`0xFF0D0E11`), tạo cảm giác sang trọng và cao cấp như nhãn hiệu của các thiết bị quân sự cao cấp.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — thêm logo ASTRA màu bạc ở góc trên trái chassis)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Fix Screen Corner Radius & Off Screen Rendering (Gemini)
 
 Đã làm:

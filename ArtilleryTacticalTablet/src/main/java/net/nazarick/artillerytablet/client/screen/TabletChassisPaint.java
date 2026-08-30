@@ -123,6 +123,9 @@ public final class TabletChassisPaint {
         // 9. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
         bakeAllDefaultKeysAndLeds(img);
 
+        // 10. Silk-screen matte off-white silver ASTRA logo badge at top-left corner
+        bakeTopLeftAstraBadge(img);
+
         return img;
     }
 
@@ -1561,6 +1564,78 @@ public final class TabletChassisPaint {
                 }
             }
             curX += (gw + 1) * fontScale;
+        }
+    }
+
+    private static void bakeTopLeftAstraBadge(NativeImage img) {
+        int cx = 52;
+        int cy = 96;
+        int badgeCol = 0xFFC0C9D4; // Silk-screen matte off-white silver
+        int shadowCol = 0xFF0D0E11; // Subtle laser-etched cavity shadow
+
+        drawMiniAstra(img, cx + 1, cy + 1, shadowCol);
+        drawMiniAstra(img, cx, cy, badgeCol);
+    }
+
+    private static void drawMiniAstra(NativeImage img, int cx, int cy, int col) {
+        int letW = 5;
+        int letH = 6;
+        int gap = 2;
+        int totalW = 5 * letW + 4 * gap; // 33px
+        int startX = cx - totalW / 2;
+        int topY = cy - letH / 2;
+
+        for (int i = 0; i < 5; i++) {
+            int lx = startX + i * (letW + gap);
+            switch (i) {
+                case 0, 4 -> { // 'A' (Lambda Chevron)
+                    setPixel(img, lx + 2, topY, col);
+                    setPixel(img, lx + 1, topY + 1, col);
+                    setPixel(img, lx + 3, topY + 1, col);
+                    setPixel(img, lx + 1, topY + 2, col);
+                    setPixel(img, lx + 3, topY + 2, col);
+                    setPixel(img, lx, topY + 3, col);
+                    setPixel(img, lx + 4, topY + 3, col);
+                    setPixel(img, lx, topY + 4, col);
+                    setPixel(img, lx + 4, topY + 4, col);
+                    setPixel(img, lx, topY + 5, col);
+                    setPixel(img, lx + 4, topY + 5, col);
+                }
+                case 1 -> { // 'S'
+                    setPixel(img, lx + 1, topY, col);
+                    setPixel(img, lx + 2, topY, col);
+                    setPixel(img, lx + 3, topY, col);
+                    setPixel(img, lx + 4, topY, col);
+                    setPixel(img, lx, topY + 1, col);
+                    setPixel(img, lx, topY + 2, col);
+                    setPixel(img, lx + 1, topY + 2, col);
+                    setPixel(img, lx + 2, topY + 3, col);
+                    setPixel(img, lx + 3, topY + 3, col);
+                    setPixel(img, lx + 4, topY + 4, col);
+                    setPixel(img, lx, topY + 5, col);
+                    setPixel(img, lx + 1, topY + 5, col);
+                    setPixel(img, lx + 2, topY + 5, col);
+                    setPixel(img, lx + 3, topY + 5, col);
+                }
+                case 2 -> { // 'T'
+                    for (int x = 0; x < letW; x++) setPixel(img, lx + x, topY, col);
+                    for (int y = 1; y < letH; y++) setPixel(img, lx + 2, topY + y, col);
+                }
+                case 3 -> { // 'R'
+                    for (int y = 0; y < letH; y++) setPixel(img, lx, topY + y, col);
+                    setPixel(img, lx + 1, topY, col);
+                    setPixel(img, lx + 2, topY, col);
+                    setPixel(img, lx + 3, topY, col);
+                    setPixel(img, lx + 4, topY + 1, col);
+                    setPixel(img, lx + 4, topY + 2, col);
+                    setPixel(img, lx + 1, topY + 3, col);
+                    setPixel(img, lx + 2, topY + 3, col);
+                    setPixel(img, lx + 3, topY + 3, col);
+                    setPixel(img, lx + 2, topY + 4, col);
+                    setPixel(img, lx + 3, topY + 4, col);
+                    setPixel(img, lx + 4, topY + 5, col);
+                }
+            }
         }
     }
 }
