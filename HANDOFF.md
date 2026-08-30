@@ -29,6 +29,23 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Fix Screen Corner Radius & Off Screen Rendering (Gemini)
+
+Đã làm:
+- **Sửa triệt để lỗi góc màn hình khi tắt và khi bật (`TabletChassisPaint.java`, `TabletScreen.java`)**:
+  + **Sửa viền góc chassis (`TabletChassisPaint.java`)**: Giới hạn phạm vi hốc ốc góc máy `pSize = 72px` trong `bakeSteppedCorner`, loại bỏ hoàn toàn hiện tượng hốc góc ăn lấn vào góc viền màn hình (xóa sạch lỗi góc L-shape xám bị lộ ở 4 góc).
+  + **Sửa màn hình khi tắt (`TabletScreen.java`)**: Loại bỏ lệnh `g.fill()` hình chữ nhật góc vuông đè lên viền khi tắt màn hình (`!screenOn`). Tận dụng trực tiếp hình ảnh chassis nướng sẵn với nền OLED bo góc $R=16\text{px}$ và logo ASTRA hoàn hảo.
+  + **Đồng bộ góc bo khi bật màn hình (`TabletScreen.java`)**: Cập nhật màu sắc mặt nạ 4 góc trong `maskWellCorners` khớp chính xác với dải màu vát viền của khung máy, giúp bản đồ bo góc cong mượt mà theo đúng viền máy.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — thu gọn hốc góc máy để không cấn viền màn hình)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — bỏ vẽ đè hình chữ nhật khi màn hình tắt)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Increased Boot Splash Animation Duration to 3.5s (Gemini)
 
 Đã làm:

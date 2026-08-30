@@ -1121,16 +1121,7 @@ public class TabletScreen extends Screen {
         }
 
         if (!screenOn) {
-            // Off, and drawn rather than left out. The case and its keys are still there — that is
-            // the whole point of the display being a thing that switches rather than the tablet
-            // being a thing that closes — so what goes here is a dark panel, not an absence.
-            g.fill(left, top, left + width0, top + height0, 0xFF04060A);
-            g.fill(left, top, left + width0, top + 1, 0xFF0B1016);
-            // And then the controls, which is the whole point and was the bug: the keys were built
-            // while the display was off and never drawn, because the loop that draws them sits at
-            // the end of this method and this branch left before reaching it. A case whose keys
-            // vanish with its picture is not a case with a switch on it — it is a case that
-            // disappeared.
+            // Off: The baked chassis texture already displays the exact rounded OLED black screen floor and ASTRA logo.
             renderControls(g, px, py);
             return;
         }

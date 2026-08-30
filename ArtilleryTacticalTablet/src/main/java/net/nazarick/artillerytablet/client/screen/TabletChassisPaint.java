@@ -181,8 +181,8 @@ public final class TabletChassisPaint {
             int cornerW, int cornerH, int rIn, int outerR, int bW) {
         int w = TabletFrame.DESIGN_W;
         int h = TabletFrame.DESIGN_H;
-        int pSize = cornerW;
-        int rInner = rIn; // 28px curve for L trên
+        int pSize = 72; // Clean corner bolt pocket bounded away from screen well
+        int rInner = 20;
 
         int kx1 = isLeft ? 0 : w - pSize;
         int kx2 = isLeft ? pSize : w;
