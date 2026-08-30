@@ -215,7 +215,11 @@ final class TabletFrame {
     }
 
     private int[] rect(int designX, int designY, int designW, int designH) {
-        return new int[]{toScreenX(designX), toScreenY(designY), toScreenW(designW), toScreenH(designH)};
+        int x1 = toScreenX(designX);
+        int y1 = toScreenY(designY);
+        int x2 = toScreenX(designX + designW);
+        int y2 = toScreenY(designY + designH);
+        return new int[]{x1, y1, Math.max(2, x2 - x1), Math.max(2, y2 - y1)};
     }
 
     static final int EDGE_TOP = 0;

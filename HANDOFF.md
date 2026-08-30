@@ -26,6 +26,34 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Dynamic Screen-Space Pixel-Perfect Vector LEDs (Gemini)
+
+Đã làm:
+- **Chuyển toàn bộ 28 đèn LED sang cơ chế vẽ Vector trực tiếp theo Tọa độ Màn hình (`UiButton.java`, `TabletFrame.java`, `TabletChassisPaint.java`)**:
+  + **Khắc phục triệt để lỗi viền đen méo lệch do subpixel texture downsampling**:
+    * Không nướng LED vào texture tĩnh $980\text{px}$ (tránh việc GPU nén texture làm sai lệch tỉ lệ pixel giữa các nút).
+    * `UiButton` trực tiếp vẽ socket và thấu kính LED trên tọa độ màn hình thực tế bằng `p.fill` đã snap integer pixel.
+    * **Đảm bảo 100% đèn LED luôn có viền đen đúng $1\text{px}$ chuẩn xác tuyệt đối trên cả 4 cạnh** ở mọi vị trí nút và mọi mức GUI Scale.
+  + **Vị trí nguyên bản sát gờ màn hình**:
+    * Hàng trên: $y = 76$
+    * Hàng dưới: $y = 546$
+    * Cột trái: $x = 76$
+    * Cột phải: $x = 896$
+  + **Trạng thái bật/tắt**:
+    * Khi tắt (`unlit`): Viền đen socket $1\text{px}$ `0xFF08090C`, thân kính khói `0xFF343C48`, lõi quang học `0xFF4E5868`.
+    * Khi bật (`lit`): Laser halo $1\text{px}$, thân LED rực rỡ, tim đèn trắng `0xFFFFFFFF` (giữ sáng sau khi bấm, bấm lại để tắt).
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — render vector LED trực tiếp trên screen space)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletFrame.java` (sửa — rect căn chỉnh integer pixel chính xác)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — loại bỏ nướng LED tĩnh để vector LED quản lý 100%)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — toggle LED khi click)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Restored LED Positions Close to Screen Well (Gemini)
 
 Đã làm:

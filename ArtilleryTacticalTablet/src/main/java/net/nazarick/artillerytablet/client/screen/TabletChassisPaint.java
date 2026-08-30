@@ -1303,7 +1303,7 @@ public final class TabletChassisPaint {
         int keySize = 44;
         int half = keySize / 2;
 
-        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76, 4x8)
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41)
         String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", null};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
@@ -1313,30 +1313,25 @@ public final class TabletChassisPaint {
             }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             bakeSingleKey(img, cx, cy, topLabels[i], (i == 9) ? UiButton.Mark.BRIGHT : null, false);
-            if (i != 0 && i != 9) {
-                bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
-            }
         }
 
-        // 2. Left Flank (6 Keys F1-F6 centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, 8x4)
+        // 2. Left Flank (6 Keys F1-F6 centered at COL_LEFT_X = 39)
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             bakeSingleKey(img, cx, cy, "F" + (i + 1), null, false);
-            bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
-        // 3. Right Flank (6 Keys F7-F12 centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, 8x4)
+        // 3. Right Flank (6 Keys F7-F12 centered at COL_RIGHT_X = 941)
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             bakeSingleKey(img, cx, cy, "F" + (i + 7), null, false);
-            bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546, 4x8)
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589)
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
@@ -1350,7 +1345,6 @@ public final class TabletChassisPaint {
                 bakeSingleKey(img, cx, cy, null, UiButton.Mark.POWER, true);
             } else {
                 bakeSingleKey(img, cx, cy, "F" + (i + 12), null, false);
-                bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
             }
         }
     }

@@ -708,14 +708,17 @@ public class TabletScreen extends Screen {
     private void spareTop(int index, int kw, int kh, String label) {
         int[] at = frame.rowKey(false, index);
         String keyId = "top_" + index;
-        addKey(new UiButton(at[0], at[1], frame.rowKeyW(), frame.rowKeyH(),
+        UiButton btn = new UiButton(at[0], at[1], frame.rowKeyW(), frame.rowKeyH(),
                 Component.literal(label), () -> {
             toggleLed(keyId);
             rebuild();
         })
                 .hard(isLedOn(keyId))
-                .lamp(frame.ledFor(TabletFrame.EDGE_TOP, index))
-                .tooltip(Component.translatable("gui.artillerytablet.frame.spare", label)));
+                .tooltip(Component.translatable("gui.artillerytablet.frame.spare", label));
+        if (index > 0 && index < TabletFrame.ROW_KEYS - 1) {
+            btn.lamp(frame.ledFor(TabletFrame.EDGE_TOP, index));
+        }
+        addKey(btn);
     }
 
     // There is no lettering on the case any more. The strip above the glass carries the top row of
