@@ -26,6 +26,30 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Rounded PBT Keycaps, Slim Rims, Frosted Optical LEDs & 4 Sunken Corner Wells (Gemini)
+
+Đã làm:
+- **Bo tròn 4 góc nút bấm & Gờ viền mỏng thanh thoát (`UiButton.java`)**:
+  + Thay thế viền hình chữ nhật vuông bằng cấu trúc bo tròn 4 góc tự nhiên của nhựa PBT đúc ($R=2-3\text{px}$).
+  + Thu nhỏ gờ viền (`rim = 2px`) với nét vát nổi mảnh $1\text{px}$ sáng trên/trái, $1\text{px}$ tối dưới/phải; lòng phím chìm rộng rãi, bo tròn góc với hiệu ứng đổ bóng lòng phím PBT tinh tế.
+- **Thấu kính LED thanh mảnh & Sáng rõ trong suốt quang học**:
+  + Thu gọn độ dày đèn LED về kích thước mảnh ($3\times 7\text{px}$), viền bezel tối màu $1\text{px}$ bao quanh.
+  + Nâng cấp màu thấu kính khi tắt sang tông xám khói mờ quang học sáng hơn (`#4E5868` với ánh phản quang `#8090A6` / `#708096`), tạo cảm giác thấu kính polycarbonate trong suốt vật lý rõ nét, không bị tối đen.
+- **Tái hiện 4 Hốc Lõm Vát (Sunken Wells) tại 4 Phím Góc (`TabletChassisPaint.java`)**:
+  + Dựng lại khuôn hốc lõm vát sâu đa tầng `bakeSunkenButtonWell` quanh 4 phím góc (`GRID`, `BRIGHT`, `FLT`, `POWER`) theo đúng ảnh thiết kế quân sự nguyên mẫu (Image 2).
+- **Icon Lọc Chế Độ / Ngày Đêm (`Mark.FILTER`)**:
+  + Bổ sung vector mark Mặt Trời & Mặt Trăng lưỡi liềm (☀️🌙) cho phím `FLT` góc dưới bên trái.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bakeSunkenButtonWell cho 4 góc, slender LED sockets)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — rounded PBT keycaps, slim rims, brighter frosted optical LEDs, Mark.FILTER)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — gán Mark.FILTER cho nút FLT)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-29 — Screen-Space Integer Rasterization of 3D Keycaps & LEDs (Gemini)
 
 Đã giải quyết triệt để gốc rễ nguyên nhân (Root Cause Analysis & Fix):
