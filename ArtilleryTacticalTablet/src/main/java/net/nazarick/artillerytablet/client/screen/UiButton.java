@@ -277,41 +277,14 @@ public class UiButton {
 
         if (hard) {
             // =========================================================================
-            // 1. HARD PHYSICAL CHASSIS KEYS
+            // 1. HARD PHYSICAL CHASSIS KEYS (Baked into chassis texture for 0ms idle overhead!)
             // =========================================================================
-            // Draw crisp, uniform vector LED directly on screen (guarantees exact 1px black socket on all 4 sides on every GUI scale)
-            if (led != null && led.length >= 4) {
-                int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
-                if (hardOn) {
-                    int ledCol = danger ? 0xFFFF2828 : 0xFF00E85D;
-                    // Active Laser Glow Halo (1px outer rim)
-                    p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, (ledCol & 0x00FFFFFF) | 0x50000000);
-                    // Saturated LED Body
-                    p.fill(lx, ly, lx + lw, ly + lh, ledCol);
-                    // Pure white-hot optical center filament
-                    p.fill(lx + (lw > 2 ? 1 : 0), ly + (lh > 2 ? 1 : 0), lx + lw - (lw > 2 ? 1 : 0), ly + lh - (lh > 2 ? 1 : 0), 0xFFFFFFFF);
-                } else {
-                    // Unlit Optical Translucent Polycarbonate Lens
-                    // 1. Exactly 1px dark socket bezel on all 4 sides
-                    p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, 0xFF08090C);
-                    // 2. Uniform smoked optical lens body
-                    p.fill(lx, ly, lx + lw, ly + lh, 0xFF343C48);
-                    // 3. Symmetric optical core filament
-                    if (lh > lw) {
-                        p.fill(lx + lw / 2, ly + 1, lx + lw / 2 + (lw > 2 ? 1 : 0), ly + lh - 1, 0xFF4E5868);
-                    } else {
-                        p.fill(lx + 1, ly + lh / 2, lx + lw - 1, ly + lh / 2 + (lh > 2 ? 1 : 0), 0xFF4E5868);
-                    }
-                }
-            }
-
-            // When idle: The baked chassis texture already renders the keycap with 100% fidelity
-            if (!hovered && !pressed) {
+            if (!hovered && !pressed && !hardOn) {
                 return;
             }
 
             // 1. Hover Overlay: subtle dark tint over the baked key
-            if (hovered && !pressed) {
+            if (hovered && !pressed && !hardOn) {
                 p.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x22000000);
                 return;
             }
@@ -324,6 +297,18 @@ public class UiButton {
                 p.fill(x, y + 2, x + w, y + h - 2, 0x50000000);
                 p.fill(x + 1, y + h - 2, x + w - 1, y + h - 1, 0x50000000);
                 p.fill(x + 2, y + h - 1, x + w - 2, y + h, 0x50000000);
+            }
+
+            // 3. Active Glowing Laser LED (Only rendered when button is ON!)
+            if (hardOn && led != null && led.length >= 4) {
+                int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
+                int ledCol = danger ? 0xFFFF2828 : 0xFF00E85D;
+                // Active Laser Glow Halo (1px outer rim)
+                p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, (ledCol & 0x00FFFFFF) | 0x50000000);
+                // Saturated LED Body
+                p.fill(lx, ly, lx + lw, ly + lh, ledCol);
+                // Pure white-hot optical center filament
+                p.fill(lx + (lw > 2 ? 1 : 0), ly + (lh > 2 ? 1 : 0), lx + lw - (lw > 2 ? 1 : 0), ly + lh - (lh > 2 ? 1 : 0), 0xFFFFFFFF);
             }
 
         } else if (mfd) {

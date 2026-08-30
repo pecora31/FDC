@@ -1189,7 +1189,6 @@ public final class TabletChassisPaint {
                     setPixel(img, lx + x, ly + y, baseCol);
                 }
             }
-            // Axial optical core filament (pure white hot core)
             if (isVert) {
                 for (int y = 1; y < h - 1; y++) {
                     setPixel(img, lx + 1, ly + y, 0xFFFFFFFF);
@@ -1202,31 +1201,51 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Unlit Optical Frosted Polycarbonate Light-Pipe Capsule (Thấu kính khói đối xứng 100%)
-            // 1. Perfectly uniform 1px recessed dark bezel (đúng 1px đều cả 4 cạnh)
+            // Raised Smoked Optical Polycarbonate Dome Capsule (Thấu kính nổi quang học quân sự)
+            // 1. Ultra-thin CNC micro-gap slot rim (rãnh khắc vi cơ khí siêu mỏng, không bị đen dày)
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF08090C);
+                    if (y == -1 || x == -1) {
+                        setPixel(img, lx + x, ly + y, 0xFF14161A); // Micro upper/left recessed root
+                    } else if (y == h || x == w) {
+                        setPixel(img, lx + x, ly + y, 0xFF2A2D34); // Bottom/right metal crest highlight
+                    }
                 }
             }
 
-            // 2. Uniform smoked translucent optical lens body
+            // 2. Translucent smoked optical lens body (thân thấu kính khói bóng)
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
-                    setPixel(img, lx + x, ly + y, 0xFF343C48);
+                    setPixel(img, lx + x, ly + y, 0xFF353C48);
                 }
             }
 
-            // 3. Symmetric optical core filament (đối xứng hoàn hảo, không có bóng đổ lệch hướng gây dày viền)
+            // 3. 3D Convex Dome Optical Highlight & Fresnel Glint (vệt sáng thấu kính nổi)
             if (isVert) {
+                // Top cap glint & bottom shadow
+                for (int x = 0; x < w; x++) {
+                    setPixel(img, lx + x, ly, 0xFF586476);
+                    setPixel(img, lx + x, ly + h - 1, 0xFF1A1F26);
+                }
+                // Longitudinal optical reflection streak (Vệt sáng phản xạ ánh sáng dọc thấu kính)
                 for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, lx + 1, ly + y, 0xFF4E5868);
-                    setPixel(img, lx + 2, ly + y, 0xFF4E5868);
+                    setPixel(img, lx, ly + y, 0xFF4A5566);
+                    setPixel(img, lx + 1, ly + y, 0xFF7E8C9E); // Sharp specular Fresnel highlight
+                    setPixel(img, lx + 2, ly + y, 0xFF3D4654);
+                    setPixel(img, lx + 3, ly + y, 0xFF222832); // Right convex falloff shadow
                 }
             } else {
+                // Left cap glint & right shadow
+                for (int y = 0; y < h; y++) {
+                    setPixel(img, lx, ly + y, 0xFF586476);
+                    setPixel(img, lx + w - 1, ly + y, 0xFF1A1F26);
+                }
+                // Transverse optical reflection streak (Vệt sáng phản xạ ánh sáng ngang thấu kính)
                 for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, ly + 1, 0xFF4E5868);
-                    setPixel(img, lx + x, ly + 2, 0xFF4E5868);
+                    setPixel(img, lx + x, ly, 0xFF4A5566);
+                    setPixel(img, lx + x, ly + 1, 0xFF7E8C9E); // Sharp specular Fresnel highlight
+                    setPixel(img, lx + x, ly + 2, 0xFF3D4654);
+                    setPixel(img, lx + x, ly + 3, 0xFF222832);
                 }
             }
         }
