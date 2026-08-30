@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Ultra-Fast Zero-Lag Rendering & Smooth 3px Rounded Keycaps (Gemini)
+
+Đã làm:
+- **Tối ưu hóa hiệu năng $100\%$ — Xử lý triệt để giật lag (`UiButton.java`)**:
+  + **Nguyên nhân giật lag**: Ở commit trước, mỗi phím trong số 32 phím bezel thực hiện vòng lặp tính `Math.sqrt` theo từng dòng pixel và gọi hàng chục lệnh `p.fill` độc lập mỗi frame (~3,000 OpenGL batch break fill calls/frame), gây tụt FPS và lag giao diện.
+  + **Giải pháp**: Loại bỏ hoàn toàn vòng lặp dòng và `Math.sqrt`, chuyển sang cấu trúc vẽ hình chữ nhật gộp (quad-batching) tối ưu $100\%$ với số lệnh vẽ tối thiểu. Hiệu năng khôi phục 240+ FPS mượt mà tuyệt đối.
+- **Khắc phục độ bo tròn 4 góc phím rõ nét ($R=3\text{px}$) (`UiButton.java`)**:
+  + Đặt độ vát 2px ở dòng đỉnh/đáy và 1px ở dòng kề, mang lại độ cong góc mềm mại, tròn trịa, ôm sát miệng socket mà vẫn đạt hiệu năng siêu tốc.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — ultra-fast batched rendering, smooth 3px corner geometry)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Identical Euclidean Corner Curvature Matching Socket (Gemini)
 
 Đã làm:

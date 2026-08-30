@@ -298,56 +298,44 @@ public class UiButton {
                 p.fill(x + 1, y, x + w - 1, y + 1, 0x35000000);
             }
 
-            // 1. Outer Keycap Border — Exact Euclidean Curvature Matching Socket (r = 8 scaled)
-            int r0 = Math.max(2, Math.round(w * 8.0f / 44.0f));
-            for (int cy0 = 0; cy0 < h; cy0++) {
-                int[] s = rowSpan(cy0, w, h, r0);
-                p.fill(kx + s[0], ky + cy0, kx + s[1], ky + cy0 + 1, borderCol);
-            }
+            // 1. Outer Keycap Border (Smooth 3px Rounded Corner Keycap)
+            p.fill(kx + 2, ky, kx + w - 2, ky + 1, borderCol);
+            p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, borderCol);
+            p.fill(kx, ky + 2, kx + w, ky + h - 2, borderCol);
+            p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, borderCol);
+            p.fill(kx + 2, ky + h - 1, kx + w - 2, ky + h, borderCol);
 
-            // 2. Slim 1px Raised Rim Bevel (Concentric r0 - 1)
-            int r1 = Math.max(1, r0 - 1);
-            for (int cy0 = 1; cy0 < h - 1; cy0++) {
-                int[] s = rowSpan(cy0 - 1, w - 2, h - 2, r1);
-                int x0 = kx + 1 + s[0];
-                int x1 = kx + 1 + s[1];
-                p.fill(x0, ky + cy0, x1, ky + cy0 + 1, rimBody);
+            // 2. Slim 1px Raised Rim Bevel (Smooth 2px Rounded)
+            p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimBody);
+            p.fill(kx + 1, ky + 2, kx + w - 1, ky + h - 2, rimBody);
+            p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBody);
 
-                // Highlights & shadows on the rim
-                if (cy0 == 1) {
-                    p.fill(x0, ky + cy0, x1, ky + cy0 + 1, rimTopLeft);
-                } else if (cy0 == h - 2) {
-                    p.fill(x0, ky + cy0, x1, ky + cy0 + 1, rimBotRight);
-                } else {
-                    p.fill(x0, ky + cy0, x0 + 1, ky + cy0 + 1, rimTopLeft);
-                    p.fill(x1 - 1, ky + cy0, x1, ky + cy0 + 1, rimBotRight);
-                }
-            }
+            // 1px Rim Highlights & Shadows
+            p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimTopLeft); // Top highlight
+            p.fill(kx + 1, ky + 2, kx + 2, ky + h - 2, rimTopLeft); // Left light
+            p.fill(kx + 1, ky + 1, kx + 2, ky + 2, rimTopLeft);     // Top-left shoulder
+            p.fill(kx + w - 2, ky + 2, kx + w - 1, ky + h - 2, rimBotRight); // Right shadow
+            p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBotRight); // Bottom shadow
+            p.fill(kx + w - 2, ky + h - 2, kx + w - 1, ky + h - 1, rimBotRight); // Bot-right shoulder
 
-            // 3. Recessed Dish Floor (Concentric r0 - 2)
-            int r2 = Math.max(1, r0 - 2);
-            for (int cy0 = 2; cy0 < h - 2; cy0++) {
-                int[] s = rowSpan(cy0 - 2, w - 4, h - 4, r2);
-                int x0 = kx + 2 + s[0];
-                int x1 = kx + 2 + s[1];
-                p.fill(x0, ky + cy0, x1, ky + cy0 + 1, dishFloor);
+            // 3. Recessed Dish Floor (Gờ viền mỏng 2px, lòng phím rộng rãi bo tròn mềm mại)
+            int dx0 = kx + 2;
+            int dy0 = ky + 2;
+            int dw = w - 4;
+            int dh = h - 4;
 
-                if (cy0 == 2) {
-                    p.fill(x0, ky + cy0, x1, ky + cy0 + 1, dishShadow);
-                } else if (cy0 == h - 3) {
-                    p.fill(x0, ky + cy0, x1, ky + cy0 + 1, dishGlint);
-                } else {
-                    p.fill(x0, ky + cy0, x0 + 1, ky + cy0 + 1, dishShadow);
-                    p.fill(x1 - 1, ky + cy0, x1, ky + cy0 + 1, dishGlint);
-                }
-            }
+            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishFloor);
+            p.fill(dx0, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishFloor);
+            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishFloor);
+
+            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishShadow); // Top dish shadow
+            p.fill(dx0, dy0 + 1, dx0 + 1, dy0 + dh - 1, dishShadow); // Left dish shadow
+            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishGlint); // Bottom dish highlight
+            p.fill(dx0 + dw - 1, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishGlint); // Right dish highlight
 
             // 4. Subtle Dark Hover Overlay (Mờ đen nhẹ khi hover)
             if (hovered && !pressed) {
-                for (int cy0 = 1; cy0 < h - 1; cy0++) {
-                    int[] s = rowSpan(cy0 - 1, w - 2, h - 2, r1);
-                    p.fill(kx + 1 + s[0], ky + cy0, kx + 1 + s[1], ky + cy0 + 1, 0x22000000);
-                }
+                p.fill(kx + 1, ky + 1, kx + w - 1, ky + h - 1, 0x22000000);
             }
 
             // 5. Slender Compact Optical LED with Subtle Recessed Depth
@@ -496,20 +484,5 @@ public class UiButton {
                 p.label(sub.getString(), x, y + h - 9 + dy, w, 8, 0xFF8E99A8);
             }
         }
-    }
-
-    private static int[] rowSpan(int cy, int w, int h, int r) {
-        if (r <= 0) return new int[]{0, w};
-        int inset = 0;
-        if (cy < r) {
-            int dy = r - cy - 1;
-            int maxDx = (int) Math.floor(Math.sqrt(r * r - dy * dy));
-            inset = r - 1 - maxDx;
-        } else if (cy >= h - r) {
-            int dy = cy - (h - r);
-            int maxDx = (int) Math.floor(Math.sqrt(r * r - dy * dy));
-            inset = r - 1 - maxDx;
-        }
-        return new int[]{Math.max(0, inset), Math.min(w, w - inset)};
     }
 }
