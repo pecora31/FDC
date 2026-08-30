@@ -29,6 +29,22 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Compact Tactical Military Key Font & GRD Label (Gemini)
+
+Đã làm:
+- **Thu nhỏ font chữ nhãn phím và đổi GRID thành GRD (`TabletChassisPaint.java`, `TabletScreen.java`)**:
+  + **Thu nhỏ kích thước nhãn phím**: Thiết kế lại bộ font bitmap quân sự gọn gàng ($3\times 5$ chuẩn PBT keycap, chiều cao $10\text{px}$ thay vì $14\text{px}$), giúp tất cả các nhãn phím 2-3 ký tự ("GRD", "WPN", "F1"–"F20") nằm lọt lòng bên trong lòng phím với khoảng cách lề cân đối và thẩm mỹ cao.
+  + **Đổi nhãn phím đầu tiên**: Đổi từ `GRID` thành `GRD` theo đúng chuẩn 3 ký tự của cụm phím hàng trên.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bộ font bitmap compact 3x5 & nhãn GRD)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — cập nhật nút GRD)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Refined Clean Tactical Lit LED Glow (Gemini)
 
 Đã làm:

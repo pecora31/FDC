@@ -1283,42 +1283,46 @@ public final class TabletChassisPaint {
     // =========================================================================
     private static final Map<Character, int[]> GLYPHS = new HashMap<>();
 
+    private static void putGlyph(char ch, int width, int r0, int r1, int r2, int r3, int r4) {
+        GLYPHS.put(ch, new int[] { width, r0, r1, r2, r3, r4 });
+    }
+
     static {
-        GLYPHS.put(' ', new int[] { 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000 });
-        GLYPHS.put('-', new int[] { 0b00000, 0b00000, 0b00000, 0b11111, 0b00000, 0b00000, 0b00000 });
-        GLYPHS.put('+', new int[] { 0b00000, 0b00100, 0b00100, 0b11111, 0b00100, 0b00100, 0b00000 });
-        GLYPHS.put(':', new int[] { 0b00000, 0b01100, 0b01100, 0b00000, 0b01100, 0b01100, 0b00000 });
-        GLYPHS.put('0', new int[] { 0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 });
-        GLYPHS.put('1', new int[] { 0b00100, 0b01100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110 });
-        GLYPHS.put('2', new int[] { 0b01110, 0b10001, 0b00001, 0b00110, 0b01000, 0b10000, 0b11111 });
-        GLYPHS.put('3', new int[] { 0b11110, 0b00001, 0b00001, 0b01110, 0b00001, 0b00001, 0b11110 });
-        GLYPHS.put('4', new int[] { 0b00010, 0b00110, 0b01010, 0b10010, 0b11111, 0b00010, 0b00010 });
-        GLYPHS.put('5', new int[] { 0b11111, 0b10000, 0b11110, 0b00001, 0b00001, 0b10001, 0b01110 });
-        GLYPHS.put('6', new int[] { 0b00110, 0b01000, 0b10000, 0b11110, 0b10001, 0b10001, 0b01110 });
-        GLYPHS.put('7', new int[] { 0b11111, 0b00001, 0b00010, 0b00100, 0b01000, 0b01000, 0b01000 });
-        GLYPHS.put('8', new int[] { 0b01110, 0b10001, 0b10001, 0b01110, 0b10001, 0b10001, 0b01110 });
-        GLYPHS.put('9', new int[] { 0b01110, 0b10001, 0b10001, 0b01111, 0b00001, 0b00010, 0b01100 });
-        GLYPHS.put('A', new int[] { 0b01110, 0b10001, 0b10001, 0b11111, 0b10001, 0b10001, 0b10001 });
-        GLYPHS.put('B', new int[] { 0b11110, 0b10001, 0b10001, 0b11110, 0b10001, 0b10001, 0b11110 });
-        GLYPHS.put('C', new int[] { 0b01110, 0b10001, 0b10000, 0b10000, 0b10000, 0b10001, 0b01110 });
-        GLYPHS.put('D', new int[] { 0b11100, 0b10010, 0b10001, 0b10001, 0b10001, 0b10010, 0b11100 });
-        GLYPHS.put('E', new int[] { 0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b11111 });
-        GLYPHS.put('F', new int[] { 0b11111, 0b10000, 0b10000, 0b11110, 0b10000, 0b10000, 0b10000 });
-        GLYPHS.put('G', new int[] { 0b01110, 0b10001, 0b10000, 0b10111, 0b10001, 0b10001, 0b01110 });
-        GLYPHS.put('I', new int[] { 0b01110, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b01110 });
-        GLYPHS.put('J', new int[] { 0b00010, 0b00010, 0b00010, 0b00010, 0b10010, 0b10010, 0b01100 });
-        GLYPHS.put('L', new int[] { 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b10000, 0b11111 });
-        GLYPHS.put('M', new int[] { 0b10001, 0b11011, 0b10101, 0b10001, 0b10001, 0b10001, 0b10001 });
-        GLYPHS.put('N', new int[] { 0b10001, 0b11001, 0b10101, 0b10011, 0b10001, 0b10001, 0b10001 });
-        GLYPHS.put('O', new int[] { 0b01110, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 });
-        GLYPHS.put('P', new int[] { 0b11110, 0b10001, 0b10001, 0b11110, 0b10000, 0b10000, 0b10000 });
-        GLYPHS.put('R', new int[] { 0b11110, 0b10001, 0b10001, 0b11110, 0b10100, 0b10001, 0b10001 });
-        GLYPHS.put('S', new int[] { 0b01111, 0b10000, 0b10000, 0b01110, 0b00001, 0b00001, 0b11110 });
-        GLYPHS.put('T', new int[] { 0b11111, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100, 0b00100 });
-        GLYPHS.put('U', new int[] { 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01110 });
-        GLYPHS.put('V', new int[] { 0b10001, 0b10001, 0b10001, 0b10001, 0b10001, 0b01010, 0b00100 });
-        GLYPHS.put('W', new int[] { 0b10001, 0b10001, 0b10001, 0b10101, 0b10101, 0b11011, 0b10001 });
-        GLYPHS.put('Y', new int[] { 0b10001, 0b10001, 0b01010, 0b00100, 0b00100, 0b00100, 0b00100 });
+        putGlyph(' ', 3, 0b000, 0b000, 0b000, 0b000, 0b000);
+        putGlyph('-', 3, 0b000, 0b000, 0b111, 0b000, 0b000);
+        putGlyph('+', 3, 0b010, 0b010, 0b111, 0b010, 0b010);
+        putGlyph('0', 3, 0b111, 0b101, 0b101, 0b101, 0b111);
+        putGlyph('1', 3, 0b010, 0b110, 0b010, 0b010, 0b111);
+        putGlyph('2', 3, 0b111, 0b001, 0b111, 0b100, 0b111);
+        putGlyph('3', 3, 0b111, 0b001, 0b111, 0b001, 0b111);
+        putGlyph('4', 3, 0b101, 0b101, 0b111, 0b001, 0b001);
+        putGlyph('5', 3, 0b111, 0b100, 0b111, 0b001, 0b111);
+        putGlyph('6', 3, 0b111, 0b100, 0b111, 0b101, 0b111);
+        putGlyph('7', 3, 0b111, 0b001, 0b010, 0b010, 0b010);
+        putGlyph('8', 3, 0b111, 0b101, 0b111, 0b101, 0b111);
+        putGlyph('9', 3, 0b111, 0b101, 0b111, 0b001, 0b111);
+
+        putGlyph('A', 3, 0b111, 0b101, 0b111, 0b101, 0b101);
+        putGlyph('B', 3, 0b110, 0b101, 0b110, 0b101, 0b110);
+        putGlyph('C', 3, 0b111, 0b100, 0b100, 0b100, 0b111);
+        putGlyph('D', 3, 0b110, 0b101, 0b101, 0b101, 0b110);
+        putGlyph('E', 3, 0b111, 0b100, 0b110, 0b100, 0b111);
+        putGlyph('F', 3, 0b111, 0b100, 0b110, 0b100, 0b100);
+        putGlyph('G', 3, 0b111, 0b100, 0b101, 0b101, 0b111);
+        putGlyph('I', 3, 0b111, 0b010, 0b010, 0b010, 0b111);
+        putGlyph('J', 3, 0b001, 0b001, 0b001, 0b101, 0b010);
+        putGlyph('L', 3, 0b100, 0b100, 0b100, 0b100, 0b111);
+        putGlyph('M', 5, 0b10001, 0b11011, 0b10101, 0b10001, 0b10001);
+        putGlyph('N', 4, 0b1001, 0b1101, 0b1011, 0b1001, 0b1001);
+        putGlyph('O', 3, 0b111, 0b101, 0b101, 0b101, 0b111);
+        putGlyph('P', 3, 0b111, 0b101, 0b111, 0b100, 0b100);
+        putGlyph('R', 3, 0b110, 0b101, 0b110, 0b101, 0b101);
+        putGlyph('S', 3, 0b011, 0b100, 0b110, 0b001, 0b110);
+        putGlyph('T', 3, 0b111, 0b010, 0b010, 0b010, 0b010);
+        putGlyph('U', 3, 0b101, 0b101, 0b101, 0b101, 0b111);
+        putGlyph('V', 3, 0b101, 0b101, 0b101, 0b101, 0b010);
+        putGlyph('W', 5, 0b10001, 0b10001, 0b10101, 0b11011, 0b10001);
+        putGlyph('Y', 3, 0b101, 0b101, 0b010, 0b010, 0b010);
     }
 
     private static void bakeAllDefaultKeysAndLeds(NativeImage img) {
@@ -1326,7 +1330,7 @@ public final class TabletChassisPaint {
         int half = keySize / 2;
 
         // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76, 4x8)
-        String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", null};
+        String[] topLabels = {"GRD", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", null};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
@@ -1427,36 +1431,45 @@ public final class TabletChassisPaint {
                     for (int dx = -radius; dx <= radius; dx++) {
                         int d2 = dx * dx + dy * dy;
                         if (d2 <= rOut2 && d2 >= rIn2) {
-                            if (dy <= -4 && Math.abs(dx) <= 2) continue; // Top opening gap
+                            if (dy < 0 && Math.abs(dx) <= 2)
+                                continue;
                             setPixel(img, cx + dx, cy + dy, color);
                         }
                     }
                 }
-                // 2px wide vertical power stem
-                for (int y = -8; y <= 0; y++) {
-                    setPixel(img, cx, cy + y, color);
-                    setPixel(img, cx - 1, cy + y, color);
+                for (int y = -radius; y <= 0; y++) {
+                    for (int x = -1; x <= 1; x++) {
+                        setPixel(img, cx + x, cy + y, color);
+                    }
                 }
             }
             case FILTER -> {
-                // Crescent moon (right side)
-                for (int dy = -6; dy <= 6; dy++) {
-                    for (int dx = 0; dx <= 6; dx++) {
-                        int d2 = dx * dx + dy * dy;
-                        if (d2 <= 36 && (dx >= 2 || Math.abs(dy) <= 2)) {
-                            if ((dx - 4) * (dx - 4) + dy * dy > 12) {
-                                setPixel(img, cx + dx, cy + dy, color);
-                            }
-                        }
+                // Tactical Filter Icon: Funnel / inverted trapezoid with downward discharge stem
+                // Top horizontal intake bar
+                for (int x = -7; x <= 7; x++) {
+                    setPixel(img, cx + x, cy - 6, color);
+                    setPixel(img, cx + x, cy - 5, color);
+                }
+                // Funnel convergent diagonal ramps
+                for (int d = 0; d <= 4; d++) {
+                    int span = 7 - d;
+                    for (int x = -span; x <= -span + 1; x++) {
+                        setPixel(img, cx + x, cy - 5 + d, color);
+                    }
+                    for (int x = span - 1; x <= span; x++) {
+                        setPixel(img, cx + x, cy - 5 + d, color);
                     }
                 }
-                // 3 Sun rays (left side)
-                for (int dx = -8; dx <= -4; dx++) {
-                    setPixel(img, cx + dx, cy, color);
+                // Center vertical discharge nozzle
+                for (int y = 0; y <= 6; y++) {
+                    setPixel(img, cx - 1, cy + y, color);
+                    setPixel(img, cx, cy + y, color);
+                    setPixel(img, cx + 1, cy + y, color);
                 }
-                for (int d = 3; d <= 6; d++) {
-                    setPixel(img, cx - d, cy - d, color);
-                    setPixel(img, cx - d, cy + d, color);
+                // Divergent bottom spray fins
+                for (int d = 1; d <= 3; d++) {
+                    setPixel(img, cx - 1 - d, cy + 3 + d, color);
+                    setPixel(img, cx + 1 + d, cy + 3 + d, color);
                 }
             }
             default -> {}
@@ -1519,20 +1532,26 @@ public final class TabletChassisPaint {
 
     private static void rasterizePixelString(NativeImage img, String text, int cx, int cy, int fontScale, int color) {
         String upper = text.toUpperCase();
-        int charW = 5 * fontScale;
-        int charSp = 1 * fontScale;
-        int totalW = upper.length() * charW + (upper.length() - 1) * charSp;
+        int totalW = 0;
+        for (int i = 0; i < upper.length(); i++) {
+            char ch = upper.charAt(i);
+            int[] glyph = GLYPHS.getOrDefault(ch, GLYPHS.get(' '));
+            totalW += glyph[0] * fontScale;
+            if (i < upper.length() - 1) totalW += fontScale;
+        }
+
         int startX = Math.round(cx - totalW / 2.0f);
-        int startY = Math.round(cy - (7 * fontScale) / 2.0f);
+        int startY = Math.round(cy - (5 * fontScale) / 2.0f);
 
         int curX = startX;
         for (int i = 0; i < upper.length(); i++) {
             char ch = upper.charAt(i);
             int[] glyph = GLYPHS.getOrDefault(ch, GLYPHS.get(' '));
-            for (int r = 0; r < 7; r++) {
-                int row = glyph[r];
-                for (int c = 0; c < 5; c++) {
-                    if (((row >> (4 - c)) & 1) == 1) {
+            int gw = glyph[0];
+            for (int r = 0; r < 5; r++) {
+                int row = glyph[r + 1];
+                for (int c = 0; c < gw; c++) {
+                    if (((row >> (gw - 1 - c)) & 1) == 1) {
                         for (int dy = 0; dy < fontScale; dy++) {
                             for (int dx = 0; dx < fontScale; dx++) {
                                 setPixel(img, curX + c * fontScale + dx, startY + r * fontScale + dy, color);
@@ -1541,7 +1560,7 @@ public final class TabletChassisPaint {
                     }
                 }
             }
-            curX += (5 + 1) * fontScale;
+            curX += (gw + 1) * fontScale;
         }
     }
 }

@@ -550,7 +550,7 @@ public class TabletScreen extends Screen {
         // The new case has eight domain-labelled slots where the old one had five tab keys and two
         // spares — SA/WPN/SYS/COM/BMS carry TARGETS/AMMO/STATUS/LOG/BATTERY exactly as the five tab
         // keys always did; DEF/DRV/STR are not yet behind anything, same as any other spare.
-        spareTop(0, kw, kh, "GRID");
+        spareTop(0, kw, kh, "GRD");
         spareTop(1, kw, kh, "SA");
         spareTop(2, kw, kh, "WPN");
         spareTop(3, kw, kh, "DEF");
