@@ -272,7 +272,7 @@ public final class TabletChassisPaint {
 
     private static void bakeScreenAndTacticalGrid(NativeImage img) {
         int mapX = TabletFrame.SCR_X, mapY = TabletFrame.SCR_Y, mapW = TabletFrame.SCR_W, mapH = TabletFrame.SCR_H;
-        int scrR = 10, bevelW = 8;
+        int scrR = 6, bevelW = 3;
         int outR = scrR + bevelW;
         int outX1 = mapX - bevelW, outY1 = mapY - bevelW;
         int outX2 = mapX + mapW + bevelW, outY2 = mapY + mapH + bevelW;

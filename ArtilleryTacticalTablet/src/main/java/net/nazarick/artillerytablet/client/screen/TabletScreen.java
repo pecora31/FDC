@@ -1191,7 +1191,7 @@ public class TabletScreen extends Screen {
      * the last thing drawn into it says so.
      */
     private void maskWellCorners(GuiGraphics g, int x, int y, int w, int h) {
-        int r = Math.max(3, frame.toScreenW(10));
+        int r = Math.max(2, frame.toScreenW(6f));
         if (r <= 0) {
             return;
         }

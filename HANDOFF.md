@@ -26,6 +26,24 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Concentric Pixel-Perfect Screen Corner Masking & Bezel Fix (Gemini)
+
+Đã làm:
+- **Đồng bộ hóa $100\%$ độ bo góc màn hình hiển thị khớp với Bezel khung máy (`TabletChassisPaint.java`, `TabletScreen.java`)**:
+  + **Nguyên nhân lệch góc (OCD)**: Trước đây, Bezel màn hình trong texture tĩnh `case.png` có độ dày quá lớn (`bevelW = 8`, `outR = 18`), trong khi hàm mask góc màn hình `maskWellCorners` dùng bán kính $R=10\text{px}$, tạo ra đường cong kép (double-arc step) lệch tầng giữa viền vỏ và góc bản đồ.
+  + **Giải pháp**:
+    - Thu gọn viền vát Bezel màn hình về tỷ lệ thanh mảnh chuẩn xác (`scrR = 6`, `bevelW = 3`, `outR = 9`).
+    - Cập nhật bán kính mặt nạ góc màn hình `maskWellCorners` khớp chính xác $100\%$ theo tỷ lệ `toScreenW(6f)` với 4 góc chuyển màu bezel mượt mà. Bản đồ và viền khung giờ đây đồng tâm, liền lạc và sắc nét tuyệt đối.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — scrR = 6, bevelW = 3)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — maskWellCorners r = toScreenW(6f))
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — R=4 Smooth Rounded Keycaps, 5px Sculpted Wells & Compact Smoked Optical LEDs (Gemini)
 
 Đã làm:
