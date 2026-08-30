@@ -29,6 +29,21 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Increased Boot Splash Animation Duration to 3.5s (Gemini)
+
+Đã làm:
+- **Tăng thời lượng hiển thị màn hình khởi động Boot Splash (`MapPanel.java`)**:
+  + Tăng `BOOT_DURATION_MS` từ $900\text{ms}$ lên $3500\text{ms}$ ($3.5\text{s}$).
+  + Thời lượng này hoàn toàn là hiệu ứng hiển thị hình ảnh màn hình khởi động OLED ASTRA Systems; dữ liệu bản đồ và địa hình vẫn nạp ngầm bình thường ở background.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/MapPanel.java` (sửa — tăng thời lượng boot splash lên 3.5s)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Enlarged ASTRA Logo & Tracked SYSTEMS Text on Boot Splash (Gemini)
 
 Đã làm:

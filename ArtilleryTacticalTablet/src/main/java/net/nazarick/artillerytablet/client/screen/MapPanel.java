@@ -200,7 +200,7 @@ class MapPanel {
      * regardless of how much there is to boot into; the map keeps filling in behind the animation
      * exactly as before; only what ends the animation has changed.
      */
-    private static final long BOOT_DURATION_MS = 900L;
+    private static final long BOOT_DURATION_MS = 3500L;
 
     void tick() {
         // A remembered centre is a set of coordinates in a world that may no longer be the one we
