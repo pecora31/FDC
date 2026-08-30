@@ -23,7 +23,10 @@ File đụng tới:
 Bên kia cần làm gì:
 - ...
 
-Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
+> [!IMPORTANT]
+> **LỆNH KHOÁ CHẶT KHUNG VỎ TABLET (CHASSIS FREEZE DIRECTIVE):**
+> Cấu trúc khung vỏ tablet (`TabletChassisPaint.java`, `TabletFrame.java`), toàn bộ 32 nút phím nướng tĩnh, hốc nút CNC, và 28 đèn LED thấu kính đã được User duyệt và **KHOÁ CHẶT HOÀN TOÀN 100%**. Tuyệt đối KHÔNG tự ý chỉnh sửa, thay đổi tọa độ, vẽ đè hay phá vỡ cấu trúc khung vỏ này trong các tác vụ tương lai!
+
 ```
 
 ## 2026-08-30 — Refined Clean Tactical Lit LED Glow (Gemini)
