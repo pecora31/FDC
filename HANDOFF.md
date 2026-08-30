@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — R=4 Smooth Rounded Keycaps, 5px Sculpted Wells & Compact Smoked Optical LEDs (Gemini)
+
+Đã làm:
+- **Tăng độ bo góc phím bấm mềm mại hơn (`UiButton.java`)**:
+  + Tăng bán kính bo góc phím bấm lên $R=4\text{px}$ với ma trận hình học rời rạc 7 tầng (inset 3-2-1px). Bề mặt phím PBT giờ đây có độ cong viền mượt mà, tự nhiên và mềm mại chuẩn phím đúc quân sự.
+- **Tăng độ dày hốc lõm 4 phím góc thêm 2px (`TabletChassisPaint.java`)**:
+  + Mở rộng bề rộng rãnh vát phay chìm từ 3px lên **5px (`wellPad = 5`, tổng kích thước $54\times 54\text{px}$)** quanh 4 phím góc (`GRID`, `BRIGHT`, `FLT`, `POWER`), với gradient đổ bóng đa tầng tạo cảm giác hốc vát sâu và rõ nét hơn.
+- **Thu gọn LED, thấu kính xám khói trong suốt & tạo độ lõm bề mặt (`UiButton.java`)**:
+  + Thu gọn chiều dài và độ dày đèn LED về kích thước nhỏ gọn tinh tế ($2\times 4\text{px}$ cho hàng dọc, $4\times 2\text{px}$ cho hàng ngang).
+  + Chuyển màu thấu kính khi tắt sang **tông xám khói trong suốt tự nhiên (`#3C4654`)** với dải phản quang thủy tinh mềm mại (`#5A6678`), không còn bị quá trắng hay quá sáng.
+  + Thêm hiệu ứng **hốc rãnh lõm chìm vào bề mặt khung** (bóng tối bên trên/trái `#08090C` và gờ viền vát bắt sáng bên dưới/phải `#181C22`).
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bakeSunkenButtonWell 5px thickness)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — R=4 smooth keycaps, compact smoked optical LEDs with recessed moat)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Crisp Geometric Rounded Keycaps, Slim Sunken Milled Wells & Luminous Optical LEDs (Gemini)
 
 Đã làm:
