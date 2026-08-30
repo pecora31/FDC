@@ -29,6 +29,22 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Pure OLED Black Minimalist ASTRA SYSTEMS Boot Splash (Gemini)
+
+Đã làm:
+- **Tối giản hóa màn hình Boot Splash (`BootSplash.java`)**:
+  + Chuyển toàn bộ nền sang **đen tuyền OLED nguyên bản (`0xFF000000`)**.
+  + Loại bỏ toàn bộ các chi tiết HUD, thanh quét laser và chữ telemetry rườm rà.
+  + Chỉ giữ lại duy nhất **Logo Vector ASTRA Systems đỏ laser (`0xFFB8141D`)** cùng phụ đề `— S Y S T E M S —` màu bạc ánh ngọc trai nằm căn chính giữa màn hình.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/BootSplash.java` (sửa — tối giản màn hình boot splash đen tuyền)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — ASTRA Systems Tactical C2 Boot Splash Screen (Gemini)
 
 Đã làm:
