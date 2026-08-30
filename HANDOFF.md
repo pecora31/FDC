@@ -26,6 +26,21 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Identical Euclidean Corner Curvature Matching Socket (Gemini)
+
+Đã làm:
+- **Áp dụng giải thuật quét ma trận Euclidean `rowSpan` cho phím bấm (`UiButton.java`)**:
+  + Chuyển toàn bộ việc dựng hình 4 góc phím (viền ngoài, gờ nổi và lòng phím) sang giải thuật quét dòng rời rạc `rowSpan(cy, w, h, r)` dựa trên đúng phương trình toán học hình học tròn $dx^2 + dy^2 \le r^2$ của hàm `isInsideRounded` trong `TabletChassisPaint.java`.
+  + Độ cong của 4 góc phím bấm giờ đây **trùng khớp $100\%$ về mặt phương trình toán học và độ dốc pixel** với hốc socket trên khung tablet.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — rowSpan exact Euclidean socket curvature matching)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Socket-Concentric Keycap Corner Curvature & Refined Subtle Press Depression (Gemini)
 
 Đã làm:
