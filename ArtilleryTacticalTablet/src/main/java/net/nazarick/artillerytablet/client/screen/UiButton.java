@@ -290,17 +290,20 @@ public class UiButton {
                 return;
             }
 
-            // 2. Depressed State on Press (Bảo toàn 100% hình dáng, bo góc và font chữ, không lưu ảnh thừa)
+            // 2. Depressed State on Press (Bảo toàn 100% hình dáng, triệt tiêu hoàn toàn dải highlight sáng màu)
             if (pressed) {
-                // Uniform depression darkening over the keycap
-                p.fill(x + 2, y, x + w - 2, y + h, 0x48000000);
-                p.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x48000000);
-                p.fill(x, y + 2, x + w, y + h - 2, 0x48000000);
+                // Dim the dish floor and text
+                p.fill(x + 2, y + 2, x + w - 2, y + h - 2, 0x55000000);
 
-                // Top socket cavity drop shadow (hiệu ứng nút chìm 1px vào lòng socket)
-                p.fill(x + 2, y, x + w - 2, y + 1, 0x99000000);
-                p.fill(x + 1, y + 1, x + w - 1, y + 2, 0x66000000);
-                p.fill(x + 1, y + 2, x + 2, y + h - 2, 0x44000000);
+                // Heavy darkening on all outer rims (triệt tiêu 100% gờ highlight sáng)
+                p.fill(x + 2, y, x + w - 2, y + 2, 0xDD000000); // Top rim
+                p.fill(x, y + 2, x + 2, y + h - 2, 0xDD000000); // Left rim
+                p.fill(x + 1, y + 1, x + 2, y + 2, 0xDD000000); // Top-left shoulder
+                p.fill(x + w - 2, y + 2, x + w, y + h - 2, 0x88000000); // Right rim
+                p.fill(x + 2, y + h - 2, x + w - 2, y + h, 0x88000000); // Bottom rim
+                p.fill(x + w - 2, y + 1, x + w - 1, y + 2, 0x88000000); // Top-right shoulder
+                p.fill(x + 1, y + h - 2, x + 2, y + h - 1, 0x88000000); // Bot-left shoulder
+                p.fill(x + w - 2, y + h - 2, x + w - 1, y + h - 1, 0x88000000); // Bot-right shoulder
             }
 
             // 3. Active Glowing Laser LED (Only when hardOn)

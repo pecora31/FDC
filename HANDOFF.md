@@ -26,6 +26,21 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Extinguish Bright Rim Highlight on Button Press (Gemini)
+
+Đã làm:
+- **Triệt tiêu hoàn toàn dải pixel highlight sáng màu khi bấm phím (`UiButton.java`)**:
+  + **Nguyên nhân**: Trên texture phím PBT tĩnh, cạnh trên và cạnh trái của phím có gờ viền bắt sáng (`shoulderLight` màu xám sáng `0xFF7E8898`). Khi bấm, overlay làm tối trước đây có độ trong suốt thấp nên dải highlight này vẫn bị lộ ra dưới dạng một cột/hàng pixel sáng màu.
+  + **Giải pháp**: Tăng cường độ tối trên gờ viền (`0xDD000000` - 87% black) để dập tắt hoàn toàn dải sáng ở cạnh trên và cạnh trái khi phím chìm vào socket. Lòng phím và chữ số chìm tối đều, không còn bất kỳ cột pixel sáng màu nào bị lộ.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — dập tắt highlight viền khi press)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — 100% Symmetrical Uniform LED Socket Bezel (Gemini)
 
 Đã làm:
