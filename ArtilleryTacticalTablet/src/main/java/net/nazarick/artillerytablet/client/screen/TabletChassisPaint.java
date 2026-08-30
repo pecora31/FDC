@@ -1345,44 +1345,32 @@ public final class TabletChassisPaint {
 
     private static void bakeSunkenButtonWell(NativeImage img, int cx, int cy) {
         int keyW = 44, keyH = 44;
-        int wellPad = 7; // 7px chamfered moat around corner button
-        int outW = keyW + wellPad * 2; // 58px
-        int outH = keyH + wellPad * 2; // 58px
-        int outR = 12;
+        int wellPad = 3; // Sleek, slim 3px chamfered milled recess
+        int outW = keyW + wellPad * 2; // 50px
+        int outH = keyH + wellPad * 2; // 50px
+        int outR = 10;
         int inR = 8;
         int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
         int ox2 = ox1 + outW, oy2 = oy1 + outH;
-        int ix1 = cx - keyW / 2 - 1, iy1 = cy - keyH / 2 - 1;
-        int ix2 = ix1 + keyW + 2, iy2 = iy1 + keyH + 2;
+        int ix1 = cx - keyW / 2, iy1 = cy - keyH / 2;
+        int ix2 = ix1 + keyW, iy2 = iy1 + keyH;
 
         for (int y = oy1; y < oy2; y++) {
             for (int x = ox1; x < ox2; x++) {
                 if (isInsideRoundedRect(x, y, ox1, oy1, ox2, oy2, outR)) {
                     if (isInsideRoundedRect(x, y, ix1, iy1, ix2, iy2, inR)) {
-                        // Deep socket bottom
-                        setPixel(img, x, y, 0xFF08090C);
+                        // Deep socket floor
+                        setPixel(img, x, y, 0xFF0A0B0E);
                     } else {
-                        // Sloping sunken chamfered bevel
+                        // Slim milled chamfer bevel
                         boolean inTopLeft = ((x - ox1) + (y - oy1) < outW / 2 + outH / 2);
                         int dOut = Math.min(Math.min(x - ox1, ox2 - 1 - x), Math.min(y - oy1, oy2 - 1 - y));
 
                         int col;
                         if (inTopLeft) {
-                            col = switch (Math.min(dOut, 5)) {
-                                case 0 -> 0xFF2A2D33;
-                                case 1 -> 0xFF22252A;
-                                case 2 -> 0xFF1A1C20;
-                                case 3 -> 0xFF141518;
-                                default -> 0xFF0E0F12;
-                            };
+                            col = (dOut == 0) ? 0xFF30343C : ((dOut == 1) ? 0xFF22262C : 0xFF16181D);
                         } else {
-                            col = switch (Math.min(dOut, 5)) {
-                                case 0 -> 0xFF141518;
-                                case 1 -> 0xFF0E0F12;
-                                case 2 -> 0xFF0A0B0D;
-                                case 3 -> 0xFF07080A;
-                                default -> 0xFF040506;
-                            };
+                            col = (dOut == 0) ? 0xFF14161A : ((dOut == 1) ? 0xFF0B0C0E : 0xFF050608);
                         }
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }

@@ -286,38 +286,43 @@ public class UiButton {
             int borderCol   = redKey ? 0xFF240606 : 0xFF14161B;
             int rimTopLeft  = redKey ? 0xFFF05252 : 0xFF7E8898;
             int rimBody     = redKey ? 0xFFE03838 : 0xFF667080;
-            int rimBotRight = redKey ? 0xFF8A1A1A : 0xFF424854;
+            int rimBotRight = redKey ? 0xFF8A1A1A : 0xFF3A404C;
             int dishFloor   = redKey ? 0xFFA81E1E : 0xFF444A56;
             int dishShadow  = redKey ? 0xFF5A0C0C : 0xFF262A32;
             int dishGlint   = redKey ? 0xFFD42828 : 0xFF586272;
 
-            int keyR = Math.max(2, Math.min(3, w / 6)); // Bo tròn 4 góc nút bấm tự nhiên
-            int dishR = Math.max(1, keyR - 1);
-
-            // 1. 1px dark outer socket border (Rounded)
-            p.rounded(x, ky, w, h, keyR, borderCol);
+            // 1. Solid Geometric 3px Rounded Keycap Outer Socket Border (Zero dirty alpha fringe)
+            p.fill(x + 2, ky, x + w - 2, ky + 1, borderCol);
+            p.fill(x + 1, ky + 1, x + w - 1, ky + 2, borderCol);
+            p.fill(x, ky + 2, x + w, ky + h - 2, borderCol);
+            p.fill(x + 1, ky + h - 2, x + w - 1, ky + h - 1, borderCol);
+            p.fill(x + 2, ky + h - 1, x + w - 2, ky + h, borderCol);
 
             // 2. Slim 1px Raised Rim Bevel (Rounded)
-            p.rounded(x + 1, ky + 1, w - 2, h - 2, dishR, rimBody);
-            p.fill(x + keyR, ky + 1, x + w - keyR, ky + 2, rimTopLeft); // Top rim highlight
-            p.fill(x + 1, ky + keyR, x + 2, ky + h - keyR, rimTopLeft); // Left rim light
-            p.fill(x + keyR, ky + h - 2, x + w - keyR, ky + h - 1, rimBotRight); // Bottom rim shadow
-            p.fill(x + w - 2, ky + keyR, x + w - 1, ky + h - keyR, rimBotRight); // Right rim shadow
-            p.fill(x + 2, ky + 2, x + 3, ky + 3, rimTopLeft);
-            p.fill(x + w - 3, ky + h - 3, x + w - 2, ky + h - 2, rimBotRight);
+            p.fill(x + 2, ky + 1, x + w - 2, ky + 2, rimBody);
+            p.fill(x + 1, ky + 2, x + w - 1, ky + h - 2, rimBody);
+            p.fill(x + 2, ky + h - 2, x + w - 2, ky + h - 1, rimBody);
+
+            // 1px Rim Highlights & Shadows
+            p.fill(x + 2, ky + 1, x + w - 2, ky + 2, rimTopLeft); // Top highlight
+            p.fill(x + 1, ky + 2, x + 2, ky + h - 2, rimTopLeft); // Left light
+            p.fill(x + w - 2, ky + 2, x + w - 1, ky + h - 2, rimBotRight); // Right shadow
+            p.fill(x + 2, ky + h - 2, x + w - 2, ky + h - 1, rimBotRight); // Bottom shadow
 
             // 3. Recessed Dish Floor (Gờ viền mỏng 2px, lòng phím rộng rãi bo góc)
-            int rim = 2;
-            int dw = w - rim * 2;
-            int dh = h - rim * 2;
-            int dx0 = x + rim;
-            int dy0 = ky + rim;
+            int dx0 = x + 2;
+            int dy0 = ky + 2;
+            int dw = w - 4;
+            int dh = h - 4;
 
-            p.rounded(dx0, dy0, dw, dh, dishR, dishFloor);
-            p.fill(dx0 + dishR, dy0, dx0 + dw - dishR, dy0 + 1, dishShadow); // Top dish shadow
-            p.fill(dx0, dy0 + dishR, dx0 + 1, dy0 + dh - dishR, dishShadow); // Left dish shadow
-            p.fill(dx0 + dishR, dy0 + dh - 1, dx0 + dw - dishR, dy0 + dh, dishGlint); // Bottom dish highlight
-            p.fill(dx0 + dw - 1, dy0 + dishR, dx0 + dw, dy0 + dh - dishR, dishGlint); // Right dish highlight
+            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishFloor);
+            p.fill(dx0, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishFloor);
+            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishFloor);
+
+            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishShadow); // Top dish shadow
+            p.fill(dx0, dy0 + 1, dx0 + 1, dy0 + dh - 1, dishShadow); // Left dish shadow
+            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishGlint); // Bottom dish highlight
+            p.fill(dx0 + dw - 1, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishGlint); // Right dish highlight
 
             // 4. Subtle top shadow on press or ambient outline on hover
             if (pressed) {
@@ -326,31 +331,44 @@ public class UiButton {
                 p.outline(x + 1, y + 1, w - 2, h - 2, redKey ? 0x50FF5A52 : 0x30FFFFFF);
             }
 
-            // 5. Slender Optical LED Capsule with Brighter Translucent Lens
+            // 5. Slender Optical LED Capsule with Bright Translucent Lens
             if (led != null && led.length >= 4) {
                 int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
                 int ledCol = danger ? 0xFFFF2828 : 0xFF00FF66;
 
+                int wLed, hLed, x0, y0;
+                if (lh >= lw) {
+                    wLed = 2;
+                    hLed = Math.max(5, lh);
+                    x0 = lx + lw / 2 - 1;
+                    y0 = ly;
+                } else {
+                    wLed = Math.max(5, lw);
+                    hLed = 2;
+                    x0 = lx;
+                    y0 = ly + lh / 2 - 1;
+                }
+
                 // 1px uniform dark socket border on all 4 sides
-                p.rect(lx - 1, ly - 1, lw + 2, lh + 2, 0xFF0E1014);
+                p.rect(x0 - 1, y0 - 1, wLed + 2, hLed + 2, 0xFF0E1014);
 
                 if (hardOn) {
                     // Active Laser Glow
-                    p.rect(lx - 1, ly - 1, lw + 2, lh + 2, (ledCol & 0x00FFFFFF) | 0x25000000);
-                    p.rect(lx, ly, lw, lh, ledCol);
+                    p.rect(x0 - 1, y0 - 1, wLed + 2, hLed + 2, (ledCol & 0x00FFFFFF) | 0x40000000);
+                    p.rect(x0, y0, wLed, hLed, ledCol);
                     // White-hot center filament
-                    if (lh > lw) {
-                        p.fill(lx + lw / 2, ly + 1, lx + lw / 2 + 1, ly + lh - 1, 0xFFFFFFFF);
+                    if (hLed > wLed) {
+                        p.fill(x0, y0 + 1, x0 + 1, y0 + hLed - 1, 0xFFFFFFFF);
                     } else {
-                        p.fill(lx + 1, ly + lh / 2, lx + lw - 1, ly + lh / 2 + 1, 0xFFFFFFFF);
+                        p.fill(x0 + 1, y0, x0 + wLed - 1, y0 + 1, 0xFFFFFFFF);
                     }
                 } else {
-                    // Unlit Frosted Optical Polycarbonate Lens (sáng hơn, trong suốt quang học)
-                    p.rect(lx, ly, lw, lh, 0xFF4E5868);
-                    p.fill(lx, ly, lx + lw, ly + 1, 0xFF8090A6); // Top optical glint
-                    p.fill(lx, ly, lx + 1, ly + lh, 0xFF708096); // Left optical glint
-                    p.fill(lx, ly + lh - 1, lx + lw, ly + lh, 0xFF323844); // Bottom shadow
-                    p.fill(lx + lw - 1, ly, lx + lw, ly + lh, 0xFF323844); // Right shadow
+                    // Unlit Frosted Optical Polycarbonate Lens (sáng rõ, phản quang đẹp mắt)
+                    p.rect(x0, y0, wLed, hLed, 0xFF647286);
+                    p.fill(x0, y0, x0 + wLed, y0 + 1, 0xFFADC0D8); // Top optical glint
+                    p.fill(x0, y0, x0 + 1, y0 + hLed, 0xFF90A4BC); // Left optical glint
+                    p.fill(x0 + wLed - 1, y0 + 1, x0 + wLed, y0 + hLed, 0xFF3E4856); // Right shadow
+                    p.fill(x0 + 1, y0 + hLed - 1, x0 + wLed, y0 + hLed, 0xFF3E4856); // Bottom shadow
                 }
             }
 

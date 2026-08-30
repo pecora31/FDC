@@ -96,29 +96,14 @@ public interface Paint {
             return;
         }
         fill(x, y + r, x + w, y + h - r, argb);
-        int a = (argb >> 24) & 0xFF;
-        int rgb = argb & 0x00FFFFFF;
 
         for (int i = 0; i < r; i++) {
             double dy = r - i - 0.5;
             double exact = Math.sqrt(Math.max(0, r * r - dy * dy));
-            int fullInset = (int) Math.floor(exact);
-            int inset = r - fullInset;
-            double frac = exact - fullInset;
+            int inset = r - (int) Math.round(exact);
 
-            // Full inner row
             fill(x + inset, y + i, x + w - inset, y + i + 1, argb);
             fill(x + inset, y + h - i - 1, x + w - inset, y + h - i, argb);
-
-            // Subpixel anti-aliasing edge pixel
-            if (frac > 0.15 && inset > 0) {
-                int aaAlpha = (int) Math.round(a * frac);
-                int aaCol = (aaAlpha << 24) | rgb;
-                fill(x + inset - 1, y + i, x + inset, y + i + 1, aaCol);
-                fill(x + w - inset, y + i, x + w - inset + 1, y + i + 1, aaCol);
-                fill(x + inset - 1, y + h - i - 1, x + inset, y + h - i, aaCol);
-                fill(x + w - inset, y + h - i - 1, x + w - inset + 1, y + h - i, aaCol);
-            }
         }
     }
 
@@ -127,30 +112,18 @@ public interface Paint {
         int r = Math.max(0, Math.min(radius, Math.min(w / 2, h / 2)));
         for (int row = 0; row < h; row++) {
             int inset = 0;
-            double frac = 0;
             if (row < r) {
                 double dy = r - row - 0.5;
                 double exact = Math.sqrt(Math.max(0, r * r - dy * dy));
-                int fullInset = (int) Math.floor(exact);
-                inset = r - fullInset;
-                frac = exact - fullInset;
+                inset = r - (int) Math.round(exact);
             } else if (row >= h - r) {
                 double dy = r - (h - row) + 0.5;
                 double exact = Math.sqrt(Math.max(0, r * r - dy * dy));
-                int fullInset = (int) Math.floor(exact);
-                inset = r - fullInset;
-                frac = exact - fullInset;
+                inset = r - (int) Math.round(exact);
             }
-            int col = blend(top, bottom, row / (float) Math.max(1, h - 1));
+            float t = (float) row / (float) Math.max(1, h - 1);
+            int col = blend(top, bottom, t);
             fill(x + inset, y + row, x + w - inset, y + row + 1, col);
-
-            if (frac > 0.15 && inset > 0) {
-                int a = (col >> 24) & 0xFF;
-                int aaAlpha = (int) Math.round(a * frac);
-                int aaCol = (aaAlpha << 24) | (col & 0x00FFFFFF);
-                fill(x + inset - 1, y + row, x + inset, y + row + 1, aaCol);
-                fill(x + w - inset, y + row, x + w - inset + 1, y + row + 1, aaCol);
-            }
         }
     }
 

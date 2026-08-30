@@ -26,6 +26,27 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Crisp Geometric Rounded Keycaps, Slim Sunken Milled Wells & Luminous Optical LEDs (Gemini)
+
+Đã làm:
+- **Xóa bỏ hoàn toàn hiện tượng mờ góc nhọn (`UiButton.java`, `Paint.java`)**:
+  + Thay thế phép vẽ anti-aliasing làm mờ mép alpha bằng cấu trúc bo tròn hình học rời rạc chuẩn xác ($R=3\text{px}$). Nút phím PBT giờ đây có 4 góc bo tròn sắc nét $100\%$, không bị lem màu hoặc đọng góc nhọn mờ bên dưới.
+- **Thu gọn & tinh chỉnh hốc lõm 4 phím góc (`TabletChassisPaint.java`)**:
+  + Giảm độ dày rãnh lõm từ $58\text{px}$ (pad 7px) xuống dạng rãnh phay CNC thanh mảnh $50\text{px}$ (pad 3px) quanh 4 phím góc (`GRID`, `BRIGHT`, `FLT`, `POWER`), tạo hiệu ứng vát chìm tinh tế, liền mạch với viền bezel của tablet thực tế.
+- **Sửa triệt để logic hiển thị đèn LED thấu kính trong suốt (`UiButton.java`)**:
+  + Phát hiện nguyên nhân đèn LED bị tối: khi scale nhỏ ở GUI Minecraft, lệnh vẽ bóng đổ cạnh phải đã đè lên toàn bộ chiều rộng 1px của thấu kính.
+  + Cố định kích thước thấu kính tối thiểu $2\times 5\text{px}$, chuyển màu kính khi tắt sang xám xanh quang học sáng (`#6C7A8E`) với dải phản quang bạc (`#C0D2E8` / `#A0B4CC`), làm nổi bật thấu kính polycarbonate trong suốt như kính thật.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — slim 3px chamfered wells)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — geometric solid rounded keycaps, luminous optical LEDs)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/Paint.java` (sửa — solid discrete rounded rendering)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Rounded PBT Keycaps, Slim Rims, Frosted Optical LEDs & 4 Sunken Corner Wells (Gemini)
 
 Đã làm:
