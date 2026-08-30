@@ -26,6 +26,21 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Balanced Frosted Smoky-Pearl Unlit LED Tone (Gemini)
+
+Đã làm:
+- **Giảm độ chói trắng sữa của đèn LED khi tắt (`TabletChassisPaint.java`)**:
+  + Chuyển tông màu thấu kính unlit sang **xám khói bạc mờ dịu mắt (Frosted Smoky-Pearl `#A8B6C6`)**, giảm độ sáng chói trắng khoảng $20\%$.
+  + Giữ nguyên hiệu ứng quang học phản xạ trục và khe rãnh CNC $1\text{px}$ siêu mỏng, giúp thấu kính hài hòa, cao cấp và tự nhiên trên nền vỏ máy kim loại.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — cân bằng sắc độ đèn LED unlit)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — High-Visibility Tactical Laser Bloom Glow on Lit LEDs (Gemini)
 
 Đã làm:

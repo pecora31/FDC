@@ -1201,7 +1201,7 @@ public final class TabletChassisPaint {
                 }
             }
         } else {
-            // Frosted Milky-White Optical Light-Pipe Lens (Thấu kính quang học mờ quân sự chuẩn mẫu 3D gốc)
+            // Frosted Smoky-Pearl Optical Light-Pipe Lens (Thấu kính quang học mờ xám bạc dịu mắt)
             // 1. Crisp 1px CNC recessed channel socket
             for (int y = -1; y <= h; y++) {
                 for (int x = -1; x <= w; x++) {
@@ -1212,44 +1212,44 @@ public final class TabletChassisPaint {
             // 2. Translucent frosted milky-white acrylic optical light diffuser bar
             if (isVert) {
                 // Top cap glint
-                setPixel(img, lx, ly, 0xFFB4C2D0);
-                setPixel(img, lx + 1, ly, 0xFFEEF4FC);
-                setPixel(img, lx + 2, ly, 0xFFEEF4FC);
-                setPixel(img, lx + 3, ly, 0xFF8A98A8);
+                setPixel(img, lx, ly, 0xFF8A96A4);
+                setPixel(img, lx + 1, ly, 0xFFBDC9D6);
+                setPixel(img, lx + 2, ly, 0xFFBDC9D6);
+                setPixel(img, lx + 3, ly, 0xFF707C8A);
 
                 // Body & cylindrical Fresnel diffusion core
                 for (int y = 1; y < h - 1; y++) {
-                    setPixel(img, lx, ly + y, 0xFF8492A2);
-                    setPixel(img, lx + 1, ly + y, 0xFFDCE6F2); // High-luminance milky reflection core
-                    setPixel(img, lx + 2, ly + y, 0xFFB0BED0); // Diffused optical body
-                    setPixel(img, lx + 3, ly + y, 0xFF647080); // Convex curve falloff shadow
+                    setPixel(img, lx, ly + y, 0xFF6A7684);
+                    setPixel(img, lx + 1, ly + y, 0xFFA8B6C6); // Balanced frosted milky reflection core
+                    setPixel(img, lx + 2, ly + y, 0xFF8C9AA8); // Diffused optical body
+                    setPixel(img, lx + 3, ly + y, 0xFF505A66); // Convex curve falloff shadow
                 }
 
                 // Bottom cap shadow
-                setPixel(img, lx, ly + h - 1, 0xFF606C7C);
-                setPixel(img, lx + 1, ly + h - 1, 0xFF748292);
-                setPixel(img, lx + 2, ly + h - 1, 0xFF748292);
-                setPixel(img, lx + 3, ly + h - 1, 0xFF485260);
+                setPixel(img, lx, ly + h - 1, 0xFF48525E);
+                setPixel(img, lx + 1, ly + h - 1, 0xFF5C6674);
+                setPixel(img, lx + 2, ly + h - 1, 0xFF5C6674);
+                setPixel(img, lx + 3, ly + h - 1, 0xFF38404A);
             } else {
                 // Left cap glint
-                setPixel(img, lx, ly, 0xFFB4C2D0);
-                setPixel(img, lx, ly + 1, 0xFFEEF4FC);
-                setPixel(img, lx, ly + 2, 0xFFEEF4FC);
-                setPixel(img, lx, ly + 3, 0xFF8A98A8);
+                setPixel(img, lx, ly, 0xFF8A96A4);
+                setPixel(img, lx, ly + 1, 0xFFBDC9D6);
+                setPixel(img, lx, ly + 2, 0xFFBDC9D6);
+                setPixel(img, lx, ly + 3, 0xFF707C8A);
 
                 // Body & cylindrical Fresnel diffusion core
                 for (int x = 1; x < w - 1; x++) {
-                    setPixel(img, lx + x, ly, 0xFFDCE6F2); // High-luminance milky reflection core
-                    setPixel(img, lx + x, ly + 1, 0xFFB0BED0); // Diffused optical body
-                    setPixel(img, lx + x, ly + 2, 0xFF8492A2);
-                    setPixel(img, lx + x, ly + 3, 0xFF647080); // Convex curve falloff shadow
+                    setPixel(img, lx + x, ly, 0xFFA8B6C6); // Balanced frosted milky reflection core
+                    setPixel(img, lx + x, ly + 1, 0xFF8C9AA8); // Diffused optical body
+                    setPixel(img, lx + x, ly + 2, 0xFF6A7684);
+                    setPixel(img, lx + x, ly + 3, 0xFF505A66); // Convex curve falloff shadow
                 }
 
                 // Right cap shadow
-                setPixel(img, lx + w - 1, ly, 0xFF606C7C);
-                setPixel(img, lx + w - 1, ly + 1, 0xFF748292);
-                setPixel(img, lx + w - 1, ly + 2, 0xFF748292);
-                setPixel(img, lx + w - 1, ly + 3, 0xFF485260);
+                setPixel(img, lx + w - 1, ly, 0xFF48525E);
+                setPixel(img, lx + w - 1, ly + 1, 0xFF5C6674);
+                setPixel(img, lx + w - 1, ly + 2, 0xFF5C6674);
+                setPixel(img, lx + w - 1, ly + 3, 0xFF38404A);
             }
         }
     }
