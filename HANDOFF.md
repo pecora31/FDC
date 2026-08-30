@@ -26,6 +26,26 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Press State Shape & Font Preservation, Uniform Sockets & Aligned LEDs (Gemini)
+
+Đã làm:
+- **Bảo toàn $100\%$ hình dáng & Font chữ khi nhấn phím (`UiButton.java`)**:
+  + **Xử lý lỗi scale font & lưu ảnh thừa**: Không vẽ lại nút lệch 1px bằng font hệ thống (tránh lỗi font bị co nhỏ/biến dạng và để lộ viền cũ bên dưới). Áp dụng hiệu ứng chìm trực tiếp với độ tối và bóng đổ lòng socket lên phím tĩnh đã nướng. Giữ nguyên 100% hình dạng bo góc $R=8\text{px}$, font bitmap và độ sắc nét.
+- **Làm đều hốc nút ở 4 góc, độ dày các cạnh bằng nhau (`TabletChassisPaint.java`)**:
+  + `bakeSunkenButtonWell`: Loại bỏ đổ bóng hướng bất đối xứng (`inTopLeft`), chuyển sang vát bậc CNC đồng tâm đối xứng 100% với độ dày và màu sắc đồng đều trên cả 4 cạnh.
+- **Đồng bộ kích thước & vị trí đèn LED chuẩn xác (`TabletChassisPaint.java`, `UiButton.java`)**:
+  + Đồng bộ tọa độ nướng LED trong `TabletChassisPaint.java` khớp $100\%$ với `TabletFrame.ledFor` ($4\times 8\text{px}$ cho hàng trên/dưới và $8\times 4\text{px}$ cho hai bên hông).
+  + `UiButton.java` vẽ ánh sáng laser LED chuẩn xác trên đúng bounding box đó, loại bỏ hiện tượng lệch vị trí hay chỗ dày chỗ mỏng.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bakeSunkenButtonWell đối xứng, tọa độ LED chuẩn)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — bảo toàn shape & font khi press, LED laser glow)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Full Static Baking of All 32 Bezel Keys & Zero-Overhead Interaction Model (Gemini)
 
 Đã làm:

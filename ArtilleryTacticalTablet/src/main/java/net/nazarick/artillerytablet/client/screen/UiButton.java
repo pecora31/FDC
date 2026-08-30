@@ -290,66 +290,17 @@ public class UiButton {
                 return;
             }
 
-            boolean redKey = danger || power;
-            int dyPress = pressed ? 1 : 0;
-            int kx = x;
-            int ky = y + dyPress;
-
-            // 2. Depressed Keycap on Press (Lún xuống 1px, sẫm màu)
+            // 2. Depressed State on Press (Bảo toàn 100% hình dáng, bo góc và font chữ, không lưu ảnh thừa)
             if (pressed) {
-                int borderCol   = redKey ? 0xFF1C0404 : 0xFF101216;
-                int rimTopLeft  = redKey ? 0xFFB82828 : 0xFF586272;
-                int rimBody     = redKey ? 0xFFC02A2A : 0xFF545E6E;
-                int rimBotRight = redKey ? 0xFF6A1010 : 0xFF282E38;
-                int dishFloor   = redKey ? 0xFF8E1818 : 0xFF383E4A;
-                int dishShadow  = redKey ? 0xFF440606 : 0xFF1E222A;
-                int dishGlint   = redKey ? 0xFFB82424 : 0xFF4C5666;
+                // Uniform depression darkening over the keycap
+                p.fill(x + 2, y, x + w - 2, y + h, 0x48000000);
+                p.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0x48000000);
+                p.fill(x, y + 2, x + w, y + h - 2, 0x48000000);
 
-                // Subtle top socket shadow on gentle switch travel
-                p.fill(x + 1, y, x + w - 1, y + 1, 0x35000000);
-
-                // Outer Keycap Border
-                p.fill(kx + 2, ky, kx + w - 2, ky + 1, borderCol);
-                p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, borderCol);
-                p.fill(kx, ky + 2, kx + w, ky + h - 2, borderCol);
-                p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, borderCol);
-                p.fill(kx + 2, ky + h - 1, kx + w - 2, ky + h, borderCol);
-
-                // Slim 1px Raised Rim Bevel
-                p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimBody);
-                p.fill(kx + 1, ky + 2, kx + w - 1, ky + h - 2, rimBody);
-                p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBody);
-
-                // Rim Highlights & Shadows
-                p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimTopLeft);
-                p.fill(kx + 1, ky + 2, kx + 2, ky + h - 2, rimTopLeft);
-                p.fill(kx + 1, ky + 1, kx + 2, ky + 2, rimTopLeft);
-                p.fill(kx + w - 2, ky + 2, kx + w - 1, ky + h - 2, rimBotRight);
-                p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBotRight);
-                p.fill(kx + w - 2, ky + h - 2, kx + w - 1, ky + h - 1, rimBotRight);
-
-                // Recessed Dish Floor
-                int dx0 = kx + 2;
-                int dy0 = ky + 2;
-                int dw = w - 4;
-                int dh = h - 4;
-
-                p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishFloor);
-                p.fill(dx0, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishFloor);
-                p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishFloor);
-
-                p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishShadow);
-                p.fill(dx0, dy0 + 1, dx0 + 1, dy0 + dh - 1, dishShadow);
-                p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishGlint);
-                p.fill(dx0 + dw - 1, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishGlint);
-
-                // Label / Mark on pressed key
-                int textCol = redKey ? 0xFFFFFFFF : 0xFFF0F4FA;
-                if (mark != null) {
-                    drawMark(p, cx, cy + dyPress, w, textCol);
-                } else if (label != null && !label.getString().isEmpty()) {
-                    p.label(label.getString(), kx, ky, w, h, textCol);
-                }
+                // Top socket cavity drop shadow (hiệu ứng nút chìm 1px vào lòng socket)
+                p.fill(x + 2, y, x + w - 2, y + 1, 0x99000000);
+                p.fill(x + 1, y + 1, x + w - 1, y + 2, 0x66000000);
+                p.fill(x + 1, y + 2, x + 2, y + h - 2, 0x44000000);
             }
 
             // 3. Active Glowing Laser LED (Only when hardOn)
@@ -357,27 +308,15 @@ public class UiButton {
                 int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
                 int ledCol = danger ? 0xFFFF2828 : 0xFF00E85D;
 
-                int wLed, hLed, x0, y0;
-                if (lh >= lw) {
-                    wLed = 2;
-                    hLed = 4;
-                    x0 = lx + lw / 2 - 1;
-                    y0 = ly + lh / 2 - 2;
+                // Active Laser Glow Halo (1px outer rim)
+                p.rect(lx - 1, ly - 1, lw + 2, lh + 2, (ledCol & 0x00FFFFFF) | 0x40000000);
+                // Saturated LED Body
+                p.rect(lx, ly, lw, lh, ledCol);
+                // Pure white-hot optical center filament
+                if (lh > lw) {
+                    p.fill(lx + 1, ly + 1, lx + lw - 1, ly + lh - 1, 0xFFE0FFE8);
                 } else {
-                    wLed = 4;
-                    hLed = 2;
-                    x0 = lx + lw / 2 - 2;
-                    y0 = ly + lh / 2 - 1;
-                }
-
-                // Active Laser Glow
-                p.rect(x0 - 1, y0 - 1, wLed + 2, hLed + 2, (ledCol & 0x00FFFFFF) | 0x30000000);
-                p.rect(x0, y0, wLed, hLed, ledCol);
-                // White-hot center filament
-                if (hLed > wLed) {
-                    p.fill(x0, y0 + 1, x0 + 1, y0 + hLed - 1, 0xFFE0FFE8);
-                } else {
-                    p.fill(x0 + 1, y0, x0 + wLed - 1, y0 + 1, 0xFFE0FFE8);
+                    p.fill(lx + 1, ly + 1, lx + lw - 1, ly + lh - 1, 0xFFE0FFE8);
                 }
             }
 

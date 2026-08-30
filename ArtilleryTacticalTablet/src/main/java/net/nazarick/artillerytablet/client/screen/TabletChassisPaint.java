@@ -1300,7 +1300,7 @@ public final class TabletChassisPaint {
         int keySize = 44;
         int half = keySize / 2;
 
-        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76)
+        // 1. Top Row (10 Keys centered at ROW_TOP_Y = 41 + 8 LEDs at LED_ROW_TOP_Y = 76, 4x8)
         String[] topLabels = {"GRID", "SA", "WPN", "DEF", "STA", "DRV", "STR", "LOG", "BTY", null};
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
@@ -1311,29 +1311,29 @@ public final class TabletChassisPaint {
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             bakeSingleKey(img, cx, cy, topLabels[i], (i == 9) ? UiButton.Mark.BRIGHT : null, false);
             if (i != 0 && i != 9) {
-                bakeLedSprite(img, cx - 1, 77, 3, 7, false, 0);
+                bakeLedSprite(img, cx - 2, 76, 4, 8, false, 0);
             }
         }
 
-        // 2. Left Flank (6 Keys F1-F6 centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, Horizontal 8x4)
+        // 2. Left Flank (6 Keys F1-F6 centered at COL_LEFT_X = 39 + 6 LEDs at LED_COL_LEFT_X = 76, 8x4)
         for (int i = 0; i < 6; i++) {
             int cx = 39;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             bakeSingleKey(img, cx, cy, "F" + (i + 1), null, false);
-            bakeLedSprite(img, 77, cy - 1, 7, 3, false, 0);
+            bakeLedSprite(img, 76, cy - 2, 8, 4, false, 0);
         }
 
-        // 3. Right Flank (6 Keys F7-F12 centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
+        // 3. Right Flank (6 Keys F7-F12 centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, 8x4)
         for (int i = 0; i < 6; i++) {
             int cx = 941;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             bakeSingleKey(img, cx, cy, "F" + (i + 7), null, false);
-            bakeLedSprite(img, 897, cy - 1, 7, 3, false, 0);
+            bakeLedSprite(img, 896, cy - 2, 8, 4, false, 0);
         }
 
-        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
+        // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546, 4x8)
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
@@ -1347,7 +1347,7 @@ public final class TabletChassisPaint {
                 bakeSingleKey(img, cx, cy, null, UiButton.Mark.POWER, true);
             } else {
                 bakeSingleKey(img, cx, cy, "F" + (i + 12), null, false);
-                bakeLedSprite(img, cx - 1, 547, 3, 7, false, 0);
+                bakeLedSprite(img, cx - 2, 546, 4, 8, false, 0);
             }
         }
     }
@@ -1457,28 +1457,15 @@ public final class TabletChassisPaint {
                         // Deep socket floor
                         setPixel(img, x, y, 0xFF0A0B0E);
                     } else {
-                        // Chamfered milled bevel
-                        boolean inTopLeft = ((x - ox1) + (y - oy1) < outW / 2 + outH / 2);
+                        // Symmetric chamfered milled bevel (equal thickness on all 4 sides, no directional light shadow)
                         int dOut = Math.min(Math.min(x - ox1, ox2 - 1 - x), Math.min(y - oy1, oy2 - 1 - y));
-
-                        int col;
-                        if (inTopLeft) {
-                            col = switch (Math.min(dOut, 4)) {
-                                case 0 -> 0xFF30343C;
-                                case 1 -> 0xFF25282F;
-                                case 2 -> 0xFF1C1E23;
-                                case 3 -> 0xFF15171B;
-                                default -> 0xFF0F1013;
-                            };
-                        } else {
-                            col = switch (Math.min(dOut, 4)) {
-                                case 0 -> 0xFF141619;
-                                case 1 -> 0xFF0E1012;
-                                case 2 -> 0xFF090A0C;
-                                case 3 -> 0xFF060708;
-                                default -> 0xFF040506;
-                            };
-                        }
+                        int col = switch (Math.min(dOut, 4)) {
+                            case 0 -> 0xFF242830;
+                            case 1 -> 0xFF1C1E24;
+                            case 2 -> 0xFF15171C;
+                            case 3 -> 0xFF0F1014;
+                            default -> 0xFF0A0B0E;
+                        };
                         setPixel(img, x, y, applyStipple(col, x, y));
                     }
                 }
