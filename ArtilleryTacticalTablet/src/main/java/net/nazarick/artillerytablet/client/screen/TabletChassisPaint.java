@@ -123,9 +123,6 @@ public final class TabletChassisPaint {
         // 9. Bake all 32 default tactical keys and unlit LEDs directly onto 980px chassis
         bakeAllDefaultKeysAndLeds(img);
 
-        // 10. Silk-screen matte off-white silver ASTRA logo badge at top-left corner
-        bakeTopLeftAstraBadge(img);
-
         return img;
     }
 
@@ -320,125 +317,13 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Pure True OLED FHD Display Floor (No grid lines, no CRT scanlines, true pure OLED black)
+        // 2. Pure True OLED FHD Display Floor (true pure OLED pitch black, no logo when off)
         for (int y = mapY; y < mapY + mapH; y++) {
             for (int x = mapX; x < mapX + mapW; x++) {
                 if (isInsideRoundedRect(x, y, mapX, mapY, mapX + mapW, mapY + mapH, scrR)) {
-                    setPixel(img, x, y, 0xFF030406);
+                    setPixel(img, x, y, 0xFF000000);
                 }
             }
-        }
-
-        // 3. Crisp ASTRA SYSTEMS Logo
-        drawAstraLogo(img, mapX + mapW / 2, mapY + mapH / 2);
-    }
-
-    private static void drawAstraLogo(NativeImage img, int cx, int cy) {
-        int redCol = 0xFFB8141D;
-        int subTextCol = 0xFF9AA4B2;
-        int topY = cy - 24;
-        int letH = 30;
-        int letW = 32;
-        int gap = 16;
-        int totalW = 5 * letW + 4 * gap;
-        int startX = cx - totalW / 2;
-
-        // Render 'ASTRA'
-        for (int i = 0; i < 5; i++) {
-            int lx = startX + i * (letW + gap);
-            switch (i) {
-                case 0, 4 -> { // 'A' Chevron (Lambda shape with no crossbar)
-                    for (int y = topY; y <= topY + letH; y++) {
-                        float t = (float) (y - topY) / letH;
-                        int leftX = Math.round(lx + 16 - t * 16);
-                        int rightX = Math.round(lx + 16 + t * 16);
-                        for (int dx = -2; dx <= 2; dx++) {
-                            setPixel(img, leftX + dx, y, redCol);
-                            setPixel(img, rightX + dx, y, redCol);
-                        }
-                    }
-                }
-                case 1 -> { // 'S'
-                    int thick = 5;
-                    // Top bar
-                    for (int x = lx + 4; x <= lx + letW; x++)
-                        for (int y = topY; y < topY + thick; y++) setPixel(img, x, y, redCol);
-                    // Top-left round corner & upper stem
-                    for (int y = topY + 2; y <= topY + letH / 2; y++)
-                        for (int x = lx; x < lx + thick; x++) setPixel(img, x, y, redCol);
-                    // Middle bar
-                    for (int x = lx + 2; x <= lx + letW - 2; x++)
-                        for (int y = topY + letH / 2 - 2; y <= topY + letH / 2 + 2; y++) setPixel(img, x, y, redCol);
-                    // Lower-right stem
-                    for (int y = topY + letH / 2; y <= topY + letH - 2; y++)
-                        for (int x = lx + letW - thick; x <= lx + letW; x++) setPixel(img, x, y, redCol);
-                    // Bottom bar
-                    for (int x = lx; x <= lx + letW - 4; x++)
-                        for (int y = topY + letH - thick; y <= topY + letH; y++) setPixel(img, x, y, redCol);
-                }
-                case 2 -> { // 'T'
-                    int thick = 5;
-                    // Top horizontal bar
-                    for (int x = lx; x <= lx + letW; x++)
-                        for (int y = topY; y < topY + thick; y++) setPixel(img, x, y, redCol);
-                    // Center vertical stem
-                    for (int y = topY + thick; y <= topY + letH; y++)
-                        for (int x = lx + letW / 2 - 2; x <= lx + letW / 2 + 2; x++) setPixel(img, x, y, redCol);
-                }
-                case 3 -> { // 'R'
-                    int thick = 5;
-                    // Left vertical stem
-                    for (int y = topY; y <= topY + letH; y++)
-                        for (int x = lx; x < lx + thick; x++) setPixel(img, x, y, redCol);
-                    // Upper loop top
-                    for (int x = lx + thick; x <= lx + letW - 4; x++)
-                        for (int y = topY; y < topY + thick; y++) setPixel(img, x, y, redCol);
-                    // Upper loop right curve
-                    for (int y = topY + 2; y <= topY + letH / 2; y++)
-                        for (int x = lx + letW - thick; x <= lx + letW; x++) setPixel(img, x, y, redCol);
-                    // Upper loop bottom
-                    for (int x = lx + thick; x <= lx + letW - 4; x++)
-                        for (int y = topY + letH / 2 - 2; y <= topY + letH / 2 + 2; y++) setPixel(img, x, y, redCol);
-                    // Angled leg with stylized notch
-                    for (int y = topY + letH / 2; y <= topY + letH; y++) {
-                        float t = (float) (y - (topY + letH / 2)) / (letH / 2.0f);
-                        int legX = Math.round(lx + 10 + t * (letW - 10));
-                        for (int dx = -2; dx <= 2; dx++) {
-                            setPixel(img, legX + dx, y, redCol);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Subtitle: '—  S Y S T E M S  —'
-        int subY = cy + 22;
-        // Left & right crimson accent lines
-        int lineLen = 50;
-        int lineGap = 16;
-        int textSubW = 140;
-        int line1X2 = cx - textSubW / 2 - lineGap;
-        int line1X1 = line1X2 - lineLen;
-        int line2X1 = cx + textSubW / 2 + lineGap;
-        int line2X2 = line2X1 + lineLen;
-
-        for (int x = line1X1; x <= line1X2; x++) {
-            setPixel(img, x, subY + 3, redCol);
-            setPixel(img, x, subY + 4, redCol);
-        }
-        for (int x = line2X1; x <= line2X2; x++) {
-            setPixel(img, x, subY + 3, redCol);
-            setPixel(img, x, subY + 4, redCol);
-        }
-
-        // Draw tracked 'S Y S T E M S'
-        String sub = "SYSTEMS";
-        int subCharCount = sub.length();
-        int subSlot = textSubW / subCharCount;
-        for (int i = 0; i < subCharCount; i++) {
-            char ch = sub.charAt(i);
-            int subX = (cx - textSubW / 2) + i * subSlot + subSlot / 2;
-            rasterizePixelString(img, String.valueOf(ch), subX, subY + 4, 1, subTextCol);
         }
     }
 
@@ -1564,78 +1449,6 @@ public final class TabletChassisPaint {
                 }
             }
             curX += (gw + 1) * fontScale;
-        }
-    }
-
-    private static void bakeTopLeftAstraBadge(NativeImage img) {
-        int cx = 52;
-        int cy = 96;
-        int badgeCol = 0xFFC0C9D4; // Silk-screen matte off-white silver
-        int shadowCol = 0xFF0D0E11; // Subtle laser-etched cavity shadow
-
-        drawMiniAstra(img, cx + 1, cy + 1, shadowCol);
-        drawMiniAstra(img, cx, cy, badgeCol);
-    }
-
-    private static void drawMiniAstra(NativeImage img, int cx, int cy, int col) {
-        int letW = 5;
-        int letH = 6;
-        int gap = 2;
-        int totalW = 5 * letW + 4 * gap; // 33px
-        int startX = cx - totalW / 2;
-        int topY = cy - letH / 2;
-
-        for (int i = 0; i < 5; i++) {
-            int lx = startX + i * (letW + gap);
-            switch (i) {
-                case 0, 4 -> { // 'A' (Lambda Chevron)
-                    setPixel(img, lx + 2, topY, col);
-                    setPixel(img, lx + 1, topY + 1, col);
-                    setPixel(img, lx + 3, topY + 1, col);
-                    setPixel(img, lx + 1, topY + 2, col);
-                    setPixel(img, lx + 3, topY + 2, col);
-                    setPixel(img, lx, topY + 3, col);
-                    setPixel(img, lx + 4, topY + 3, col);
-                    setPixel(img, lx, topY + 4, col);
-                    setPixel(img, lx + 4, topY + 4, col);
-                    setPixel(img, lx, topY + 5, col);
-                    setPixel(img, lx + 4, topY + 5, col);
-                }
-                case 1 -> { // 'S'
-                    setPixel(img, lx + 1, topY, col);
-                    setPixel(img, lx + 2, topY, col);
-                    setPixel(img, lx + 3, topY, col);
-                    setPixel(img, lx + 4, topY, col);
-                    setPixel(img, lx, topY + 1, col);
-                    setPixel(img, lx, topY + 2, col);
-                    setPixel(img, lx + 1, topY + 2, col);
-                    setPixel(img, lx + 2, topY + 3, col);
-                    setPixel(img, lx + 3, topY + 3, col);
-                    setPixel(img, lx + 4, topY + 4, col);
-                    setPixel(img, lx, topY + 5, col);
-                    setPixel(img, lx + 1, topY + 5, col);
-                    setPixel(img, lx + 2, topY + 5, col);
-                    setPixel(img, lx + 3, topY + 5, col);
-                }
-                case 2 -> { // 'T'
-                    for (int x = 0; x < letW; x++) setPixel(img, lx + x, topY, col);
-                    for (int y = 1; y < letH; y++) setPixel(img, lx + 2, topY + y, col);
-                }
-                case 3 -> { // 'R'
-                    for (int y = 0; y < letH; y++) setPixel(img, lx, topY + y, col);
-                    setPixel(img, lx + 1, topY, col);
-                    setPixel(img, lx + 2, topY, col);
-                    setPixel(img, lx + 3, topY, col);
-                    setPixel(img, lx + 4, topY + 1, col);
-                    setPixel(img, lx + 4, topY + 2, col);
-                    setPixel(img, lx + 1, topY + 3, col);
-                    setPixel(img, lx + 2, topY + 3, col);
-                    setPixel(img, lx + 3, topY + 3, col);
-                    setPixel(img, lx + 2, topY + 4, col);
-                    setPixel(img, lx + 3, topY + 4, col);
-                    setPixel(img, lx + 4, topY + 5, col);
-                }
-            }
         }
     }
 }

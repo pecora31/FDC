@@ -1210,13 +1210,11 @@ public class TabletScreen extends Screen {
         if (r <= 0) {
             return;
         }
-        // Matches TabletChassisPaint's own four corner tones for the same bezel band (darkest at
-        // top-left, lightest at bottom-right) rather than one flat colour, so the patch disappears
-        // into the baked chassis instead of standing out as a slightly different grey.
-        maskCorner(g, x, y, r, false, false, 0xFF08090C);
-        maskCorner(g, x + w - r, y, r, true, false, 0xFF0D0E12);
-        maskCorner(g, x, y + h - r, r, false, true, 0xFF16181D);
-        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF202328);
+        // Deep dark inner bezel lip tones to match off-state screen corner seamlessly
+        maskCorner(g, x, y, r, false, false, 0xFF050608);
+        maskCorner(g, x + w - r, y, r, true, false, 0xFF07080A);
+        maskCorner(g, x, y + h - r, r, false, true, 0xFF08090C);
+        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF0A0B0E);
     }
 
     private void maskCorner(GuiGraphics g, int x, int y, int r, boolean right, boolean bottom, int colour) {

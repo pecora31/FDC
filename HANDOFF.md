@@ -29,6 +29,23 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Pure Black Off-Screen & Seamless Screen-On Corner Mask (Gemini)
+
+Đã làm:
+- **Tối giản hóa màn hình khi tắt và làm đẹp góc màn hình khi bật (`TabletChassisPaint.java`, `TabletScreen.java`)**:
+  + **Xóa logo ở góc trên trái**: Đã gỡ bỏ logo ASTRA nhỏ trên vai khung máy theo yêu cầu.
+  + **Màn hình khi tắt đen tuyền tuyệt đối**: Xóa bỏ logo ASTRA trên màn hình khi tắt trong `bakeScreenAndTacticalGrid`, trả lại bề mặt màn hình OLED đen tuyền (`0xFF000000`) tĩnh lặng, sang trọng.
+  + **Góc màn hình khi bật khớp hoàn toàn góc khi tắt**: Cập nhật dải màu của mặt nạ cắt góc 4 góc màn hình (`maskWellCorners` trong `TabletScreen.java`) sang các tông màu viền tối (`0xFF050608` $\to$ `0xFF0A0B0E`). Loại bỏ hoàn toàn mảng xám sáng gây cảm giác bậc thang/cấn viền, giúp góc màn hình khi bật cong tròn mềm mại và đồng nhất tuyệt đối với góc khi tắt.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bỏ logo góc trên trái & màn hình tắt đen tuyền không logo)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — chỉnh tông màu mặt nạ góc khớp góc khi tắt)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Top-Left Silk-Screen Silver ASTRA Logo Badge on Chassis (Gemini)
 
 Đã làm:
