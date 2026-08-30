@@ -26,6 +26,21 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Refined Clean Tactical Lit LED Glow (Gemini)
+
+Đã làm:
+- **Tinh chỉnh hào quang đèn LED khi bật sáng (`UiButton.java`)**:
+  + Loại bỏ vòng hào quang tán xạ rộng $2\text{px}$ để giảm bớt aura loang lổ trên khung máy.
+  + Giữ lại vòng halo $1\text{px}$ thanh mảnh (`0x3800E85D` / `0x38FF2828`), thân thấu kính ngọc lục bảo và tim đèn trắng sắc nét, mang lại cảm giác gọn gàng, tự nhiên và cân đối hoàn hảo với cường độ của bóng LED unlit.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — tinh chỉnh quầng sáng LED khi bật)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Balanced Frosted Smoky-Pearl Unlit LED Tone (Gemini)
 
 Đã làm:

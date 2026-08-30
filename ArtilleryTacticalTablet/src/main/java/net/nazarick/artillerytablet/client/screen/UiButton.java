@@ -299,24 +299,20 @@ public class UiButton {
                 p.fill(x + 2, y + h - 1, x + w - 2, y + h, 0x50000000);
             }
 
-            // 3. Active Glowing Tactical Laser LED (Nổi bật, rực rỡ, nhận biết ngay lập tức khi liếc qua)
+            // 3. Active Glowing Tactical Laser LED (Gọn gàng, tinh tế, vừa mắt)
             if (hardOn && led != null && led.length >= 4) {
                 int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
-                int baseCol = danger ? 0xFFFF2A2A : 0xFF00FF66;
-                int haloCol1 = danger ? 0x60FF2A2A : 0x6000FF66;
-                int haloCol2 = danger ? 0x25FF2A2A : 0x2500FF66;
-                int coreCol = danger ? 0xFFFFF0F0 : 0xFFEFFFF5;
+                int baseCol = danger ? 0xFFFF2828 : 0xFF00E85D;
+                int haloCol = danger ? 0x38FF2828 : 0x3800E85D;
+                int coreCol = danger ? 0xFFFFF0F0 : 0xFFE0FFE8;
 
-                // Layer 1: Wide Ambient Optical Bloom Halo (Tán xạ ánh sáng 2px ra khe khung máy)
-                p.fill(lx - 2, ly - 2, lx + lw + 2, ly + lh + 2, haloCol2);
+                // Layer 1: Subtle 1px Laser Halo (Hào quang viền 1px thanh mảnh, không bị loang rộng)
+                p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, haloCol);
 
-                // Layer 2: Concentrated Laser Corona (Hào quang laser 1px)
-                p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, haloCol1);
-
-                // Layer 3: High-Luminance Saturated Phosphor Body (Thân thấu kính phát quang rực rỡ)
+                // Layer 2: Saturated Phosphor Body (Thân thấu kính phát quang rực rỡ vừa phải)
                 p.fill(lx, ly, lx + lw, ly + lh, baseCol);
 
-                // Layer 4: Intense White-Hot Optical Core Filament (Tim sợi quang phát sáng trắng chói)
+                // Layer 3: White-Hot Optical Core Filament (Tim sợi quang phát sáng trắng sắc nét)
                 if (lh > lw) {
                     int coreW = Math.max(1, lw - 2);
                     int coreX = lx + (lw - coreW) / 2;
