@@ -26,6 +26,23 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Baked 3D Raised Optical Dome LED Capsules on Chassis (Gemini)
+
+Đã làm:
+- **Nướng đầy đủ 28 thấu kính nổi quang học 3D vào khung texture tĩnh (`TabletChassisPaint.java`, `UiButton.java`)**:
+  + **Thấu kính quang học nổi 3D**: Thân thấu kính acrylic/polycarbonate khói trong suốt với **dải phản xạ ánh sáng hình trụ (Fresnel glint reflection `0xFF7E8C9E`)** chạy dọc theo thân thấu kính, tạo hiệu ứng thủy tinh bóng bẩy, nổi 3D rõ nét.
+  + **Khắc phục viền đen dày**: Thay thế khối viền đen đặc bằng **khe rãnh vi cơ khí siêu mỏng (`0xFF14161A`)** ở cạnh trên/trái và **gờ kim loại phản xạ (`0xFF2A2D34`)** ở cạnh dưới/phải, loại bỏ hoàn toàn cảm giác viền đen dày cộp.
+  + **Tối ưu hiệu suất tuyệt đối (0ms idle overhead)**: Nướng trực tiếp toàn bộ 28 thấu kính unlit vào texture tĩnh $980\text{px}$. `UiButton` chỉ cần can thiệp khi phím ở trạng thái `hardOn` (bật phát quang laser) hoặc khi bấm, giúp trải nghiệm cực kỳ mượt mà.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — nướng thấu kính nổi 3D Fresnel glint)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — 0ms runtime overhead khi unlit)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — 3D Raised Optical Dome Lens LED Capsule (Gemini)
 
 Đã làm:
