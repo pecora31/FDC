@@ -26,6 +26,26 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Restored LED Positions Close to Screen Well (Gemini)
+
+Đã làm:
+- **Khôi phục vị trí đèn LED sát viền màn hình (`TabletFrame.java`, `TabletChassisPaint.java`)**:
+  + Trả toàn bộ 28 đèn LED về đúng vị trí nguyên bản sát gờ màn hình theo yêu cầu của user:
+    * Hàng trên: $y = 76$
+    * Hàng dưới: $y = 546$
+    * Cột trái: $x = 76$
+    * Cột phải: $x = 896$
+  + Giữ cấu trúc thấu kính đối xứng $100\%$ và viền socket $1\text{px}$ chuẩn xác trên cả 4 cạnh.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletFrame.java` (sửa — khôi phục LED_ROW_TOP_Y = 76, LED_ROW_BOTTOM_Y = 546, LED_COL_LEFT_X = 76, LED_COL_RIGHT_X = 896)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — nướng LED theo vị trí sát viền màn hình)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Uniform Button Press Tone, Perfectly Centered LEDs & Toggleable LED State (Gemini)
 
 Đã làm:

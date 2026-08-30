@@ -45,13 +45,13 @@ final class TabletFrame {
     /** Keys along the top and the bottom. */
     static final int ROW_KEYS = 10;
 
-    /** The LED beside a key: perfectly centered in the clear bezel band between key and glass. */
+    /** The LED beside a key: a short stroke in the band beside the glass. */
     private static final int LED_LONG = 8;
     private static final int LED_SHORT = 4;
-    private static final int LED_ROW_TOP_Y = 72;
-    private static final int LED_ROW_BOTTOM_Y = 549;
-    private static final int LED_COL_LEFT_X = 71;
-    private static final int LED_COL_RIGHT_X = 900;
+    private static final int LED_ROW_TOP_Y = 76;
+    private static final int LED_ROW_BOTTOM_Y = 546;
+    private static final int LED_COL_LEFT_X = 76;
+    private static final int LED_COL_RIGHT_X = 896;
 
     /** How much of the window the case takes, centred in what is left. */
     private static final float SHELL_FRACTION = 0.95f;
