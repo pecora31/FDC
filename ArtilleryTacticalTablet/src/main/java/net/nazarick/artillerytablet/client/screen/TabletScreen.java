@@ -1191,17 +1191,17 @@ public class TabletScreen extends Screen {
      * the last thing drawn into it says so.
      */
     private void maskWellCorners(GuiGraphics g, int x, int y, int w, int h) {
-        int r = Math.max(2, frame.toScreenW(6f));
+        int r = Math.max(4, frame.toScreenW(16f));
         if (r <= 0) {
             return;
         }
         // Matches TabletChassisPaint's own four corner tones for the same bezel band (darkest at
         // top-left, lightest at bottom-right) rather than one flat colour, so the patch disappears
         // into the baked chassis instead of standing out as a slightly different grey.
-        maskCorner(g, x, y, r, false, false, 0xFF08090B);
-        maskCorner(g, x + w - r, y, r, true, false, 0xFF0D0E11);
-        maskCorner(g, x, y + h - r, r, false, true, 0xFF16181C);
-        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF202226);
+        maskCorner(g, x, y, r, false, false, 0xFF08090C);
+        maskCorner(g, x + w - r, y, r, true, false, 0xFF0D0E12);
+        maskCorner(g, x, y + h - r, r, false, true, 0xFF16181D);
+        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF202328);
     }
 
     private void maskCorner(GuiGraphics g, int x, int y, int r, boolean right, boolean bottom, int colour) {

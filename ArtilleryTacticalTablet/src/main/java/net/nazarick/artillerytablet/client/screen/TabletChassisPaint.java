@@ -272,7 +272,7 @@ public final class TabletChassisPaint {
 
     private static void bakeScreenAndTacticalGrid(NativeImage img) {
         int mapX = TabletFrame.SCR_X, mapY = TabletFrame.SCR_Y, mapW = TabletFrame.SCR_W, mapH = TabletFrame.SCR_H;
-        int scrR = 6, bevelW = 3;
+        int scrR = 16, bevelW = 6;
         int outR = scrR + bevelW;
         int outX1 = mapX - bevelW, outY1 = mapY - bevelW;
         int outX2 = mapX + mapW + bevelW, outY2 = mapY + mapH + bevelW;
@@ -1392,7 +1392,7 @@ public final class TabletChassisPaint {
     }
 
     private static void bakeKeySocket(NativeImage img, int kx, int ky, int w, int h) {
-        int r = 8;
+        int r = 10;
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 if (isInsideRounded(x, y, w, h, r)) {

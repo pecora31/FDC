@@ -26,6 +26,28 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Diagonal Press Animation, Dark Hover Tint, Seamless Keycap Sockets & R=16 Screen Rounding (Gemini)
+
+Đã làm:
+- **Khắc phục triệt để khe hở góc đen của phím (`UiButton.java`, `TabletChassisPaint.java`)**:
+  + **Nguyên nhân**: Hốc socket `bakeKeySocket` trong texture tĩnh nướng khuôn đen vuông thô, khiến các góc vát của phím trong `UiButton` để lộ các đốm đen góc dưới.
+  + **Giải pháp**: Tinh chỉnh `bakeKeySocket` bo góc $R=10\text{px}$ và thiết kế viền phím `UiButton` phủ khít $100\%$ miệng socket, loại bỏ hoàn toàn các đốm đen góc phím (ảnh cận cảnh F18).
+- **Animation nhấn phím chéo & Hiệu ứng hover mờ đen (`UiButton.java`)**:
+  + Khi hover: Phủ một lớp bóng mờ đen nhẹ (`0x2A000000`) trên bề mặt phím bấm.
+  + Khi nhấn: Dịch chuyển toàn bộ pixel phím bấm xuống góc chéo dưới (`dx = 1, dy = 1`), toàn bộ màu sắc bề mặt phím và lòng phím đồng thời sẫm tối lại rõ rệt (`dishFloor = 0xFF2E343E`, `rim = 0xFF4A5260`), kết hợp bóng đổ drop-shadow ở góc trên/trái.
+- **Bo cong viền góc màn hình hiển thị mượt mà ($R=16\text{px}$) (`TabletChassisPaint.java`, `TabletScreen.java`)**:
+  + Nâng bán kính bo góc Bezel màn hình lên $R=16\text{px}$ (vát Bezel 6px, bo ngoài $R=22\text{px}$) và đồng bộ `maskWellCorners` theo tỷ lệ `toScreenW(16f)`. Bốn góc bản đồ giờ đây có độ cong lớn, tròn mượt và khít khao tuyệt đối với viền Bezel vỏ máy.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — scrR = 16, bevelW = 6, bakeKeySocket r = 10)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — maskWellCorners r = toScreenW(16f))
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — diagonal press shift dx=1 dy=1, dark hover tint, seamless socket coverage)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Concentric Pixel-Perfect Screen Corner Masking & Bezel Fix (Gemini)
 
 Đã làm:
