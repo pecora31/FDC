@@ -299,16 +299,39 @@ public class UiButton {
                 p.fill(x + 2, y + h - 1, x + w - 2, y + h, 0x50000000);
             }
 
-            // 3. Active Glowing Laser LED (Only rendered when button is ON!)
+            // 3. Active Glowing Tactical Laser LED (Nổi bật, rực rỡ, nhận biết ngay lập tức khi liếc qua)
             if (hardOn && led != null && led.length >= 4) {
                 int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
-                int ledCol = danger ? 0xFFFF2828 : 0xFF00E85D;
-                // Active Laser Glow Halo (1px outer rim)
-                p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, (ledCol & 0x00FFFFFF) | 0x50000000);
-                // Saturated LED Body
-                p.fill(lx, ly, lx + lw, ly + lh, ledCol);
-                // Pure white-hot optical center filament
-                p.fill(lx + (lw > 2 ? 1 : 0), ly + (lh > 2 ? 1 : 0), lx + lw - (lw > 2 ? 1 : 0), ly + lh - (lh > 2 ? 1 : 0), 0xFFFFFFFF);
+                int baseCol = danger ? 0xFFFF2A2A : 0xFF00FF66;
+                int haloCol1 = danger ? 0x60FF2A2A : 0x6000FF66;
+                int haloCol2 = danger ? 0x25FF2A2A : 0x2500FF66;
+                int coreCol = danger ? 0xFFFFF0F0 : 0xFFEFFFF5;
+
+                // Layer 1: Wide Ambient Optical Bloom Halo (Tán xạ ánh sáng 2px ra khe khung máy)
+                p.fill(lx - 2, ly - 2, lx + lw + 2, ly + lh + 2, haloCol2);
+
+                // Layer 2: Concentrated Laser Corona (Hào quang laser 1px)
+                p.fill(lx - 1, ly - 1, lx + lw + 1, ly + lh + 1, haloCol1);
+
+                // Layer 3: High-Luminance Saturated Phosphor Body (Thân thấu kính phát quang rực rỡ)
+                p.fill(lx, ly, lx + lw, ly + lh, baseCol);
+
+                // Layer 4: Intense White-Hot Optical Core Filament (Tim sợi quang phát sáng trắng chói)
+                if (lh > lw) {
+                    int coreW = Math.max(1, lw - 2);
+                    int coreX = lx + (lw - coreW) / 2;
+                    p.fill(coreX, ly + 1, coreX + coreW, ly + lh - 1, coreCol);
+                    if (lh >= 6) {
+                        p.fill(coreX, ly + 2, coreX + coreW, ly + lh - 2, 0xFFFFFFFF);
+                    }
+                } else {
+                    int coreH = Math.max(1, lh - 2);
+                    int coreY = ly + (lh - coreH) / 2;
+                    p.fill(lx + 1, coreY, lx + lw - 1, coreY + coreH, coreCol);
+                    if (lw >= 6) {
+                        p.fill(lx + 2, coreY, lx + lw - 2, coreY + coreH, 0xFFFFFFFF);
+                    }
+                }
             }
 
         } else if (mfd) {

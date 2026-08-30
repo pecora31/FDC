@@ -26,6 +26,24 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — High-Visibility Tactical Laser Bloom Glow on Lit LEDs (Gemini)
+
+Đã làm:
+- **Nâng cấp hiệu ứng phát quang của đèn LED khi bật (`UiButton.java`)**:
+  + **Tán xạ quang học 4 lớp (Multi-layer Optical Bloom & Laser Corona)**:
+    * Lớp 1 (Ambient Bloom): Quầng sáng phát quang $2\text{px}$ lan tỏa ra khe rãnh khung máy (`0x2500FF66` / `0x25FF2A2A`).
+    * Lớp 2 (Laser Corona): Vòng hào quang hội tụ $1\text{px}$ (`0x6000FF66` / `0x60FF2A2A`).
+    * Lớp 3 (Phosphor Body): Thân đèn màu xanh ngọc / đỏ laser có độ bão hòa cao (`0xFF00FF66` / `0xFFFF2A2A`).
+    * Lớp 4 (White-Hot Core Filament): Tim đèn phát sáng trắng chói (`0xFFFFFFFF`), tạo độ tương phản cực cao giúp người chơi liếc mắt qua là nhận biết ngay lập tức chức năng nào đang bật.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — nâng cấp hiệu ứng phát quang LED laser 4 lớp)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Military Frosted Milky Optical Light-Pipe LEDs (Gemini)
 
 Đã làm:
