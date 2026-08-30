@@ -1112,16 +1112,14 @@ public class TabletScreen extends Screen {
     private void renderDevice(GuiGraphics g, double px, double py) {
         int[] area = mapArea();
 
-        // The case goes down before anything on it. Drawn afterwards it would need to know where
-        // the screen ends so as not to cover it, which is the screen's business, not the case's.
-        if (chassisTextureLocation != null) {
-            TabletChassisPaint.blit(g, frame, chassisTextureLocation);
-        } else {
-            frame.draw(new GuiPaint(g));
-        }
-
         if (!screenOn) {
-            // Off: The baked chassis texture already displays the exact rounded OLED black screen floor and ASTRA logo.
+            // Off: Pure OLED pitch black background framed naturally by the chassis texture
+            g.fill(left, top, left + width0, top + height0, 0xFF000000);
+            if (chassisTextureLocation != null) {
+                TabletChassisPaint.blit(g, frame, chassisTextureLocation);
+            } else {
+                frame.draw(new GuiPaint(g));
+            }
             renderControls(g, px, py);
             return;
         }
@@ -1171,7 +1169,6 @@ public class TabletScreen extends Screen {
             g.pose().popPose();
         }
 
-
         if (booting) {
             // Last thing on the glass, so it covers every part of the map layer rather than a
             // rectangle in the middle of it. The map still renders underneath — that render is what
@@ -1191,42 +1188,17 @@ public class TabletScreen extends Screen {
         }
 
         TabletDisplay.clear(g);
-        maskWellCorners(g, left, top, width0, height0);
+
+        // Blit chassis ON TOP of the screen content:
+        // The baked chassis texture contains the 3D rounded bezel slope with a transparent screen hole,
+        // so it naturally, perfectly, and identically frames the display in both ON and OFF states.
+        if (chassisTextureLocation != null) {
+            TabletChassisPaint.blit(g, frame, chassisTextureLocation);
+        } else {
+            frame.draw(new GuiPaint(g));
+        }
+
         renderControls(g, px, py);
-    }
-
-    /**
-     * Restores the well's rounded corners after square content has been drawn into it.
-     *
-     * <p>The chassis bakes a rounded bezel around the well (see {@link TabletChassisPaint}), but
-     * the map, every app and the boot splash all fill or draw a plain rectangle over it — the
-     * simplest thing any of those draw paths can target. Painting the bezel's own dark tone back
-     * over the four corner wedges a rounded rect would have excluded is far cheaper than teaching
-     * every one of them to clip to a curve, and reads identically: the well looks rounded because
-     * the last thing drawn into it says so.
-     */
-    private void maskWellCorners(GuiGraphics g, int x, int y, int w, int h) {
-        int r = Math.max(4, frame.toScreenW(16f));
-        if (r <= 0) {
-            return;
-        }
-        // Deep dark inner bezel lip tones to match off-state screen corner seamlessly
-        maskCorner(g, x, y, r, false, false, 0xFF050608);
-        maskCorner(g, x + w - r, y, r, true, false, 0xFF07080A);
-        maskCorner(g, x, y + h - r, r, false, true, 0xFF08090C);
-        maskCorner(g, x + w - r, y + h - r, r, true, true, 0xFF0A0B0E);
-    }
-
-    private void maskCorner(GuiGraphics g, int x, int y, int r, boolean right, boolean bottom, int colour) {
-        for (int cy = 0; cy < r; cy++) {
-            for (int cx = 0; cx < r; cx++) {
-                int dx = right ? (cx + 1) : (r - cx);
-                int dy = bottom ? (cy + 1) : (r - cy);
-                if (dx * dx + dy * dy > r * r) {
-                    g.fill(x + cx, y + cy, x + cx + 1, y + cy + 1, colour);
-                }
-            }
-        }
     }
 
     /**

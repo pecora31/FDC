@@ -317,11 +317,11 @@ public final class TabletChassisPaint {
             }
         }
 
-        // 2. Pure True OLED FHD Display Floor (true pure OLED pitch black, no logo when off)
+        // 2. Pure True OLED FHD Display Window Cutout (transparent so chassis frames screen on top)
         for (int y = mapY; y < mapY + mapH; y++) {
             for (int x = mapX; x < mapX + mapW; x++) {
                 if (isInsideRoundedRect(x, y, mapX, mapY, mapX + mapW, mapY + mapH, scrR)) {
-                    setPixel(img, x, y, 0xFF000000);
+                    setPixel(img, x, y, 0x00000000);
                 }
             }
         }

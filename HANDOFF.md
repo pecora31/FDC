@@ -29,6 +29,23 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Native Chassis Overlay Framing Architecture (Gemini)
+
+Đã làm:
+- **Đồng bộ hóa 100% hình học góc màn hình khi bật và khi tắt (`TabletChassisPaint.java`, `TabletScreen.java`)**:
+  + **Tạo lỗ khoét màn hình trong suốt trên Chassis Texture (`TabletChassisPaint.java`)**: Đặt vùng màn hình hiển thị thành `0x00000000` (trong suốt) trong `bakeScreenAndTacticalGrid`. Khi đó texture khung máy chứa sẵn viền bezel 3D bo cong mềm mại $R=16\text{px}$.
+  + **Đảo thứ tự vẽ để Khung máy tự động đóng khung màn hình (`TabletScreen.java`)**: Vẽ nội dung màn hình (bản đồ, app, boot splash) trước, sau đó vẽ hình ảnh khung máy `case.png` lên trên. Viền bezel 3D của khung máy sẽ tự động che phủ và bo tròn chính xác 4 góc của bản đồ.
+  + **Loại bỏ hoàn toàn code mặt nạ thủ công (`maskWellCorners`)**: Xóa bỏ các phép vẽ hình vuông/hình nón màu xám chắp vá trước đây. Góc màn hình khi bật và khi tắt nay sử dụng chung 100% texture khung máy, đảm bảo đẹp và giống hệt nhau đến từng pixel.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — lỗ khoét màn hình trong suốt)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletScreen.java` (sửa — vẽ chassis đè lên trên màn hình và xóa maskWellCorners)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Pure Black Off-Screen & Seamless Screen-On Corner Mask (Gemini)
 
 Đã làm:
