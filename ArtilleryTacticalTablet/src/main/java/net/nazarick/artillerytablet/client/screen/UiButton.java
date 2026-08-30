@@ -280,41 +280,43 @@ public class UiButton {
             // 1. HARD PHYSICAL CHASSIS KEYS (32 Keys on Bezel - Solid Molded PBT Keycaps)
             // =========================================================================
             boolean redKey = danger || power;
-            int dx = pressed ? 1 : 0;
             int dyPress = pressed ? 1 : 0;
-            int kx = x + dx;
+            int kx = x;
             int ky = y + dyPress;
 
             // Colors for Matte Tactical PBT Plastic:
-            int borderCol   = pressed ? (redKey ? 0xFF180303 : 0xFF0E1014) : (redKey ? 0xFF240606 : 0xFF14161B);
-            int rimTopLeft  = pressed ? (redKey ? 0xFF8A1818 : 0xFF3C4450) : (redKey ? 0xFFF05252 : 0xFF7E8898);
-            int rimBody     = pressed ? (redKey ? 0xFF9E2222 : 0xFF4A5260) : (redKey ? 0xFFE03838 : 0xFF667080);
-            int rimBotRight = pressed ? (redKey ? 0xFF4A0808 : 0xFF1C2026) : (redKey ? 0xFF8A1A1A : 0xFF3A404C);
-            int dishFloor   = pressed ? (redKey ? 0xFF761010 : 0xFF2E343E) : (redKey ? 0xFFA81E1E : 0xFF444A56);
-            int dishShadow  = pressed ? (redKey ? 0xFF320404 : 0xFF14181E) : (redKey ? 0xFF5A0C0C : 0xFF262A32);
-            int dishGlint   = pressed ? (redKey ? 0xFF8E1818 : 0xFF3C4450) : (redKey ? 0xFFD42828 : 0xFF586272);
+            int borderCol   = pressed ? (redKey ? 0xFF1C0404 : 0xFF101216) : (redKey ? 0xFF240606 : 0xFF14161B);
+            int rimTopLeft  = pressed ? (redKey ? 0xFFB82828 : 0xFF586272) : (redKey ? 0xFFF05252 : 0xFF7E8898);
+            int rimBody     = pressed ? (redKey ? 0xFFC02A2A : 0xFF545E6E) : (redKey ? 0xFFE03838 : 0xFF667080);
+            int rimBotRight = pressed ? (redKey ? 0xFF6A1010 : 0xFF282E38) : (redKey ? 0xFF8A1A1A : 0xFF3A404C);
+            int dishFloor   = pressed ? (redKey ? 0xFF8E1818 : 0xFF383E4A) : (redKey ? 0xFFA81E1E : 0xFF444A56);
+            int dishShadow  = pressed ? (redKey ? 0xFF440606 : 0xFF1E222A) : (redKey ? 0xFF5A0C0C : 0xFF262A32);
+            int dishGlint   = pressed ? (redKey ? 0xFFB82424 : 0xFF4C5666) : (redKey ? 0xFFD42828 : 0xFF586272);
 
-            // Socket Drop Shadow on diagonal press depression
+            // Subtle top socket shadow on gentle switch travel
             if (pressed) {
-                p.fill(x, y, x + w, y + 1, 0x66000000);
-                p.fill(x, y, x + 1, y + h, 0x66000000);
+                p.fill(x + 1, y, x + w - 1, y + 1, 0x35000000);
             }
 
-            // 1. Seamless Keycap Outer Socket Border (Bao trọn lỗ nút, không hở góc đen)
-            p.fill(kx + 1, ky, kx + w - 1, ky + 1, borderCol);
-            p.fill(kx, ky + 1, kx + w, ky + h - 1, borderCol);
-            p.fill(kx + 1, ky + h - 1, kx + w - 1, ky + h, borderCol);
+            // 1. Smooth 3px Rounded Keycap Outer Socket Border (Khớp hoàn toàn với rãnh socket)
+            p.fill(kx + 2, ky, kx + w - 2, ky + 1, borderCol);
+            p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, borderCol);
+            p.fill(kx, ky + 2, kx + w, ky + h - 2, borderCol);
+            p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, borderCol);
+            p.fill(kx + 2, ky + h - 1, kx + w - 2, ky + h, borderCol);
 
             // 2. Slim 1px Raised Rim Bevel (Molded PBT Rim)
-            p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, rimBody);
+            p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimBody);
             p.fill(kx + 1, ky + 2, kx + w - 1, ky + h - 2, rimBody);
-            p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, rimBody);
+            p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBody);
 
             // 1px Rim Highlights & Shadows
-            p.fill(kx + 1, ky + 1, kx + w - 1, ky + 2, rimTopLeft); // Top highlight
-            p.fill(kx + 1, ky + 1, kx + 2, ky + h - 1, rimTopLeft); // Left light
-            p.fill(kx + w - 2, ky + 1, kx + w - 1, ky + h - 1, rimBotRight); // Right shadow
-            p.fill(kx + 1, ky + h - 2, kx + w - 1, ky + h - 1, rimBotRight); // Bottom shadow
+            p.fill(kx + 2, ky + 1, kx + w - 2, ky + 2, rimTopLeft); // Top highlight
+            p.fill(kx + 1, ky + 2, kx + 2, ky + h - 2, rimTopLeft); // Left light
+            p.fill(kx + w - 2, ky + 2, kx + w - 1, ky + h - 2, rimBotRight); // Right shadow
+            p.fill(kx + 2, ky + h - 2, kx + w - 2, ky + h - 1, rimBotRight); // Bottom shadow
+            p.fill(kx + 1, ky + 1, kx + 2, ky + 2, rimTopLeft); // Top-left shoulder
+            p.fill(kx + w - 2, ky + h - 2, kx + w - 1, ky + h - 1, rimBotRight); // Bot-right shoulder
 
             // 3. Recessed Dish Floor (Gờ viền mỏng 2px, lòng phím rộng rãi bo tròn mềm mại)
             int dx0 = kx + 2;
@@ -322,16 +324,18 @@ public class UiButton {
             int dw = w - 4;
             int dh = h - 4;
 
-            p.fill(dx0, dy0, dx0 + dw, dy0 + dh, dishFloor);
+            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishFloor);
+            p.fill(dx0, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishFloor);
+            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishFloor);
 
-            p.fill(dx0, dy0, dx0 + dw, dy0 + 1, dishShadow); // Top dish shadow
-            p.fill(dx0, dy0, dx0 + 1, dy0 + dh, dishShadow); // Left dish shadow
-            p.fill(dx0, dy0 + dh - 1, dx0 + dw, dy0 + dh, dishGlint); // Bottom dish highlight
-            p.fill(dx0 + dw - 1, dy0, dx0 + dw, dy0 + dh, dishGlint); // Right dish highlight
+            p.fill(dx0 + 1, dy0, dx0 + dw - 1, dy0 + 1, dishShadow); // Top dish shadow
+            p.fill(dx0, dy0 + 1, dx0 + 1, dy0 + dh - 1, dishShadow); // Left dish shadow
+            p.fill(dx0 + 1, dy0 + dh - 1, dx0 + dw - 1, dy0 + dh, dishGlint); // Bottom dish highlight
+            p.fill(dx0 + dw - 1, dy0 + 1, dx0 + dw, dy0 + dh - 1, dishGlint); // Right dish highlight
 
             // 4. Subtle Dark Hover Overlay (Mờ đen nhẹ khi hover)
             if (hovered && !pressed) {
-                p.fill(kx + 1, ky + 1, kx + w - 1, ky + h - 1, 0x2A000000);
+                p.fill(kx + 1, ky + 1, kx + w - 1, ky + h - 1, 0x22000000);
             }
 
             // 5. Slender Compact Optical LED with Subtle Recessed Depth
@@ -381,7 +385,7 @@ public class UiButton {
             // 6. Text / Mark on Hard Keycap (Optically Centered & Shifted on Press)
             int textCol = active ? (redKey ? 0xFFFFFFFF : 0xFFF0F4FA) : 0xFF6C7684;
             if (mark != null) {
-                drawMark(p, cx + dx, cy + dyPress, w, textCol);
+                drawMark(p, cx, cy + dyPress, w, textCol);
             } else if (label != null && !label.getString().isEmpty()) {
                 p.label(label.getString(), kx, ky, w, h, textCol);
             }

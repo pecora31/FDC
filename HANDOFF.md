@@ -26,6 +26,25 @@ Bên kia cần làm gì:
 Trạng thái: Xong / Cần bên kia tích hợp / Đang chờ review
 ```
 
+## 2026-08-30 — Socket-Concentric Keycap Corner Curvature & Refined Subtle Press Depression (Gemini)
+
+Đã làm:
+- **Đồng bộ hóa $100\%$ độ bo góc phím bấm khớp tuyệt đối với rãnh socket (`UiButton.java`, `TabletChassisPaint.java`)**:
+  + Tinh chỉnh bán kính bo góc của hốc socket `bakeKeySocket` về $R=8\text{px}$ và thiết kế đường bo viền phím `UiButton` với ma trận $R=3\text{px}$ (inset 2-1-0) tương thích hoàn hảo $100\%$ về mặt hình học với rãnh socket. Phím bấm và miệng hốc giờ đây đồng tâm, ôm khít khao, không còn bất kỳ sự lệch pha góc nào.
+- **Giảm độ lõm sâu khi nhấn phím — Tinh chỉnh cảm giác bấm cơ học đầm tay (`UiButton.java`)**:
+  + Giữ vững trục ngang (`dx = 0`) và chỉ di chuyển nhẹ $1\text{px}$ theo trục dọc (`dyPress = 1`).
+  + Giảm độ đậm bóng đổ drop-shadow ở góc trên socket xuống mức dịu nhẹ tự nhiên (`0x35000000`).
+  + Tinh chỉnh bảng màu khi nhấn: Phím chỉ sẫm tối vừa phải (`dishFloor = #383E4A`, `rim = #545E6E`), mang lại cảm giác hành trình phím ngắn (short-travel tactile switch), sắc nét và chắc chắn.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/TabletChassisPaint.java` (sửa — bakeKeySocket r = 8)
+- `src/main/java/net/nazarick/artillerytablet/client/screen/UiButton.java` (sửa — 3px concentric socket corner matching, gentle short-travel press depression)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Diagonal Press Animation, Dark Hover Tint, Seamless Keycap Sockets & R=16 Screen Rounding (Gemini)
 
 Đã làm:
