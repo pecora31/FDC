@@ -565,7 +565,8 @@ public class TabletScreen extends Screen {
         bottom(0, kw, kh, Component.literal("FLT"),
                 TabletDisplay::cycleFilter, TabletDisplay.filtered(),
                 Component.translatable("gui.artillerytablet.frame.filter.tip",
-                        Component.translatable(TabletDisplay.filterName())));
+                        Component.translatable(TabletDisplay.filterName())))
+                .mark(UiButton.Mark.FILTER);
         for (int i = 1; i <= 8; i++) {
             spare(TabletFrame.EDGE_BOTTOM, i, kw, kh, 12 + i);
         }

@@ -76,7 +76,7 @@ public class UiButton {
         return this;
     }
 
-    public enum Mark { PLUS, MINUS, CENTRE, GRID, BRIGHT, POWER }
+    public enum Mark { PLUS, MINUS, CENTRE, GRID, BRIGHT, POWER, FILTER }
 
     public UiButton mark(Mark kind) {
         this.mark = kind;
@@ -118,6 +118,14 @@ public class UiButton {
         if (action != null) {
             action.run();
         }
+        return true;
+    }
+
+    public boolean release(double px, double py) {
+        if (!contains(px, py)) {
+            return false;
+        }
+        release();
         return true;
     }
 
@@ -202,6 +210,24 @@ public class UiButton {
                 // 1px slim vertical power stem
                 p.fill(cx, cy - 4, cx + 1, cy, color);
             }
+            case FILTER -> {
+                // Day/Night filter mark (Half Sun with rays + Crescent Moon)
+                // Crescent moon (right side)
+                for (int dy = -3; dy <= 3; dy++) {
+                    for (int dx = 0; dx <= 3; dx++) {
+                        int d2 = dx * dx + dy * dy;
+                        if (d2 <= 9 && (dx >= 1 || Math.abs(dy) <= 1)) {
+                            if ((dx - 2) * (dx - 2) + dy * dy > 3) {
+                                p.fill(cx + dx, cy + dy, cx + dx + 1, cy + dy + 1, color);
+                            }
+                        }
+                    }
+                }
+                // 3 Sun rays (left side)
+                p.fill(cx - 4, cy, cx - 2, cy + 1, color); // Left horizontal ray
+                p.fill(cx - 3, cy - 3, cx - 2, cy - 2, color); // Top-left diagonal ray
+                p.fill(cx - 3, cy + 3, cx - 2, cy + 4, color); // Bottom-left diagonal ray
+            }
         }
     }
 
@@ -251,13 +277,13 @@ public class UiButton {
 
         if (hard) {
             // =========================================================================
-            // 1. HARD PHYSICAL CHASSIS KEYS (32 Keys on Bezel - Solid PBT Keycaps)
+            // 1. HARD PHYSICAL CHASSIS KEYS (32 Keys on Bezel - Solid Molded PBT Keycaps)
             // =========================================================================
             int ky = y + dy;
             boolean redKey = danger || power;
 
-            // Colors for Matte PBT Plastic:
-            int borderCol   = redKey ? 0xFF240606 : 0xFF16181D;
+            // Colors for Matte Tactical PBT Plastic:
+            int borderCol   = redKey ? 0xFF240606 : 0xFF14161B;
             int rimTopLeft  = redKey ? 0xFFF05252 : 0xFF7E8898;
             int rimBody     = redKey ? 0xFFE03838 : 0xFF667080;
             int rimBotRight = redKey ? 0xFF8A1A1A : 0xFF424854;
@@ -265,28 +291,33 @@ public class UiButton {
             int dishShadow  = redKey ? 0xFF5A0C0C : 0xFF262A32;
             int dishGlint   = redKey ? 0xFFD42828 : 0xFF586272;
 
-            // 1. 1px dark outer socket border
-            p.rect(x, ky, w, h, borderCol);
+            int keyR = Math.max(2, Math.min(3, w / 6)); // Bo tròn 4 góc nút bấm tự nhiên
+            int dishR = Math.max(1, keyR - 1);
 
-            // 2. 1px Raised Rim Bevel (Top/Left light, Bottom/Right shadow, Body)
-            p.rect(x + 1, ky + 1, w - 2, h - 2, rimBody);
-            p.fill(x + 1, ky + 1, x + w - 1, ky + 2, rimTopLeft); // Top rim highlight
-            p.fill(x + 1, ky + 1, x + 2, ky + h - 1, rimTopLeft); // Left rim light
-            p.fill(x + w - 2, ky + 1, x + w - 1, ky + h - 1, rimBotRight); // Right rim shadow
-            p.fill(x + 1, ky + h - 2, x + w - 1, ky + h - 1, rimBotRight); // Bottom rim shadow
+            // 1. 1px dark outer socket border (Rounded)
+            p.rounded(x, ky, w, h, keyR, borderCol);
 
-            // 3. Recessed Dish Floor (Bề mặt chứa nhãn/icon chìm bên trong gờ)
-            int rim = 3;
+            // 2. Slim 1px Raised Rim Bevel (Rounded)
+            p.rounded(x + 1, ky + 1, w - 2, h - 2, dishR, rimBody);
+            p.fill(x + keyR, ky + 1, x + w - keyR, ky + 2, rimTopLeft); // Top rim highlight
+            p.fill(x + 1, ky + keyR, x + 2, ky + h - keyR, rimTopLeft); // Left rim light
+            p.fill(x + keyR, ky + h - 2, x + w - keyR, ky + h - 1, rimBotRight); // Bottom rim shadow
+            p.fill(x + w - 2, ky + keyR, x + w - 1, ky + h - keyR, rimBotRight); // Right rim shadow
+            p.fill(x + 2, ky + 2, x + 3, ky + 3, rimTopLeft);
+            p.fill(x + w - 3, ky + h - 3, x + w - 2, ky + h - 2, rimBotRight);
+
+            // 3. Recessed Dish Floor (Gờ viền mỏng 2px, lòng phím rộng rãi bo góc)
+            int rim = 2;
             int dw = w - rim * 2;
             int dh = h - rim * 2;
             int dx0 = x + rim;
             int dy0 = ky + rim;
 
-            p.rect(dx0, dy0, dw, dh, dishFloor);
-            p.fill(dx0, dy0, dx0 + dw, dy0 + 1, dishShadow); // Top dish shadow
-            p.fill(dx0, dy0, dx0 + 1, dy0 + dh, dishShadow); // Left dish shadow
-            p.fill(dx0, dy0 + dh - 1, dx0 + dw, dy0 + dh, dishGlint); // Bottom dish highlight
-            p.fill(dx0 + dw - 1, dy0, dx0 + dw, dy0 + dh, dishGlint); // Right dish highlight
+            p.rounded(dx0, dy0, dw, dh, dishR, dishFloor);
+            p.fill(dx0 + dishR, dy0, dx0 + dw - dishR, dy0 + 1, dishShadow); // Top dish shadow
+            p.fill(dx0, dy0 + dishR, dx0 + 1, dy0 + dh - dishR, dishShadow); // Left dish shadow
+            p.fill(dx0 + dishR, dy0 + dh - 1, dx0 + dw - dishR, dy0 + dh, dishGlint); // Bottom dish highlight
+            p.fill(dx0 + dw - 1, dy0 + dishR, dx0 + dw, dy0 + dh - dishR, dishGlint); // Right dish highlight
 
             // 4. Subtle top shadow on press or ambient outline on hover
             if (pressed) {
@@ -295,13 +326,13 @@ public class UiButton {
                 p.outline(x + 1, y + 1, w - 2, h - 2, redKey ? 0x50FF5A52 : 0x30FFFFFF);
             }
 
-            // 5. LED Capsule (100% Crisp Integer Coordinates)
+            // 5. Slender Optical LED Capsule with Brighter Translucent Lens
             if (led != null && led.length >= 4) {
                 int lx = led[0], ly = led[1], lw = led[2], lh = led[3];
-                int ledCol = danger ? 0xFFFF2A2A : 0xFF00E85D;
+                int ledCol = danger ? 0xFFFF2828 : 0xFF00FF66;
 
                 // 1px uniform dark socket border on all 4 sides
-                p.rect(lx - 1, ly - 1, lw + 2, lh + 2, 0xFF08090C);
+                p.rect(lx - 1, ly - 1, lw + 2, lh + 2, 0xFF0E1014);
 
                 if (hardOn) {
                     // Active Laser Glow
@@ -314,12 +345,12 @@ public class UiButton {
                         p.fill(lx + 1, ly + lh / 2, lx + lw - 1, ly + lh / 2 + 1, 0xFFFFFFFF);
                     }
                 } else {
-                    // Unlit Smoked Translucent Lens
-                    p.rect(lx, ly, lw, lh, 0xFF2D333F);
-                    p.fill(lx, ly, lx + lw, ly + 1, 0xFF4C566A); // Top glint
-                    p.fill(lx, ly, lx + 1, ly + lh, 0xFF404858); // Left glint
-                    p.fill(lx, ly + lh - 1, lx + lw, ly + lh, 0xFF1E222A); // Bottom shadow
-                    p.fill(lx + lw - 1, ly, lx + lw, ly + lh, 0xFF1E222A); // Right shadow
+                    // Unlit Frosted Optical Polycarbonate Lens (sáng hơn, trong suốt quang học)
+                    p.rect(lx, ly, lw, lh, 0xFF4E5868);
+                    p.fill(lx, ly, lx + lw, ly + 1, 0xFF8090A6); // Top optical glint
+                    p.fill(lx, ly, lx + 1, ly + lh, 0xFF708096); // Left optical glint
+                    p.fill(lx, ly + lh - 1, lx + lw, ly + lh, 0xFF323844); // Bottom shadow
+                    p.fill(lx + lw - 1, ly, lx + lw, ly + lh, 0xFF323844); // Right shadow
                 }
             }
 

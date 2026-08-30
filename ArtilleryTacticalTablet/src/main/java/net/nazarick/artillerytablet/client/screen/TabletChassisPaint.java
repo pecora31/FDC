@@ -1304,9 +1304,12 @@ public final class TabletChassisPaint {
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 41;
+            if (i == 0 || i == 9) {
+                bakeSunkenButtonWell(img, cx, cy);
+            }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             if (i != 0 && i != 9) {
-                bakeLedSocket(img, cx - 2, 76, 4, 8);
+                bakeLedSocket(img, cx - 1, 77, 3, 7);
             }
         }
 
@@ -1315,7 +1318,7 @@ public final class TabletChassisPaint {
             int cx = 39;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
-            bakeLedSocket(img, 76, cy - 2, 8, 4);
+            bakeLedSocket(img, 77, cy - 1, 7, 3);
         }
 
         // 3. Right Flank (6 Keys centered at COL_RIGHT_X = 941 + 6 LEDs at LED_COL_RIGHT_X = 896, Horizontal 8x4)
@@ -1323,16 +1326,67 @@ public final class TabletChassisPaint {
             int cx = 941;
             int cy = 155 + i * 64;
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
-            bakeLedSocket(img, 896, cy - 2, 8, 4);
+            bakeLedSocket(img, 897, cy - 1, 7, 3);
         }
 
         // 4. Bottom Row (10 Keys centered at ROW_BOTTOM_Y = 589 + 8 LEDs at LED_ROW_BOTTOM_Y = 546)
         for (int i = 0; i < 10; i++) {
             int cx = 148 + i * 76;
             int cy = 589;
+            if (i == 0 || i == 9) {
+                bakeSunkenButtonWell(img, cx, cy);
+            }
             bakeKeySocket(img, cx - half, cy - half, keySize, keySize);
             if (i != 0 && i != 9) {
-                bakeLedSocket(img, cx - 2, 546, 4, 8);
+                bakeLedSocket(img, cx - 1, 547, 3, 7);
+            }
+        }
+    }
+
+    private static void bakeSunkenButtonWell(NativeImage img, int cx, int cy) {
+        int keyW = 44, keyH = 44;
+        int wellPad = 7; // 7px chamfered moat around corner button
+        int outW = keyW + wellPad * 2; // 58px
+        int outH = keyH + wellPad * 2; // 58px
+        int outR = 12;
+        int inR = 8;
+        int ox1 = cx - outW / 2, oy1 = cy - outH / 2;
+        int ox2 = ox1 + outW, oy2 = oy1 + outH;
+        int ix1 = cx - keyW / 2 - 1, iy1 = cy - keyH / 2 - 1;
+        int ix2 = ix1 + keyW + 2, iy2 = iy1 + keyH + 2;
+
+        for (int y = oy1; y < oy2; y++) {
+            for (int x = ox1; x < ox2; x++) {
+                if (isInsideRoundedRect(x, y, ox1, oy1, ox2, oy2, outR)) {
+                    if (isInsideRoundedRect(x, y, ix1, iy1, ix2, iy2, inR)) {
+                        // Deep socket bottom
+                        setPixel(img, x, y, 0xFF08090C);
+                    } else {
+                        // Sloping sunken chamfered bevel
+                        boolean inTopLeft = ((x - ox1) + (y - oy1) < outW / 2 + outH / 2);
+                        int dOut = Math.min(Math.min(x - ox1, ox2 - 1 - x), Math.min(y - oy1, oy2 - 1 - y));
+
+                        int col;
+                        if (inTopLeft) {
+                            col = switch (Math.min(dOut, 5)) {
+                                case 0 -> 0xFF2A2D33;
+                                case 1 -> 0xFF22252A;
+                                case 2 -> 0xFF1A1C20;
+                                case 3 -> 0xFF141518;
+                                default -> 0xFF0E0F12;
+                            };
+                        } else {
+                            col = switch (Math.min(dOut, 5)) {
+                                case 0 -> 0xFF141518;
+                                case 1 -> 0xFF0E0F12;
+                                case 2 -> 0xFF0A0B0D;
+                                case 3 -> 0xFF07080A;
+                                default -> 0xFF040506;
+                            };
+                        }
+                        setPixel(img, x, y, applyStipple(col, x, y));
+                    }
+                }
             }
         }
     }
