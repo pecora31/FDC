@@ -29,6 +29,22 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Smooth Left-to-Right Light Sweep Shimmer on SYSTEMS Text (Gemini)
+
+Đã làm:
+- **Tạo hiệu ứng quét sáng mượt mà trên dòng chữ `— S Y S T E M S —` (`BootSplash.java`)**:
+  + Thay thế thanh loading truyền thống bằng **hiệu ứng sóng ánh sáng quét từ trái sang phải (Continuous Metallic Shimmer Wave)**.
+  + Sóng ánh sáng quét qua cánh đỏ bên trái, lần lượt từng chữ cái của `S Y S T E M S` (chuyển đổi mượt mà từ xám bạc đậm sang trắng bạc phát sáng `0xFFFFFFFF`) rồi quét qua cánh đỏ bên phải.
+  + Toàn bộ nền giữ màu **đen tuyền OLED nguyên bản (`0xFF000000`)** và logo ASTRA crimson sắc nét.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/BootSplash.java` (sửa — hiệu ứng quét sáng shimmer trên chữ SYSTEMS)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Pure OLED Black Minimalist ASTRA SYSTEMS Boot Splash (Gemini)
 
 Đã làm:
