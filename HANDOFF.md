@@ -29,6 +29,23 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — Enlarged ASTRA Logo & Tracked SYSTEMS Text on Boot Splash (Gemini)
+
+Đã làm:
+- **Nâng kích cỡ logo ASTRA và giãn cách chữ `SYSTEMS` (`BootSplash.java`)**:
+  + **Nâng kích thước tổng thể logo ASTRA**: Tăng kích thước mỗi chữ lên $30\times 26\text{px}$, độ dày nét $4\text{px}$, khoảng cách giữa các chữ cái $14\text{px}$ (tổng chiều rộng $216\text{px}$), tạo điểm nhấn trung tâm nổi bật, mạnh mẽ và sắc nét.
+  + **Giãn cách chữ `S Y S T E M S`**: Tăng khoảng cách `charGap = 10px`, tạo cảm giác thoáng đãng, cân đối và cao cấp.
+  + **Hai gạch đỏ tĩnh**: Giữ nguyên hai vạch cánh đỏ cố định bằng màu đỏ crimson `0xFFB8141D`, không có hiệu ứng phát sáng.
+  + **Hiệu ứng quét sóng**: Chỉ áp dụng luồng sóng sáng kim loại chạy mượt mà qua các chữ cái `S Y S T E M S`.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/BootSplash.java` (sửa — nâng kích thước logo & giãn cách chữ)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Smooth Left-to-Right Light Sweep Shimmer on SYSTEMS Text (Gemini)
 
 Đã làm:

@@ -32,18 +32,18 @@ final class BootSplash {
         // 1. Pure Pitch Black OLED Backdrop
         g.fill(x, y, x + width, y + height, BACKDROP);
 
-        // 2. Centerpiece: Vector ASTRA Logo + SYSTEMS
+        // 2. Centerpiece: Enlarged Vector ASTRA Logo
         int cx = x + width / 2;
         int cy = y + height / 2;
 
-        drawAstraVectorLogo(g, cx, cy - 8, CRIMSON);
+        drawAstraVectorLogo(g, cx, cy - 12, CRIMSON);
 
-        // Subtitle: '—  S Y S T E M S  —' with smooth left-to-right light sweep shimmer
-        int subY = cy + 12;
-        int wingLen = 30;
-        int wingGap = 10;
+        // 3. Subtitle: '—  S   Y   S   T   E   M   S  —' with smooth letter shimmer
+        int subY = cy + 18;
+        int wingLen = 38;
+        int wingGap = 14;
         String[] letters = {"S", "Y", "S", "T", "E", "M", "S"};
-        int charGap = 4;
+        int charGap = 10; // Giãn cách thoáng đãng giữa các chữ cái
         int totalLettersW = 0;
         for (int i = 0; i < letters.length; i++) {
             totalLettersW += Ui.width(letters[i]);
@@ -56,27 +56,23 @@ final class BootSplash {
         int rightWingX1 = startLettersX + totalLettersW + wingGap;
         int rightWingX2 = rightWingX1 + wingLen;
 
-        // Animated light wave sweeping from left wing to right wing
+        // Static Crimson Wing Lines (Hai vạch đỏ bên cạnh giữ màu đỏ tĩnh, không hiệu ứng)
+        g.fill(leftWingX1, subY + 3, leftWingX2, subY + 5, CRIMSON);
+        g.fill(rightWingX1, subY + 3, rightWingX2, subY + 5, CRIMSON);
+
+        // Animated light wave sweeping across the letters ONLY
         long time = System.currentTimeMillis();
         float cycle = (time % 1100L) / 1100.0f; // 1.1s cycle
-        float totalSweepSpan = (rightWingX2 + 20) - (leftWingX1 - 20);
-        float sweepX = (leftWingX1 - 20) + cycle * totalSweepSpan;
+        float sweepX = (startLettersX - 12) + cycle * (totalLettersW + 24);
 
-        // 1. Left Wing line with dynamic light surge
-        float leftWingMid = (leftWingX1 + leftWingX2) / 2.0f;
-        float leftDist = Math.abs(leftWingMid - sweepX);
-        float leftGlow = Math.max(0f, 1f - leftDist / 25f);
-        int leftWingCol = Ui.blend(CRIMSON, 0xFFFF4D4D, leftGlow * leftGlow);
-        g.fill(leftWingX1, subY + 3, leftWingX2, subY + 5, leftWingCol);
-
-        // 2. Letters rendered individually with smooth continuous metallic shimmer
+        // Letters rendered with smooth continuous metallic shimmer
         int curX = startLettersX;
         for (String let : letters) {
             int letW = Ui.width(let);
             float letMidX = curX + letW / 2.0f;
             float dist = Math.abs(letMidX - sweepX);
             float glow = Math.max(0f, 1f - dist / 22f);
-            glow = glow * glow; // Quadratic ease for crisp light crest
+            glow = glow * glow; // Quadratic ease
 
             // Interpolate from deep metallic slate (0xFF525E70) to radiant white-silver (0xFFFFFFFF)
             int letterCol = Ui.blend(0xFF525E70, 0xFFFFFFFF, glow);
@@ -84,26 +80,19 @@ final class BootSplash {
 
             curX += letW + charGap;
         }
-
-        // 3. Right Wing line with dynamic light surge
-        float rightWingMid = (rightWingX1 + rightWingX2) / 2.0f;
-        float rightDist = Math.abs(rightWingMid - sweepX);
-        float rightGlow = Math.max(0f, 1f - rightDist / 25f);
-        int rightWingCol = Ui.blend(CRIMSON, 0xFFFF4D4D, rightGlow * rightGlow);
-        g.fill(rightWingX1, subY + 3, rightWingX2, subY + 5, rightWingCol);
     }
 
     /**
-     * Draws the geometric vector ASTRA logo with precision angles and styled letterforms.
+     * Draws the enlarged geometric vector ASTRA logo with precision angles and styled letterforms.
      */
     private static void drawAstraVectorLogo(GuiGraphics g, int cx, int cy, int redCol) {
-        int letW = 20;
-        int letH = 18;
-        int gap = 8;
+        int letW = 30;
+        int letH = 26;
+        int gap = 14;
         int totalW = 5 * letW + 4 * gap;
         int startX = cx - totalW / 2;
         int topY = cy - letH / 2;
-        int thick = 3;
+        int thick = 4;
 
         for (int i = 0; i < 5; i++) {
             int lx = startX + i * (letW + gap);
@@ -114,43 +103,43 @@ final class BootSplash {
                         int mid = lx + letW / 2;
                         int leftX = Math.round(mid - t * (letW / 2f));
                         int rightX = Math.round(mid + t * (letW / 2f));
-                        g.fill(leftX - 1, topY + dy, leftX + 2, topY + dy + 1, redCol);
-                        g.fill(rightX - 1, topY + dy, rightX + 2, topY + dy + 1, redCol);
+                        g.fill(leftX - 2, topY + dy, leftX + 2, topY + dy + 1, redCol);
+                        g.fill(rightX - 1, topY + dy, rightX + 3, topY + dy + 1, redCol);
                     }
                 }
                 case 1 -> { // 'S' (Angular Tactical S)
                     // Top bar
-                    g.fill(lx + 2, topY, lx + letW, topY + thick, redCol);
+                    g.fill(lx + 3, topY, lx + letW, topY + thick, redCol);
                     // Upper left stem
-                    g.fill(lx, topY + 1, lx + thick, topY + letH / 2, redCol);
+                    g.fill(lx, topY + 2, lx + thick, topY + letH / 2, redCol);
                     // Middle bar
-                    g.fill(lx + 1, topY + letH / 2 - 1, lx + letW - 1, topY + letH / 2 + 2, redCol);
+                    g.fill(lx + 2, topY + letH / 2 - 2, lx + letW - 2, topY + letH / 2 + 2, redCol);
                     // Lower right stem
-                    g.fill(lx + letW - thick, topY + letH / 2, lx + letW, topY + letH - 1, redCol);
+                    g.fill(lx + letW - thick, topY + letH / 2, lx + letW, topY + letH - 2, redCol);
                     // Bottom bar
-                    g.fill(lx, topY + letH - thick, lx + letW - 2, topY + letH, redCol);
+                    g.fill(lx, topY + letH - thick, lx + letW - 3, topY + letH, redCol);
                 }
                 case 2 -> { // 'T' (Tactical T-Bar)
                     // Top bar
                     g.fill(lx, topY, lx + letW, topY + thick, redCol);
                     // Center stem
                     int mid = lx + letW / 2;
-                    g.fill(mid - 1, topY + thick, mid + 2, topY + letH, redCol);
+                    g.fill(mid - 2, topY + thick, mid + 2, topY + letH, redCol);
                 }
                 case 3 -> { // 'R' (Tactical R with Angled Kick)
                     // Left stem
                     g.fill(lx, topY, lx + thick, topY + letH, redCol);
                     // Upper loop top
-                    g.fill(lx + thick, topY, lx + letW - 2, topY + thick, redCol);
+                    g.fill(lx + thick, topY, lx + letW - 3, topY + thick, redCol);
                     // Upper loop right curve
-                    g.fill(lx + letW - thick, topY + 1, lx + letW, topY + letH / 2, redCol);
+                    g.fill(lx + letW - thick, topY + 2, lx + letW, topY + letH / 2, redCol);
                     // Upper loop bottom
-                    g.fill(lx + thick, topY + letH / 2 - 1, lx + letW - 2, topY + letH / 2 + 2, redCol);
+                    g.fill(lx + thick, topY + letH / 2 - 2, lx + letW - 3, topY + letH / 2 + 2, redCol);
                     // Angled leg
                     for (int dy = 0; dy <= letH / 2; dy++) {
-                        float t = (float) dy / (letH / 2f);
-                        int legX = Math.round(lx + 6 + t * (letW - 8));
-                        g.fill(legX - 1, topY + letH / 2 + dy, legX + 2, topY + letH / 2 + dy + 1, redCol);
+                        float t = (float) dy / (letH / 2.0f);
+                        int legX = Math.round(lx + 8 + t * (letW - 12));
+                        g.fill(legX - 2, topY + letH / 2 + dy, legX + 2, topY + letH / 2 + dy + 1, redCol);
                     }
                 }
             }
