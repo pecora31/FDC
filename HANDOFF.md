@@ -29,6 +29,25 @@ Bên kia cần làm gì:
 
 ```
 
+## 2026-08-30 — ASTRA Systems Tactical C2 Boot Splash Screen (Gemini)
+
+Đã làm:
+- **Viết lại toàn diện màn hình chờ Boot Splash (`BootSplash.java`)**:
+  + **Logo Vector ASTRA Systems**: Logo vector hình học độ sắc nét cao bằng màu đỏ laser crimson (`0xFFD32F2F`) với 2 chữ A dạng chevron $\Lambda$ không thanh ngang, cùng dải cánh đỏ và phụ đề `— S Y S T E M S —` bạc ngọc trai (`0xFF94A3B8`).
+  + **Giao diện chẩn đoán quân sự (Tactical Telemetry & HUD)**:
+    * 4 góc màn hình có khung L-bracket HUD và các nhãn telemetry quân sự: `[SYS: ASTRA-OS 4.8]`, `[SEC: ENCRYPTED]`, `[MIL-STD-2525D]`, `[STANDBY...]`.
+    * Dòng trạng thái `INITIALIZING TACTICAL C2 INTERFACE...`.
+    * Thanh quét laser quang học quét ngang động (dynamic animated scanning laser bar) với hiệu ứng lõi chói sáng và quầng sáng cyan `0xFF38BDF8`.
+  + **Tương thích hoàn toàn**: Giữ nguyên chữ ký `BootSplash.draw(GuiGraphics, int, int, int, int)`.
+
+File đụng tới:
+- `src/main/java/net/nazarick/artillerytablet/client/screen/BootSplash.java` (sửa — viết lại hoàn toàn màn hình boot splash ASTRA)
+
+Bên kia cần làm gì:
+- Không cần sửa đổi gì — build sạch 100%.
+
+Trạng thái: Xong.
+
 ## 2026-08-30 — Compact Tactical Military Key Font & GRD Label (Gemini)
 
 Đã làm:
